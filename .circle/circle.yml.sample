@@ -1,18 +1,18 @@
 checkout:
   post:
-    - git clone -b master git@github.com:stackstorm-exchange/index.git ~/index
+    - git clone -b master git@github.com:stackstorm-exchange/ci.git ~/ci
 
 dependencies:
   override:
-    - ~/index/.circle/dependencies
+    - ~/ci/.circle/dependencies
 
 test:
   override:
-    - ~/index/.circle/test
+    - ~/ci/.circle/test
 
 deployment:
   index:
     branch: master
     owner: StackStorm-Exchange
     commands:
-      - ~/index/.circle/deployment
+      - ~/ci/.circle/deployment
