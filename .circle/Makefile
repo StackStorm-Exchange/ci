@@ -1,4 +1,5 @@
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+DESTINATION_DIR := /tmp/st2contrib/packs/$(PACK_NAME)
 CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files)
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 CHANGED_PACKS := $(shell $(CI_DIR)/utils/git-changes packs)
@@ -77,7 +78,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== packs-resource-register ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; else (st2-check-register-pack-resources $(ROOT_DIR) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (mkdir /tmp/$(PACK_NAME) && cp -r ./* /tmp/$(PACK_NAME) && mkdir packs && mv /tmp/$(PACK_NAME) packs && st2-check-register-pack-resources packs/$(PACK_NAME) || exit 1); fi;
 
 .PHONY: .packs-tests
 .packs-tests:
