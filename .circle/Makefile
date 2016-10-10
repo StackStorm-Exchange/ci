@@ -55,7 +55,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== pylint ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_PY}" ]; then echo "No files have changed, skipping run..."; else (st2-check-pylint-pack $ROOT_DIR || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_PY}" ]; then echo "No files have changed, skipping run..."; else (st2-check-pylint-pack $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .configs-check
 .configs-check:
@@ -70,28 +70,28 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== metadata-check ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; else (st2-check-validate-pack-metadata-exists $ROOT_DIR || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; else (st2-check-validate-pack-metadata-exists $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .packs-resource-register
 .packs-resource-register:
 	@echo
 	@echo "==================== packs-resource-register ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; else (st2-check-register-pack-resources $ROOT_DIR || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; else (st2-check-register-pack-resources $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .packs-tests
 .packs-tests:
 	@echo
 	@echo "==================== packs-tests ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -x -p $ROOT_DIR || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -x -p $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .packs-missing-tests
 .packs-missing-tests:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (st2-check-print-pack-tests-coverage $ROOT_DIR || exit 1); fi;
+	if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .clone_st2_repo
 .clone_st2_repo:
@@ -107,8 +107,8 @@ requirements: virtualenv
 	@echo "==================== requirements ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade pip
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r requirements-dev.txt
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r requirements-pack-tests.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 	# Note: Line below is a work around for corrupted Travis Python wheel cache issue
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --no-cache-dir --no-binary :all: --upgrade --force-reinstall greenlet
 
