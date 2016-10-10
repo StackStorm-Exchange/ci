@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import sys
-import os
 
 import jsonschema
 import yaml
