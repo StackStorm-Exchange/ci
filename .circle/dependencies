@@ -11,6 +11,7 @@ git config --global user.email "info@stackstorm.com"
 sudo rm -f /usr/local/lib/python2.7/dist-packages/setuptools-3.4.4-py2.7.egg
 
 sudo pip install -U pip setuptools virtualenv
+sudo apt-get -y install python-dev
 
 virtualenv ~/virtualenv
 . ~/virtualenv/bin/activate
