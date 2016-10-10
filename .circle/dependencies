@@ -16,4 +16,4 @@ sudo apt-get -y install python-dev
 virtualenv ~/virtualenv
 . ~/virtualenv/bin/activate
 
-sudo pip install -r "$my_dir/requirements.txt"
+~/virtualenv/bin/pip install -r "$my_dir/requirements.txt"

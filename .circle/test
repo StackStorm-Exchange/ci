@@ -5,7 +5,7 @@ set -e
 . ~/virtualenv/bin/activate
 
 export CI_DIR=/home/ubuntu/ci
-export PACK_NAME=$(python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml ~/ci/.circle/pack.yaml.schema)
+export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml ~/ci/.circle/pack.yaml.schema)
 
 cp ~/ci/.circle/Makefile .
 make all
