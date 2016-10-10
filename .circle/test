@@ -2,13 +2,12 @@
 
 set -e
 
+. ~/virtualenv/bin/activate
+
 export CI_DIR=~/ci
 export PACK_NAME=$(python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml ~/ci/.circle/pack.yaml.schema)
-echo "Pack schema is valid"
 
-cp ~/ci/.circle/Makefile "${CIRCLE_PROJECT_REPONAME}"
-
-cd "${CIRCLE_PROJECT_REPONAME}"
+cp ~/ci/.circle/Makefile .
 make all
 
 echo "Validated $PACK_NAME"
