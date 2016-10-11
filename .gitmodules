@@ -1,0 +1,3 @@
+[submodule "lint-configs"]
+	path = lint-configs
+	url = https://github.com/StackStorm/lint-configs

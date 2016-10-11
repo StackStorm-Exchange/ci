@@ -48,14 +48,14 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== flake8 ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_PY}" ]; then echo "No files have changed, skipping run..."; fi; for file in ${CHANGED_PY}; do if [ -n "$$file" ]; then flake8 --config ./lint-configs/python/.flake8 $$file || exit 1; fi; done
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_PY}" ]; then echo "No files have changed, skipping run..."; fi; for file in ${CHANGED_PY}; do if [ -n "$$file" ]; then flake8 --config $(CI_DIR)/lint-configs/python/.flake8 $$file || exit 1; fi; done
 
 .PHONY: .pylint
 .pylint:
 	@echo
 	@echo "==================== pylint ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_PY}" ]; then echo "No files have changed, skipping run..."; else (st2-check-pylint-pack $(ROOT_DIR) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_PY}" ]; then echo "No files have changed, skipping run..."; else (REQUIREMENTS_DIR=$(CI_DIR)/.circle/ CONFIG_DIR=$(CI_DIR)/lint-configs/ st2-check-pylint-pack $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .configs-check
 .configs-check:

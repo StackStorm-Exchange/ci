@@ -1,4 +1,3 @@
-import os
 import json
 import yaml
 import sys
@@ -16,7 +15,7 @@ def build_index(path):
         pack_meta['repo_url'] = 'https://github.com/%s/%s-%s' % (
             EXCHANGE_NAME, EXCHANGE_PREFIX, pack_meta['name']
         )
-        packs[pack_meta['name']] = pack_meta 
+        packs[pack_meta['name']] = pack_meta
     with open('%s/index.json' % path, 'w') as outfile:
         json.dump(packs, outfile)
 
