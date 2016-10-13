@@ -5,7 +5,7 @@ set -e
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 
-git clone git@github.com:stackstorm-exchange/index.git ~/index
+git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exchange/index ~/index
 
 # Move the pack.yaml file to the index
 cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
