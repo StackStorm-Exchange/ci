@@ -10,7 +10,7 @@ git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exch
 # Move the pack.yaml file to the index
 cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 # Rebuild the index JSON
-python ~/ci/.circle/index.py ~/index/v1/
+~/virtualenv/bin/python ~/ci/.circle/index.py ~/index/v1/
 # Commit
 git -C ~/index add .
 git -C ~/index status
