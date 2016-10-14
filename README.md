@@ -17,7 +17,7 @@ config schemas, perform code style checks, and validate `pack.yaml`.
 Once a PR is merged, the index update is run; StackStorm index is essentially a JSON file with
 metadata and URLs for every pack we have.
 See [the index repo](https://github.com/StackStorm-Exchange/index) for details, and while you
-are at it, check out the [web front-end](https://github.com/StackStorm-Exchange/web) source
-code as well.
+are at it, check out [the web front-end source code](https://github.com/StackStorm-Exchange/web)
+as well.
 
 That's all folks!
