@@ -17,7 +17,7 @@ def build_index(path):
         )
         packs[pack_meta['name']] = pack_meta
     with open('%s/index.json' % path, 'w') as outfile:
-        json.dump(packs, outfile)
+        json.dump(packs, outfile, indent=4)
 
 if __name__ == '__main__':
     path = sys.argv[1]
