@@ -14,5 +14,12 @@ python ~/ci/.circle/index.py ~/index/v1/
 # Commit
 git -C ~/index add .
 git -C ~/index status
-git -C ~/index commit -m "Update the ${PACK_NAME} pack and rebuild the index."
-git -C ~/index push origin
+
+if ! git diff --quiet --exit-code --cached
+then
+  echo "Updating the index."
+  git -C ~/index commit -m "Update the ${PACK_NAME} pack and rebuild the index."
+  git -C ~/index push origin
+else
+  echo "No changes to pack metadata, skipping the index update."
+fi
