@@ -14,5 +14,12 @@ cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 # Commit
 git -C ~/index add .
 git -C ~/index status
-git -C ~/index commit -m "Update the ${PACK_NAME} pack and rebuild the index."
-git -C ~/index push origin 2>/dev/null
+
+if ! git diff --quiet --exit-code --cached
+then
+  echo "Updating the index."
+  git -C ~/index commit -m "Update the ${PACK_NAME} pack and rebuild the index."
+  git -C ~/index push origin 2>/dev/null
+else
+  echo "No changes to pack metadata, skipping the index update."
+fi
