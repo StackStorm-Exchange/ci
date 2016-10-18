@@ -14,12 +14,12 @@ cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 ~/virtualenv/bin/python ~/ci/.circle/index.py ~/index/v1/
 
 # Check if an icon has been added or changed
-ICON_TARGET="~/index/v1/icons/${PACK_NAME}.png"
+ICON_TARGET="${HOME}/index/v1/icons/${PACK_NAME}.png"
 if [ -f icon.png ] && { [ ! -f ${ICON_TARGET} ] || ! cmp -s icon.png ${ICON_TARGET}; }
 then
   echo "Uploading the pack icon..."
   mkdir -p ~/index/v1/icons/
-  mv icon.png ${ICON_TARGET}
+  cp icon.png ${ICON_TARGET}
   echo "Icon uploaded."
 fi
 
