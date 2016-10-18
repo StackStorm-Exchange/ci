@@ -17,9 +17,17 @@ git -C ~/index status
 
 if ! git -C ~/index diff --quiet --exit-code --cached
 then
+
   echo "Updating the index."
   git -C ~/index commit -m "Update the ${PACK_NAME} pack and rebuild the index."
   git -C ~/index push origin 2>/dev/null
+
+  echo "Updating the pack description."
+  PACK_DESCRIPTION=$(cat ~/index/v1/index.json | jq ".${PACK_NAME}.description")
+  curl -sS --fail -u "${MACHINE_USER}:${MACHINE_PASSWORD}" -X PATCH --header "Content-Type: application/json" \
+    -d '{"name": "stackstorm-'"${PACK_NAME}"'", "description": '"${PACK_DESCRIPTION}"'}' \
+    "https://api.github.com/repos/StackStorm-Exchange/stackstorm-${PACK_NAME}"
+
 else
   echo "No changes to pack metadata, skipping the index update."
 fi
