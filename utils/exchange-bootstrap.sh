@@ -32,23 +32,26 @@ REPO_NAME=${EXCHANGE_PREFIX}-${PACK}
 REPO_DIR=/tmp/${REPO_NAME}
 REPO_URL=https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_NAME}
 
-# Get origin URL
+# Check if the repo exists
 git ls-remote ${REPO_URL} > /dev/null 2>&1
 if [ "$?" == 0 ]; then
 	echo "The repository already exists, cannot bootstrap."
 	exit 1
 fi
 
+# Git: init an empty repo and set the remote
 rm -rf ${REPO_DIR}
 mkdir ${REPO_DIR} && cd ${REPO_DIR}
+git init && git remote set-url origin ${REPO_URL}
+
+# Git: push circle.yml
+wget https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample -O circle.yml
+git add circle.yml
+git commit -m 'Bootstrapping a StackStorm Exchange pack repository.'
+git push origin master
 
 # Generate a keypair
 ssh-keygen -b 2048 -t rsa -f /tmp/${PACK}_rsa -q -N ""
-
-# GitHub: create a repo
-curl -X POST --header "Content-Type: application/json" \
-	-d '{"name": "${REPO_NAME}"}' \
-	https://api.github.com/user/repos
 
 # GitHub: create a read-write key for the repo
 curl -X POST --header "Content-Type: application/json" \
@@ -79,9 +82,3 @@ curl -X POST --header "Content-Type: application/json" \
 
 # Clean up
 rm -rf ${REPO_DIR} /tmp/${PACK}_rsa* /tmp/${PACK}_user_token
-
-# Git: add circle.yml
-wget https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample -O circle.yml
-git add circle.yml
-git commit -m 'Bootstrapping a StackStorm Exchange repository.'
-git push origin master
