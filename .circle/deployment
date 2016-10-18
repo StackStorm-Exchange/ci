@@ -19,7 +19,7 @@ if [ -f icon.png ] && { [ ! -f ${ICON_TARGET} ] || ! cmp -s icon.png ${ICON_TARG
 then
   echo "Uploading the pack icon..."
   mkdir -p ~/index/v1/icons/
-  cp icon.png ${ICON_TARGET}
+  mv icon.png ${ICON_TARGET}
   echo "Icon uploaded."
 fi
 
