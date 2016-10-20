@@ -44,7 +44,8 @@ def build_index(path_glob, output_path):
 
     output_path = os.path.expanduser(os.path.join(output_path, 'index.json'))
     with open(output_path, 'w') as outfile:
-        json.dump(result, outfile, indent=4, sort_keys=True)
+        json.dump(result, outfile, indent=4, sort_keys=True,
+                  separators=(',', ': '))
 
     print('Index data written to "%s"' % (output_path))
 
