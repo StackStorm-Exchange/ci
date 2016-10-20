@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+
+import os
 import json
 import yaml
-import sys
 import time
+import argparse
 import hashlib
 from glob import glob
 from collections import OrderedDict
@@ -10,7 +13,7 @@ EXCHANGE_NAME = "StackStorm-Exchange"
 EXCHANGE_PREFIX = "stackstorm"
 
 
-def build_index(path):
+def build_index(path_glob, output_path):
     result = OrderedDict({
         'packs': OrderedDict(),
         'metadata': OrderedDict({
@@ -21,7 +24,8 @@ def build_index(path):
 
     data_hash = hashlib.md5()
 
-    generator = sorted(glob('%s/packs/*.yaml' % path))
+    path_glob = os.path.expanduser(path_glob)
+    generator = sorted(glob(path_glob))
     for filename in generator:
         with open(filename, 'r') as pack:
             pack_meta = yaml.load(pack)
@@ -35,9 +39,18 @@ def build_index(path):
     result['metadata']['generated_ts'] = int(time.time())
     result['metadata']['hash'] = data_hash.hexdigest()
 
-    with open('%s/index.json' % path, 'w') as outfile:
+    output_path = os.path.expanduser(os.path.join(output_path, 'index.json'))
+    with open(output_path, 'w') as outfile:
         json.dump(result, outfile, indent=4, sort_keys=True)
 
+    print('Index data written to "%s"' % (output_path))
+
 if __name__ == '__main__':
-    path = sys.argv[1]
-    build_index(path)
+    parser = argparse.ArgumentParser(description='Generate StackStorm exchange index.json')
+    parser.add_argument('--glob', help='Glob which points to the pack metadatafiles',
+                        required=True)
+    parser.add_argument('--output', help='Directory where the generated index.json file is stored',
+                        required=True)
+    args = parser.parse_args()
+
+    build_index(path_glob=args.glob, output_path=args.output)
