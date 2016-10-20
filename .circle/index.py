@@ -30,6 +30,8 @@ def build_index(path_glob, output_path):
         with open(filename, 'r') as pack:
             pack_meta = yaml.load(pack)
 
+        print('Processing pack: %s (%s)' % (pack_meta['name'], filename))
+
         pack_meta['repo_url'] = 'https://github.com/%s/%s-%s' % (
             EXCHANGE_NAME, EXCHANGE_PREFIX, pack_meta['name']
         )
