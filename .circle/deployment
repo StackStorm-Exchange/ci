@@ -11,7 +11,7 @@ git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exch
 cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 
 # Rebuild the index JSON
-~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/packs/"
+~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
 
 # Check if an icon has been added or changed
 ICON_TARGET="${HOME}/index/v1/icons/${PACK_NAME}.png"
