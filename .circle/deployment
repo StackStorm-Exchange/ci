@@ -23,7 +23,7 @@ then
   echo "Icon uploaded."
 fi
 
-# Commit
+# Commit the index changes
 git -C ~/index add .
 git -C ~/index status
 
@@ -44,4 +44,24 @@ then
 
 else
   echo "No changes to pack metadata, skipping the index update."
+fi
+
+# Create version tags
+PUSH_TAGS=""
+METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
+cat $METADATA_CHANGES | while read COMMIT
+do
+  git checkout ${COMMIT} pack.yaml > /dev/null
+  VERSION=$(python ../ci/.circle/semver.py pack.yaml 2>/dev/null || true)
+  if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
+  then
+    echo "Creating tag ${VERSION} for commit ${COMMIT}"
+    git tag -a v${VERSION} -m "$(git show -s --format=%B $COMMIT)" ${COMMIT}
+    PUSH_TAGS="1"
+  fi
+  VERSION=""
+done
+if [[ ${PUSH_TAGS} ]]
+then
+  git push --tags origin 2>/dev/null
 fi
