@@ -19,7 +19,8 @@ if [ -f icon.png ] && { [ ! -f ${ICON_TARGET} ] || ! cmp -s icon.png ${ICON_TARG
 then
   echo "Uploading the pack icon..."
   mkdir -p ~/index/v1/icons/
-  cp icon.png ${ICON_TARGET}
+  convert icon.png -resize 128x128 -depth 24 -define png:compression-filter=2 \
+          -define png:compression-level=9 -define png:compression-strategy=1 ${ICON_TARGET}
   echo "Icon uploaded."
 fi
 
