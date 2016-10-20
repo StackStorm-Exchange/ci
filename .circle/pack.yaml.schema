@@ -11,8 +11,8 @@ properties:
     description: A list of keywords.
   version:
     type: string
-    description: Version number in the SemVer format (e.g. "0.0.1").
-    pattern: "^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?$"
+    description: "Version number in the SemVer format (e.g. '0.0.1')."
+    pattern: '^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?$'
   author:
     type: string
     description: Name, nickname, company name, whatever.
