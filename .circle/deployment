@@ -36,7 +36,7 @@ then
   echo "Index updated."
 
   echo "Updating the repo description..."
-  PACK_DESCRIPTION=$(cat ~/index/v1/index.json | jq ".${PACK_NAME}.description")
+  PACK_DESCRIPTION=$(cat ~/index/v1/index.json | jq ".packs.${PACK_NAME}.description")
   curl -sS --fail -u "${MACHINE_USER}:${MACHINE_PASSWORD}" -X PATCH --header "Content-Type: application/json" \
     -d '{"name": "stackstorm-'"${PACK_NAME}"'", "description": '"${PACK_DESCRIPTION}"'}' \
     "https://api.github.com/repos/StackStorm-Exchange/stackstorm-${PACK_NAME}" > /dev/null 2>&1
