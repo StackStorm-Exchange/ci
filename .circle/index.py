@@ -26,6 +26,8 @@ def build_index(path_glob, output_path):
 
     path_glob = os.path.expanduser(path_glob)
     generator = sorted(glob(path_glob))
+
+    counter = 0
     for filename in generator:
         with open(filename, 'r') as pack:
             pack_meta = yaml.load(pack)
@@ -38,6 +40,7 @@ def build_index(path_glob, output_path):
         )
         result['packs'][pack_meta['name']] = pack_meta
         data_hash.update(str(pack_meta))
+        counter += 1
 
     result['metadata']['generated_ts'] = int(time.time())
     result['metadata']['hash'] = data_hash.hexdigest()
@@ -47,7 +50,9 @@ def build_index(path_glob, output_path):
         json.dump(result, outfile, indent=4, sort_keys=True,
                   separators=(',', ': '))
 
-    print('Index data written to "%s"' % (output_path))
+    print('')
+    print('Processed %s packs.' % (counter))
+    print('Index data written to "%s".' % (output_path))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate StackStorm exchange index.json')
