@@ -12,7 +12,12 @@ echo "Processing pack ${PACK_NAME}"
 cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 
 # Rebuild the index JSON
-~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
+if ! git -C ~/index diff-files --quiet --ignore-submodules --
+then
+  ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
+else
+  echo "No changes in metadata, skipping the index rebuild."
+fi
 
 # Check if an icon has been added or changed
 ICON_TARGET="${HOME}/index/v1/icons/${PACK_NAME}.png"
@@ -41,7 +46,7 @@ then
   PACK_DESCRIPTION=$(cat ~/index/v1/index.json | jq ".packs.${PACK_NAME}.description")
   curl -sS --fail -u "${MACHINE_USER}:${MACHINE_PASSWORD}" -X PATCH --header "Content-Type: application/json" \
     -d '{"name": "stackstorm-'"${PACK_NAME}"'", "description": '"${PACK_DESCRIPTION}"'}' \
-    "https://api.github.com/repos/StackStorm-Exchange/stackstorm-${PACK_NAME}" > /dev/null 2>&1
+    "https://api.github.com/repos/StackStorm-Exchange/stackstorm-${PACK_NAME}"
   echo "Description updated."
 
 else
