@@ -53,15 +53,12 @@ else
   echo "No changes to pack metadata, skipping the index update."
 fi
 
-git fetch
-git status
-git remote -v
-git --no-pager log --decorate=short --pretty=oneline -n10
 # Create version tags
 PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
 echo $METADATA_CHANGES | while read COMMIT
 do
+  echo "git checkout ${COMMIT} pack.yaml > /dev/null"
   git checkout ${COMMIT} pack.yaml > /dev/null
   VERSION=$(python ../ci/.circle/semver.py pack.yaml 2>/dev/null || true)
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
