@@ -59,6 +59,7 @@ METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
 for COMMIT in $(echo $METADATA_CHANGES)
 do
   git checkout ${COMMIT} pack.yaml > /dev/null
+  echo "Pack.yaml: $(cat pack.yaml | grep version)"
   VERSION=$(python ~/ci/.circle/semver.py pack.yaml 2>/dev/null || true)
   echo "Version: ${VERSION}"
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
