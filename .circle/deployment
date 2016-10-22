@@ -54,6 +54,8 @@ else
 fi
 
 git status
+git remote -v
+git --no-pager log --decorate=short --pretty=oneline -n10
 # Create version tags
 PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
