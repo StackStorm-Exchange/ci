@@ -63,7 +63,7 @@ do
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
   then
     echo "Creating tag ${VERSION} for commit ${COMMIT}"
-    git tag -a v${VERSION} ${COMMIT}
+    git tag v${VERSION} ${COMMIT}
     PUSH_TAGS="1"
   fi
   VERSION=""
