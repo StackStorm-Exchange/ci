@@ -56,11 +56,16 @@ fi
 # Create version tags
 PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
+git tag
+git fetch --tags
+git tag
 for COMMIT in $(echo $METADATA_CHANGES)
 do
-  echo "git checkout ${COMMIT} pack.yaml > /dev/null"
   git checkout ${COMMIT} pack.yaml > /dev/null
   VERSION=$(python ../ci/.circle/semver.py pack.yaml 2>/dev/null || true)
+  TAG=$(git rev-parse -q --verify "refs/tags/v${VERSION}")
+  echo "Version: ${VERSION}"
+  echo "Tag: ${TAG}"
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
   then
     echo "Creating tag ${VERSION} for commit ${COMMIT}"
@@ -68,6 +73,7 @@ do
     PUSH_TAGS="1"
   fi
   VERSION=""
+  TAG=""
 done
 if [[ ${PUSH_TAGS} ]]
 then
