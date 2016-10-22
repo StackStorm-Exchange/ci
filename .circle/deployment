@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -56,7 +56,7 @@ fi
 # Create version tags
 PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
-cat $METADATA_CHANGES | while read COMMIT
+echo $METADATA_CHANGES | while read COMMIT
 do
   git checkout ${COMMIT} pack.yaml > /dev/null
   VERSION=$(python ../ci/.circle/semver.py pack.yaml 2>/dev/null || true)
