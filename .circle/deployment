@@ -53,6 +53,7 @@ else
   echo "No changes to pack metadata, skipping the index update."
 fi
 
+git status
 # Create version tags
 PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
