@@ -56,7 +56,7 @@ fi
 # Create version tags
 PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
-echo $METADATA_CHANGES | while read COMMIT
+for COMMIT in $(echo $METADATA_CHANGES)
 do
   echo "git checkout ${COMMIT} pack.yaml > /dev/null"
   git checkout ${COMMIT} pack.yaml > /dev/null
