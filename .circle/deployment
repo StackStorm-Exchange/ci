@@ -60,6 +60,7 @@ for COMMIT in $(echo $METADATA_CHANGES)
 do
   git checkout ${COMMIT} pack.yaml > /dev/null
   VERSION=$(python ~/ci/.circle/semver.py pack.yaml 2>/dev/null || true)
+  echo "Version: ${VERSION}"
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
   then
     echo "Creating tag ${VERSION} for commit ${COMMIT}"
