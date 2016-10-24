@@ -12,7 +12,7 @@ echo "Processing pack ${PACK_NAME}"
 cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 
 # Rebuild the index JSON
-if ! git -C ~/index diff-files --quiet --ignore-submodules --
+if [[ $(git status -s) ]]
 then
   ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
 else
