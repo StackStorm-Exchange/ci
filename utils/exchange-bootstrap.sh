@@ -71,6 +71,7 @@ fi
 
 # Git: push circle.yml
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample" > circle.yml
+chmod 755 circle.yml
 git add circle.yml
 git commit -m 'Bootstrap a StackStorm Exchange pack repository.'
 git push origin master
