@@ -19,6 +19,7 @@ import yaml
 
 from st2common.models.api.pack import PackAPI
 from st2common.util import schema as util_schema
+from st2common.util.pack import get_pack_ref_from_metadata
 
 PREFIX = 'stackstorm'
 PACK_SCHEMA = PackAPI.schema
@@ -37,6 +38,11 @@ def validate_schema(instance, schema):
                                 use_default=True,
                                 allow_default_none=True)
 
+def validate_pack_contains_valid_ref_or_name(pack_meta):
+    ref = get_pack_ref_from_metadata(metadata=pack_meta)
+    return ref
+
+
 
 def validate_repo_name(instance, repo_name):
     if '%s-%s' % (PREFIX, pack_meta['name']) != repo_name:
@@ -47,6 +53,6 @@ if __name__ == '__main__':
     pack_meta = load_yaml_file(sys.argv[2])
 
     validate_schema(pack_meta, PACK_SCHEMA)
-    validate_repo_name(pack_meta, repo_name)
+    pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
 
-    print pack_meta['name']
+    print pack_ref
