@@ -13,6 +13,7 @@ sudo rm -f /usr/local/lib/python2.7/dist-packages/setuptools-3.4.4-py2.7.egg
 sudo apt-get update
 sudo apt-get install -y aptitude
 
+sudo apt-get --reinstall install libept1.4.12
 sudo aptitude -y install imagemagick
 sudo aptitude -y install libmagickcore-dev
 sudo aptitude -y install libmagickwand-dev
