@@ -107,5 +107,6 @@ if __name__ == '__main__':
         content = get_pack_resources('.')
         meta['content'] = return_resource_count(content)
         file.seek(0)
-        file.write(ordered_dump(meta, Dumper=yaml.SafeDumper))
+        file.write(ordered_dump(meta, Dumper=yaml.SafeDumper,
+                                default_flow_style=False))
         file.truncate()
