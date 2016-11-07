@@ -38,10 +38,10 @@ def validate_schema(instance, schema):
                                 use_default=True,
                                 allow_default_none=True)
 
+
 def validate_pack_contains_valid_ref_or_name(pack_meta):
     ref = get_pack_ref_from_metadata(metadata=pack_meta)
     return ref
-
 
 
 def validate_repo_name(instance, repo_name):
