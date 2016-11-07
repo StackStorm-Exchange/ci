@@ -5,15 +5,12 @@ machine:
 checkout:
   post:
     - git clone -b master git@github.com:stackstorm-exchange/ci.git ~/ci
-    - git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
 
 dependencies:
   cache_directories:
     - ~/.cache/pip
     - ~/.pip-cache
     - ~/.apt-cache
-  pre:
-    - sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
   override:
     - ~/ci/.circle/dependencies
 

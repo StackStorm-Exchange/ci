@@ -7,6 +7,12 @@ my_dir="$(dirname "$0")"
 git config --global user.name "StackStorm Exchange"
 git config --global user.email "info@stackstorm.com"
 
+# Clone st2 repo so other scripts can reference StackStorm Python code
+git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
+
+# Create a directory for debian packages so we can cache it in Circle CI
+sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
+
 # removing broken symlink
 sudo rm -f /usr/local/lib/python2.7/dist-packages/setuptools-3.4.4-py2.7.egg
 
