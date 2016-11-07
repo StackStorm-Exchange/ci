@@ -15,10 +15,14 @@
 
 import sys
 
-import jsonschema
 import yaml
 
+from st2common.models.api.pack import PackAPI
+from st2common.util import schema as util_schema
+from st2common.util.pack import get_pack_ref_from_metadata
+
 PREFIX = 'stackstorm'
+PACK_SCHEMA = PackAPI.schema
 
 
 def load_yaml_file(path):
@@ -29,7 +33,15 @@ def load_yaml_file(path):
 
 
 def validate_schema(instance, schema):
-    return jsonschema.validate(instance, schema)
+    return util_schema.validate(instance=instance, schema=schema,
+                                cls=util_schema.CustomValidator,
+                                use_default=True,
+                                allow_default_none=True)
+
+
+def validate_pack_contains_valid_ref_or_name(pack_meta):
+    ref = get_pack_ref_from_metadata(metadata=pack_meta)
+    return ref
 
 
 def validate_repo_name(instance, repo_name):
@@ -39,9 +51,8 @@ def validate_repo_name(instance, repo_name):
 if __name__ == '__main__':
     repo_name = sys.argv[1]
     pack_meta = load_yaml_file(sys.argv[2])
-    pack_schema = load_yaml_file(sys.argv[3])
 
-    validate_schema(pack_meta, pack_schema)
-    validate_repo_name(pack_meta, repo_name)
+    validate_schema(pack_meta, PACK_SCHEMA)
+    pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
 
-    print pack_meta['name']
+    print pack_ref
