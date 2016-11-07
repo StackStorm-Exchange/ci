@@ -28,8 +28,8 @@ if [ -f icon.png ] && { [ ! -f ${ICON_TARGET} ] || ! cmp -s icon.png ${ICON_TARG
 then
   echo "Uploading the pack icon..."
   mkdir -p ~/index/v1/icons/
-  convert icon.png -resize 64x64 -depth 24 -define png:compression-filter=2 \
-          -define png:compression-level=9 -define png:compression-strategy=1 ${ICON_TARGET}
+  cp icon.png ${ICON_TARGET}
+  gmic ${ICON_TARGET} -resize 60,60
   echo "Icon uploaded."
 fi
 
