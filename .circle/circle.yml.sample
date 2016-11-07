@@ -5,6 +5,7 @@ machine:
 checkout:
   post:
     - git clone -b master git@github.com:stackstorm-exchange/ci.git ~/ci
+    - git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
 
 dependencies:
   override:
