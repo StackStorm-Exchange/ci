@@ -102,11 +102,13 @@ def return_resource_count(resources):
 
 
 if __name__ == '__main__':
-    with open('pack.yaml', 'r+') as file:
-        meta = ordered_load(file.read(), yaml.SafeLoader)
-        content = get_pack_resources('.')
-        meta['content'] = return_resource_count(content)
-        file.seek(0)
-        file.write(ordered_dump(meta, Dumper=yaml.SafeDumper,
-                                default_flow_style=False))
-        file.truncate()
+    with open('pack.yaml', 'r+') as fp:
+        meta = ordered_load(fp.read(), yaml.SafeLoader)
+
+    content = get_pack_resources('.')
+    meta['content'] = return_resource_count(content)
+
+    # Write out new pack.yaml with content count
+    with open('pack.yaml', 'w') as fp:
+        fp.write(ordered_dump(meta, Dumper=yaml.SafeDumper,
+                              default_flow_style=False))
