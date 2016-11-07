@@ -29,7 +29,7 @@ then
   echo "Uploading the pack icon..."
   mkdir -p ~/index/v1/icons/
   cp icon.png ${ICON_TARGET}
-  gmic ${ICON_TARGET} -resize 64,64
+  gmic ${ICON_TARGET} -resize 64,64 -output ${ICON_TARGET}
   optipng -o5 ${ICON_TARGET}
   echo "Icon uploaded."
 fi
