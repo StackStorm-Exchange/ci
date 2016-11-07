@@ -10,6 +10,7 @@ export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PR
 
 if [[ -z "${PACK_NAME}" ]]
 then
+  echo "Unable to retrieve pack name."
   exit 1
 fi
 
