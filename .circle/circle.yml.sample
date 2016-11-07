@@ -8,6 +8,8 @@ checkout:
     - git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
 
 dependencies:
+  cache_directories:
+    - ~/.cache/pip
   override:
     - ~/ci/.circle/dependencies
 
