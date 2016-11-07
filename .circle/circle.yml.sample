@@ -10,6 +10,9 @@ checkout:
 dependencies:
   cache_directories:
     - ~/.cache/pip
+    - ~/.apt-cache
+  pre:
+    - sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
   override:
     - ~/ci/.circle/dependencies
 
