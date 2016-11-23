@@ -29,13 +29,22 @@ flake8: requirements .flake8
 pylint: requirements .clone_st2_repo .pylint
 
 .PHONY: configs-check
-configs-check: requirements .clone_st2_repo .configs-check
+configs-check: requirements .clone_st2_repo .copy-pack-to-subdirectory .configs-check
 
 .PHONY: metadata-check
 metadata-check: requirements .metadata-check
 
+# Task which copies pack to temporary sub-directory so we can use old-style check scripts which
+# # require pack to be in a sub-directory
+.PHONY: .copy-pack-to-subdirectory
+.copy-pack-to-subdirectory:
+	mkdir /tmp/$(PACK_NAME)
+	cp -r ./* /tmp/$(PACK_NAME)
+	mkdir /tmp/packs/
+	mv /tmp/$(PACK_NAME) /tmp/packs
+
 .PHONY: packs-resource-register
-packs-resource-register: requirements .clone_st2_repo .packs-resource-register
+packs-resource-register: requirements .clone_st2_repo .copy-pack-to-subdirectory .packs-resource-register
 
 .PHONY: packs-missing-tests
 packs-missing-tests: requirements .packs-missing-tests
@@ -64,7 +73,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; fi; for file in $(CHANGED_YAML); do if [ -n "$$file" ]; then st2-check-validate-yaml-file $$file || exit 1 ; fi; done
 	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_JSON}" ]; then echo "No files have changed, skipping run..."; fi; for file in $(CHANGED_JSON); do if [ -n "$$file" ]; then st2-check-validate-json-file $$file || exit 1 ; fi; done
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (mkdir /tmp/$(PACK_NAME) && cp -r ./* /tmp/$(PACK_NAME) && mkdir packs && mv /tmp/$(PACK_NAME) packs && st2-check-validate-pack-example-config /tmp/$(PACK_NAME) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else st2-check-validate-pack-example-config /tmp/packs/$(PACK_NAME) || exit 1); fi;
 
 .PHONY: .metadata-check
 .metadata-check:
@@ -78,7 +87,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== packs-resource-register ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (mkdir /tmp/$(PACK_NAME) && cp -r ./* /tmp/$(PACK_NAME) && mkdir packs && mv /tmp/$(PACK_NAME) packs && st2-check-register-pack-resources /tmp/$(PACK_NAME) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; fi;
 
 .PHONY: .packs-tests
 .packs-tests:
