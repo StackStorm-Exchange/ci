@@ -14,6 +14,23 @@ then
   exit 1
 fi
 
+GIT_BRANCH=$(git for-each-ref --format='%(objectname) %(refname:short)' refs/heads | awk "/^$(git rev-parse HEAD)/ {print \$2}")
+
+# When running on master branch we want to run checks on all the files / packs
+# not only on changes ones.
+echo "Running on branch: ${GIT_BRANCH}"
+if [ "${GIT_BRANCH}" = "master" ]; then
+    echo "Running on master branch, forcing check of all files"
+    export FORCE_CHECK_ALL_FILES="true"
+fi
+
+# Note: Travis performs a shallow clone of a single branch which means we end up
+# in a detached head state where git-changes-* scripts won't work since master
+# branch is not available.
+# We fix this by pulling down master branch.
+git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*
+git fetch origin master
+
 cp ~/ci/.circle/Makefile .
 make all
 
