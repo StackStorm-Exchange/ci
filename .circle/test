@@ -33,6 +33,9 @@ git fetch origin master
 
 cp ~/ci/.circle/Makefile .
 make all
+EXIT_CODE=$?
 
 echo "Validated $PACK_NAME"
 echo "export PACK_NAME=$PACK_NAME" >> ~/.circlerc
+
+exit ${EXIT_CODE}
