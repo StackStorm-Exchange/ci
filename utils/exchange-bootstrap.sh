@@ -69,11 +69,17 @@ then
     exit 1
 fi
 
-# Git: push circle.yml
+# Git: push - add various files which are needed to bootstrap the repo:
+# - circle.yml
+# - .gitignore
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample" > circle.yml
 chmod 755 circle.yml
 git add circle.yml
-git commit -m 'Bootstrap a StackStorm Exchange pack repository.'
+
+curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/files/.gitignore.sample" > .gitignore
+git add .gitignore
+
+git commit -m 'Bootstrap a StackStorm Exchange pack repository for pack ${PACK}.'
 git push origin master
 
 # CircleCI: follow the project
