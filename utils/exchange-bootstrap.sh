@@ -15,7 +15,7 @@
 # * USERNAME: a GitHub user to run the script under (Exchange bot).
 # * PASSWORD: password for the user (not a token).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
-#
+# * SLACK_WEBHOOK_URL: Full URL to Slack webhook where Github event notifications will be sent.
 
 set -e
 
@@ -81,6 +81,12 @@ git add .gitignore
 
 git commit -m 'Bootstrap a StackStorm Exchange pack repository for pack ${PACK}.'
 git push origin master
+
+# Github: Configure webhook to send notifications to our Slack instance on changes
+# GitHub: create a read-write key for the repo
+curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+    -d '{"name": "web", "active": true, "config": {"url": "'${SLACK_WEBHOOK_URL}'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
+    "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
 # CircleCI: follow the project
 curl -sS --fail -X POST "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow?circle-token=${CIRCLECI_TOKEN}"
