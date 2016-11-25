@@ -79,7 +79,7 @@ git add circle.yml
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/files/.gitignore.sample" > .gitignore
 git add .gitignore
 
-git commit -m 'Bootstrap a StackStorm Exchange pack repository for pack ${PACK}.'
+git commit -m "Bootstrap a StackStorm Exchange pack repository for pack ${PACK}."
 git push origin master
 
 # Github: Configure webhook to send notifications to our Slack instance on changes
