@@ -38,10 +38,8 @@ metadata-check: requirements .metadata-check
 # # require pack to be in a sub-directory
 .PHONY: .copy-pack-to-subdirectory
 .copy-pack-to-subdirectory:
-	mkdir /tmp/$(PACK_NAME)
-	cp -r ./* /tmp/$(PACK_NAME)
-	mkdir /tmp/packs/
-	mv /tmp/$(PACK_NAME) /tmp/packs
+	mkdir -p /tmp/packs/$(PACK_NAME)
+	cp -r ./* /tmp/packs/$(PACK_NAME)
 
 .PHONY: packs-resource-register
 packs-resource-register: requirements .clone_st2_repo .copy-pack-to-subdirectory .packs-resource-register
