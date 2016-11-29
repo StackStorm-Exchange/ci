@@ -7,6 +7,7 @@
 #
 # The following env variables must be specified:
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
+# * FORCE_REBUILD_INDEX: Set it to "1" to force index rebuild
 
 set -e
 
@@ -17,6 +18,12 @@ SLEEP_DELAY="${SLEEP_DELAY:-2}"
 if [ ! ${CIRCLECI_TOKEN} ]; then
   echo "CIRCLECI_TOKEN environment variable not set"
   exit 2
+fi
+
+if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
+    REQUEST_DATA='{"build_parameters": {"FORCE_REBUILD_INDEX": "1"}}'
+else
+    REQUEST_DATA=""
 fi
 
 # 1. List all Github repos for the org
@@ -38,6 +45,7 @@ for REPO_NAME in ${REPO_NAMES[@]}; do
   curl \
     --header "Content-Type: application/json" \
     --request POST \
+    --data "'${REQUEST_DATA}'"
     https://circleci.com/api/v1/project/${EXCHANGE_ORG}/${REPO_NAME}/tree/master?circle-token=${CIRCLECI_TOKEN}
   echo ""
   echo "Build page at: "https://circleci.com/gh/${EXCHANGE_ORG}/${REPO_NAME}
