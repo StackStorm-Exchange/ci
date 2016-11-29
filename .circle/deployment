@@ -2,6 +2,8 @@
 
 set -e
 
+export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
+
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exchange/index ~/index 2>/dev/null
@@ -59,22 +61,23 @@ else
 fi
 
 # Create version tags
-PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
 for COMMIT in $(echo $METADATA_CHANGES)
 do
   git checkout ${COMMIT} pack.yaml > /dev/null
   VERSION=$(~/virtualenv/bin/python ~/ci/.circle/semver.py pack.yaml 2>/dev/null || true)
+
+  # 1. Create a tag if version is specified and tag doesn't exist locally
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
   then
     echo "Creating tag ${VERSION} for commit ${COMMIT}"
     git tag v${VERSION} ${COMMIT}
-    PUSH_TAGS="1"
   fi
-  VERSION=""
-  TAG=""
+
+  # 2. If version is specified and tag doesn't exist on the remote, push it
+  if [[ ${VERSION} ]] && [[ -z $(git ls-remote origin "refs/tags/v${VERSION}") ]]
+  then
+    echo "Pushing tag v${VERSION} to origin remote"
+    git push origin v${VERSION}
+  fi
 done
-if [[ ${PUSH_TAGS} ]]
-then
-  git push --tags origin 2>/dev/null
-fi
