@@ -35,8 +35,8 @@ def build_index(path_glob, output_path):
             pack_meta = yaml.load(pack)
 
         pack_name = pack_meta['name']
-        sanitized_pack_name = pack_meta['name'].replace(' ', '-').lower()
         pack_ref = get_pack_ref_from_metadata(metadata=pack_meta)
+        sanitized_pack_name = pack_ref
 
         print('Processing pack: %s (%s)' % (pack_name, filename))
 
