@@ -39,6 +39,7 @@ for REPO_NAME in ${REPO_NAMES[@]}; do
     --header "Content-Type: application/json" \
     --request POST \
     https://circleci.com/api/v1/project/${EXCHANGE_ORG}/${REPO_NAME}/tree/master?circle-token=${CIRCLECI_TOKEN}
+  echo ""
   echo "Build page at: "https://circleci.com/gh/${EXCHANGE_ORG}/${REPO_NAME}
   sleep ${SLEEP_DELAY}
 done
