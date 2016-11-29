@@ -34,9 +34,11 @@ def build_index(path_glob, output_path):
         with open(filename, 'r') as pack:
             pack_meta = yaml.load(pack)
 
-        print('Processing pack: %s (%s)' % (pack_meta['name'], filename))
+        pack_name = pack_meta['name']
         sanitized_pack_name = pack_meta['name'].replace(' ', '-').lower()
         pack_ref = get_pack_ref_from_metadata(metadata=pack_meta)
+
+        print('Processing pack: %s (%s)' % (pack_name, filename))
 
         pack_meta['repo_url'] = 'https://github.com/%s/%s-%s' % (
             EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
@@ -47,8 +49,8 @@ def build_index(path_glob, output_path):
 
         # Remove any old entry for pack name when we incorrectly used name instead of ref for the
         # key
-        if pack_meta['name'] != pack_ref:
-            result['packs'].pop(pack_meta['name'], None)
+        if pack_name != pack_ref:
+            result['packs'].pop(pack_name, None)
 
         data_hash.update(str(pack_meta))
         counter += 1
