@@ -23,7 +23,7 @@ git checkout pack.yaml
 if [ $(git -C ~/index status -s) ] || [ ${FORCE_REBUILD_INDEX} == "1" ];
 then
   if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
-      echo "Forcing index rebuild"
+      echo "Forcing index rebuild..."
   fi
   ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
 else
