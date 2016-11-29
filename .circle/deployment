@@ -11,6 +11,7 @@ echo "Processing pack ${PACK_NAME}"
 # Count content and store it in the index version of pack.yaml
 ~/virtualenv/bin/python ~/ci/utils/pack_content.py
 # Move the pack.yaml file to the index
+mkdir -p ~/index/v1/packs/
 cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 git checkout pack.yaml
 
