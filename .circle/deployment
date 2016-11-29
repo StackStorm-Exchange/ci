@@ -2,6 +2,8 @@
 
 set -e
 
+FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
+
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
 # TODO: figure out how to make deploy.py rebuild the index.
@@ -18,8 +20,11 @@ cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 git checkout pack.yaml
 
 # Rebuild the index JSON
-if [[ $(git -C ~/index status -s) ]]
+if [ $(git -C ~/index status -s) ] || [ ${FORCE_REBUILD_INDEX} == "1" ];
 then
+  if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
+      echo "Forcing index rebuild"
+  fi
   ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
 else
   echo "No changes in metadata, skipping the index rebuild."
