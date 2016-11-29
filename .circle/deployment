@@ -61,7 +61,6 @@ else
 fi
 
 # Create version tags
-PUSH_TAGS=""
 METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
 for COMMIT in $(echo $METADATA_CHANGES)
 do
@@ -70,13 +69,9 @@ do
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
   then
     echo "Creating tag ${VERSION} for commit ${COMMIT}"
-    git tag v${VERSION} ${COMMIT}
-    PUSH_TAGS="1"
+    git tag v${VERSION} ${COMMIT} -m "v${VERSION} release tag."
+
+    echo "Pushing tag ${VERSION}"
+    git push origin v${VERSION}
   fi
-  VERSION=""
-  TAG=""
 done
-if [[ ${PUSH_TAGS} ]]
-then
-  git push --tags origin 2>/dev/null
-fi
