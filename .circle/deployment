@@ -71,7 +71,7 @@ do
   if [[ ${VERSION} ]] && [[ -z $(git rev-parse -q --verify "refs/tags/v${VERSION}") ]]
   then
     echo "Creating tag ${VERSION} for commit ${COMMIT}"
-    git tag v${VERSION} ${COMMIT} -m "v${VERSION} release tag."
+    git tag v${VERSION} ${COMMIT}
   fi
 
   # 2. If version is specified and tag doesn't exist on the remote, push it
