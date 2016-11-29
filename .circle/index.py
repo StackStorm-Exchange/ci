@@ -9,6 +9,8 @@ import hashlib
 from glob import glob
 from collections import OrderedDict
 
+from st2common.util.pack import get_pack_ref_from_metadata
+
 EXCHANGE_NAME = "StackStorm-Exchange"
 EXCHANGE_PREFIX = "stackstorm"
 
@@ -34,11 +36,20 @@ def build_index(path_glob, output_path):
 
         print('Processing pack: %s (%s)' % (pack_meta['name'], filename))
         sanitized_pack_name = pack_meta['name'].replace(' ', '-').lower()
+        pack_ref = get_pack_ref_from_metadata(metadata=pack_meta)
 
         pack_meta['repo_url'] = 'https://github.com/%s/%s-%s' % (
             EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
         )
-        result['packs'][pack_meta['name']] = pack_meta
+
+        # Note: Key in the index dictionary is ref and not a name
+        result['packs'][pack_ref] = pack_meta
+
+        # Remove any old entry for pack name when we incorrectly used name instead of ref for the
+        # key
+        if pack_meta['name'] != pack_ref:
+            result['packs'].pop(pack_meta['name'], None)
+
         data_hash.update(str(pack_meta))
         counter += 1
 
