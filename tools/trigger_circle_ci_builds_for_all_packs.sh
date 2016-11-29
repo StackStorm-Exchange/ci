@@ -14,6 +14,7 @@ set -e
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
 SLEEP_DELAY="${SLEEP_DELAY:-2}"
+FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 
 if [ ! ${CIRCLECI_TOKEN} ]; then
   echo "CIRCLECI_TOKEN environment variable not set"
