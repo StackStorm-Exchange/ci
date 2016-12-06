@@ -28,42 +28,56 @@ fi
 PACK="$1"
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
+REPO_ALIAS=${PACK}
 REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
 REPO_DIR="/tmp/${REPO_NAME}"
 REPO_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_NAME}"
+ALIAS_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # Check if the repo exists
 
-if git ls-remote ${REPO_URL} > /dev/null 2>&1;
+if git ls-remote "${REPO_URL}" > /dev/null 2>&1;
 then
 	echo "The repository already exists, cannot bootstrap."
 	exit 1
 fi
 
 # Git: create an empty repo and set the remote
-rm -rf ${REPO_DIR} /tmp/${PACK}_rsa* /tmp/${PACK}_user_token
-mkdir ${REPO_DIR} && cd ${REPO_DIR}
-git init && git remote add origin ${REPO_URL}
+rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
+mkdir "${REPO_DIR}" && cd "${REPO_DIR}"
+git init && git remote add origin "${REPO_URL}"
 
 # Generate a keypair
-ssh-keygen -b 2048 -t rsa -f /tmp/${PACK}_rsa -q -N ""
+ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N ""
 
-# GitHub: create a repo
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-	-d '{"name": "'"${REPO_NAME}"'"}' \
+# GitHub: create a repo or create an alias and move
+if git ls-remote "${ALIAS_URL}" > /dev/null 2>&1;
+then
+	echo "The alias already exists, skipping the creation."
+else
+	echo "Creating an alias ${REPO_ALIAS} for ${REPO_NAME}."
+	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+	-d '{"name": "'"${REPO_ALIAS}"'"}' \
 	"https://api.github.com/orgs/${EXCHANGE_ORG}/repos"
+fi
+
+# GitHub: rename the alias repo to its full name
+echo "Renaming the repo to ${REPO_NAME}."
+curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
+-d '{"name": "'"${REPO_NAME}"'"}' \
+"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # GitHub: create a read-write key for the repo
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-	-d '{"title": "CircleCI read-write key", "key": "'"$(cat /tmp/${PACK}_rsa.pub)"'", "read_only": false}' \
+	-d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
 # GitHub: create a user-scope token
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
-	"https://api.github.com/authorizations" | jq ".token" > /tmp/${PACK}_user_token
+	"https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
 
-if [ ! -s /tmp/${PACK}_user_token ];
+if [ ! -s "/tmp/${PACK}_user_token" ];
 then
 	echo "Could not create a token."
 	exit 1
@@ -81,7 +95,7 @@ curl -sS --fail -X POST "https://circleci.com/api/v1.1/project/github/${EXCHANGE
 
 # CircleCI: upload the read-write key
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-	-d '{"hostname":"github.com","private_key":"'"$(cat /tmp/${PACK}_rsa)"'"}' \
+	-d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key?circle-token=${CIRCLECI_TOKEN}"
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
@@ -89,8 +103,8 @@ curl -sS --fail -X POST --header "Content-Type: application/json" \
 	-d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-	-d '{"name":"MACHINE_PASSWORD", "value":'"$(cat /tmp/${PACK}_user_token)"'}' \
+	-d '{"name":"MACHINE_PASSWORD", "value":'"$(cat "/tmp/${PACK}_user_token")"'}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
 
 # Clean up
-rm -rf ${REPO_DIR} /tmp/${PACK}_rsa* /tmp/${PACK}_user_token
+rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
