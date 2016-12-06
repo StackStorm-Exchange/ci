@@ -10,24 +10,19 @@ git config --global user.email "info@stackstorm.com"
 # Clone st2 repo so other scripts can reference StackStorm Python code
 git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
 
+# Clone lint-configs
+git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
+
 # Create a directory for debian packages so we can cache it in Circle CI
 sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
 
 # removing broken symlink
 sudo rm -f /usr/local/lib/python2.7/dist-packages/setuptools-3.4.4-py2.7.egg
 
-sudo apt-get update
-sudo apt-get install -y aptitude
-
 # Note: We can't directly install imagemagick since it results an error
 # We use work-around from https://discuss.circleci.com/t/error-installing-imagemagick/2963
-
-sudo apt-get --reinstall install libept1.4.12
-sudo aptitude -y install imagemagick
-sudo aptitude -y install libmagickcore-dev
-sudo aptitude -y install libmagickwand-dev
-
-sudo apt-get -y install python-dev jq
+sudo apt-get update
+sudo apt-get -y install python-dev jq gmic optipng
 
 sudo pip install -U pip setuptools virtualenv
 
