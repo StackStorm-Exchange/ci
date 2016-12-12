@@ -20,7 +20,7 @@ cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
 git checkout pack.yaml
 
 # Rebuild the index JSON
-if [ $(git -C ~/index status -s) ] || [ ${FORCE_REBUILD_INDEX} == "1" ];
+if [ -n "$(git -C ~/index status -s)" ] || [ ${FORCE_REBUILD_INDEX} == "1" ];
 then
   if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
       echo "Forcing index rebuild..."
