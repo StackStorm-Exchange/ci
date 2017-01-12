@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Script which adds a new webhook to the providd github repo.
+# Script which adds a new webhook to the provided github repo.
 #
 # Requires: jq
 #
