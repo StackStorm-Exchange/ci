@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Common functions used by the scripts
+# Common variables (environment variables) and functions used by the scripts
+
+EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
+EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
+SLEEP_DELAY="${SLEEP_DELAY:-2}"
 
 function get_all_exchange_repo_names() {
   # Function which retrieves the names of all the pack repos and sets "REPO_NAME" variable with the result

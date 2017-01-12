@@ -17,9 +17,6 @@ set -e
 SCRIPT_PATH=$(dirname "$(readlink -f "$0")")
 source "${SCRIPT_PATH}/common.sh"
 
-EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
-EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
-SLEEP_DELAY="${SLEEP_DELAY:-2}"
 FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 
 if [ ! ${CIRCLECI_TOKEN} ]; then
