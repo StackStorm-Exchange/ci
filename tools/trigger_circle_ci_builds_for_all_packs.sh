@@ -13,9 +13,10 @@
 
 set -e
 
-EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
-EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
-SLEEP_DELAY="${SLEEP_DELAY:-2}"
+# Include script with common functionality
+SCRIPT_PATH=$(dirname "$(readlink -f "$0")")
+source "${SCRIPT_PATH}/common.sh"
+
 FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 
 if [ ! ${CIRCLECI_TOKEN} ]; then
@@ -31,18 +32,7 @@ if [ ! -z "${REPO_NAMES}" ]; then
   IFS=$OIFS;
 else
   # Force build for all pack repos
-
-  # 1. List all Github repos for the org
-  REPO_NAMES=$(curl -sS --fail -X GET "https://api.github.com/orgs/${EXCHANGE_ORG}/repos?per_page=1000" \
-      | jq --raw-output ".[].name")
-
-  OIFS=$IFS;
-  IFS=" "
-  REPO_NAMES=($REPO_NAMES)
-  IFS=$OIFS;
-
-  # 2. Filter out non pack repos
-  REPO_NAMES=( $(for i in ${REPO_NAMES[@]} ; do echo $i ; done | grep "${EXCHANGE_PREFIX}-") )
+  get_all_exchange_repo_names "${EXCHANGE_ORG}" "${EXCHANGE_PREFIX}"
 fi
 
 # Trigger Circle CI build for each pack
