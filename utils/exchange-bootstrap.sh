@@ -102,6 +102,14 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 	-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
+# Github: Configure repo description to match "description" attribute in pack.yaml
+PACK_YAML_URL="https://raw.githubusercontent.com/StackStorm-Exchange/${REPO_NAME}/master/pack.yaml"
+PACK_DESCRIPTION=$(curl -sS --fail -X GET "${PACK_YAML_URL}" | python -c 'import yaml,sys; c=yaml.safe_load(sys.stdin);print c["description"]')
+
+curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
+-d '{"name": "'"${REPO_NAME}"'", "description": "'"${PACK_DESCRIPTION}"'", "homepage": "https://exchange.stackstorm.org/"}' \
+"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}"
+
 # CircleCI: follow the project
 curl -sS --fail -X POST "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow?circle-token=${CIRCLECI_TOKEN}"
 
