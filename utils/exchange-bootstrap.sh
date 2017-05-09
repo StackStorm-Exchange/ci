@@ -16,6 +16,10 @@
 # * PASSWORD: password for the user (not a token).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 # * SLACK_WEBHOOK_URL: Full URL to Slack webhook where Github event notifications will be sent.
+#
+# Optionally, this env variable can be set to send additional Github event notifications
+# * SLACK_WEBHOOK_URL_COMMUNITY
+
 
 set -e
 
@@ -97,10 +101,17 @@ git commit -m "Bootstrap a StackStorm Exchange pack repository for pack ${PACK}.
 git push origin master
 
 # Github: Configure webhook to send notifications to our Slack instance on changes
-# GitHub: create a read-write key for the repo
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
+
+# Github: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
+if [[ -v SLACK_WEBHOOK_URL_COMMUNITY ]];
+then
+	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+		-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
+		"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
+fi
 
 # CircleCI: follow the project
 curl -sS --fail -X POST "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow?circle-token=${CIRCLECI_TOKEN}"
@@ -117,6 +128,11 @@ curl -sS --fail -X POST --header "Content-Type: application/json" \
 curl -sS --fail -X POST --header "Content-Type: application/json" \
 	-d '{"name":"MACHINE_PASSWORD", "value":'"$(cat "/tmp/${PACK}_user_token")"'}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+
+# CircleCI: Enable builds for pull requests from forks
+curl -sS --fail -X PUT --header "Content-Type: application/json" \
+	-d '{"feature_flags":{"build-fork-prs":true}}' \
+	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings?circle-token=${CIRCLECI_TOKEN}"
 
 # Clean up
 rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
