@@ -95,7 +95,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== packs-tests ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -x -p $(ROOT_DIR) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -p $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .packs-missing-tests
 .packs-missing-tests:
