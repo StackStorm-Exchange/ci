@@ -36,6 +36,7 @@ git fetch origin master
 
 if [ ! -z "${ROOT_DIR}" ]; then
     echo "ROOT_DIR=${ROOT_DIR}"
+    export ROOT_DIR="${ROOT_DIR}"
 
     cd ${ROOT_DIR}
     cp ~/ci/.circle/Makefile .
