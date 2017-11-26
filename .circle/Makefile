@@ -1,4 +1,4 @@
-ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 DESTINATION_DIR := /tmp/st2contrib/packs/$(PACK_NAME)
 CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files)
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
