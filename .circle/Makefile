@@ -38,6 +38,7 @@ metadata-check: requirements .metadata-check
 # # require pack to be in a sub-directory
 .PHONY: .copy-pack-to-subdirectory
 .copy-pack-to-subdirectory:
+	rm -rf /tmp/packs/$(PACK_NAME)
 	mkdir -p /tmp/packs/$(PACK_NAME)
 	cp -r ./* /tmp/packs/$(PACK_NAME)
 
