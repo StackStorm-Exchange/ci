@@ -35,7 +35,13 @@ git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*
 git fetch origin master
 
 cp ~/ci/.circle/Makefile .
-make all
+
+if [ ! -z "${CWD_DIR}" ]; then
+    make -C ${CWD_DIR} all
+else
+    make all
+fi
+
 EXIT_CODE=$?
 
 echo "Validated $PACK_NAME"
