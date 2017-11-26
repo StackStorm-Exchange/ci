@@ -34,11 +34,14 @@ export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*
 git fetch origin master
 
-cp ~/ci/.circle/Makefile .
+if [ ! -z "${ROOT_DIR}" ]; then
+    echo "ROOT_DIR=${ROOT_DIR}"
 
-if [ ! -z "${CWD_DIR}" ]; then
-    make -C ${CWD_DIR} all
+    cd ${ROOT_DIR}
+    cp ~/ci/.circle/Makefile .
+    make all
 else
+    cp ~/ci/.circle/Makefile .
     make all
 fi
 
