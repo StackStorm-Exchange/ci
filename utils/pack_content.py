@@ -142,6 +142,20 @@ if __name__ == '__main__':
                           separators=(',', ': '))
                 fp.write("\n")
 
+    # Copy config schema
+    try:
+        with open(os.path.join(args.input, 'config.schema.yaml'), 'r+') as fp:
+            config = ordered_load(fp.read(), yaml.SafeLoader)
+
+        with open(os.path.join(args.output, 'config.schema.json'), 'w') as fp:
+            json.dump(config, fp, indent=4, sort_keys=True,
+                      separators=(',', ': '))
+            fp.write("\n")
+    except IOError as e:
+        print('Config file has not been copied:')
+        print(e)
+        print('skipping...')
+
     # Write out new pack.yaml with content count
     with open(os.path.join(args.output, 'pack.yaml'), 'w') as fp:
         fp.write(ordered_dump(meta, Dumper=yaml.SafeDumper,
