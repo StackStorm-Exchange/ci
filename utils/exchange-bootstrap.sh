@@ -109,7 +109,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 if [[ -v SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
 	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-		-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
+		-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
 		"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 

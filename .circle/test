@@ -6,7 +6,12 @@ set -e
 
 export CI_DIR=/home/ubuntu/ci
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
-export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml)
+
+if [ -z "${PACK_NAME}" ]; then
+    export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml)
+else
+    export PACK_NAME="${PACK_NAME}"
+fi
 
 if [[ -z "${PACK_NAME}" ]]
 then
@@ -34,8 +39,17 @@ export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*
 git fetch origin master
 
-cp ~/ci/.circle/Makefile .
-make all
+echo "ROOT_DIR=${ROOT_DIR}"
+
+if [ ! -z "${ROOT_DIR}" ]; then
+    export ROOT_DIR="${ROOT_DIR}"
+    cp ~/ci/.circle/Makefile ${ROOT_DIR}
+    make -C ${ROOT_DIR} all
+else
+    cp ~/ci/.circle/Makefile .
+    make all
+fi
+
 EXIT_CODE=$?
 
 echo "Validated $PACK_NAME"

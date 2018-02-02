@@ -12,12 +12,7 @@ git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exch
 
 echo "Processing pack ${PACK_NAME}"
 
-# Count content and store it in the index version of pack.yaml
-~/virtualenv/bin/python ~/ci/utils/pack_content.py
-# Move the pack.yaml file to the index
-mkdir -p ~/index/v1/packs/
-cp pack.yaml ~/index/v1/packs/"${PACK_NAME}".yaml
-git checkout pack.yaml
+~/virtualenv/bin/python ~/ci/utils/pack_content.py --input . --output ~/index/v1/packs/"${PACK_NAME}"
 
 # Rebuild the index JSON
 if [ -n "$(git -C ~/index status -s)" ] || [ ${FORCE_REBUILD_INDEX} == "1" ];
@@ -25,7 +20,7 @@ then
   if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
       echo "Forcing index rebuild..."
   fi
-  ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*.yaml" --output "~/index/v1/"
+  ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*/pack.yaml" --output "~/index/v1/"
 else
   echo "No changes in metadata, skipping the index rebuild."
 fi

@@ -1,4 +1,4 @@
-ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 DESTINATION_DIR := /tmp/st2contrib/packs/$(PACK_NAME)
 CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files)
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
@@ -38,6 +38,7 @@ metadata-check: requirements .metadata-check
 # # require pack to be in a sub-directory
 .PHONY: .copy-pack-to-subdirectory
 .copy-pack-to-subdirectory:
+	rm -rf /tmp/packs/$(PACK_NAME)
 	mkdir -p /tmp/packs/$(PACK_NAME)
 	cp -r ./* /tmp/packs/$(PACK_NAME)
 
@@ -99,7 +100,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo
 	@echo "==================== packs-tests ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -x -p $(ROOT_DIR) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -p $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .packs-missing-tests
 .packs-missing-tests:

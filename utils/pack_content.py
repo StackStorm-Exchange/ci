@@ -3,38 +3,44 @@
 # A helper script to count content in a pack.
 #
 import os
+import errno
 import glob
+import json
 import yaml
+import argparse
 from collections import OrderedDict
 
 RESOURCE_LOCATOR = {
   'sensors': {
     'path': ['sensors/*.yaml', 'sensors/*.yml'],
-    'validate': ['class_name']
+    'key': 'class_name'
   },
   'actions': {
     'path': ['actions/*.yaml', 'actions/*.yml'],
-    'validate': ['name']
+    'key': 'name'
   },
   'rules': {
     'path': ['rules/*.yaml', 'rules/*.yml'],
-    'validate': ['name']
+    'key': 'name'
   },
   'runners': {
     'path': ['runners/*/runner.yaml', 'runners/*/runner.yml'],
-    'validate': ['name']
+    'key': 'name'
   },
   'triggers': {
     'path': ['triggers/*.yaml', 'triggers/*.yml'],
-    'validate': ['name']
+    'key': 'name'
   },
   'aliases': {
     'path': ['aliases/*.yaml', 'aliases/*.yml'],
-    'validate': ['name']
+    'key': 'name'
   },
   'policies': {
     'path': ['policies/*.yaml', 'policies/*.yml'],
-    'validate': ['name']
+    'key': 'name'
+  },
+  'tests': {
+    'key': 'filename'
   }
 }
 
@@ -65,13 +71,15 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
 
 
 def get_pack_resources(pack_dir):
-
     resources = {}
 
     for resource, locator in RESOURCE_LOCATOR.iteritems():
 
         resources[resource] = []
         matching_files = []
+
+        if 'path' not in locator:
+            continue
 
         for path in locator['path']:
             matching_files += glob.glob(os.path.join(pack_dir, path))
@@ -81,34 +89,74 @@ def get_pack_resources(pack_dir):
                 metadata = fp.read()
             metadata = yaml.safe_load(metadata)
             valid = True
-            for validator in locator['validate']:
+            for validator in locator.get('validate', [locator.get('key')]):
                 if validator not in metadata:
                     valid = False
             if valid:
                 resources[resource].append(metadata)
 
     # Inaccurate, but for now we'll only need true/false.
-    resources['tests'] = glob.glob(os.path.join(pack_dir, 'tests/*.py'))
+    resources['tests'] = [{'filename': os.path.basename(name)} for name in
+                          glob.glob(os.path.join(pack_dir, 'tests/*.py'))]
 
     return resources
 
 
 def return_resource_count(resources):
     result = {}
-    for k, v in resources.iteritems():
-        if len(v):
-            result[k] = {'count': len(v)}
+    for resource, entities in resources.iteritems():
+        if len(entities):
+            key = RESOURCE_LOCATOR[resource]['key']
+            result[resource] = {
+                'resources': [item[key] for item in entities],
+                'count': len(entities)
+            }
     return result
 
 
 if __name__ == '__main__':
-    with open('pack.yaml', 'r+') as fp:
+    parser = argparse.ArgumentParser(description='Gather pack metadata')
+    parser.add_argument('--input', help='Directory of the pack',
+                        required=True)
+    parser.add_argument('--output', help='Directory where the pack metadata should be saved',
+                        required=True)
+    args = parser.parse_args()
+
+    with open(os.path.join(args.input, 'pack.yaml'), 'r+') as fp:
         meta = ordered_load(fp.read(), yaml.SafeLoader)
 
-    content = get_pack_resources('.')
+    content = get_pack_resources(args.input)
     meta['content'] = return_resource_count(content)
 
+    for resource_type, resource_entities in content.iteritems():
+        key = RESOURCE_LOCATOR[resource_type]['key']
+        directory = os.path.join(args.output, resource_type)
+        try:
+            os.makedirs(directory)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+        for entity in resource_entities:
+            with open(os.path.join(directory, '%s.json' % entity[key]), 'w') as fp:
+                json.dump(entity, fp, indent=4, sort_keys=True,
+                          separators=(',', ': '))
+                fp.write("\n")
+
+    # Copy config schema
+    try:
+        with open(os.path.join(args.input, 'config.schema.yaml'), 'r+') as fp:
+            config = ordered_load(fp.read(), yaml.SafeLoader)
+
+        with open(os.path.join(args.output, 'config.schema.json'), 'w') as fp:
+            json.dump(config, fp, indent=4, sort_keys=True,
+                      separators=(',', ': '))
+            fp.write("\n")
+    except IOError as e:
+        print('Config file has not been copied:')
+        print(e)
+        print('skipping...')
+
     # Write out new pack.yaml with content count
-    with open('pack.yaml', 'w') as fp:
+    with open(os.path.join(args.output, 'pack.yaml'), 'w') as fp:
         fp.write(ordered_dump(meta, Dumper=yaml.SafeDumper,
                               default_flow_style=False))

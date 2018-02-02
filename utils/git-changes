@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
-ROOT_DIR=$(git rev-parse --show-toplevel)
 METHOD=$1
+
+# Allow user to specify custom root dir when operating in scenarios with
+# multiple packs in a repo and similar
+if [ -z "${ROOT_DIR}" ]; then
+    ROOT_DIR=$(git rev-parse --show-toplevel)
+fi
 
 case $METHOD in
   files|directories|py|yaml|json)
