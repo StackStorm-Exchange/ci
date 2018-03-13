@@ -4,7 +4,7 @@ set -e
 
 . ~/virtualenv/bin/activate
 
-export CI_DIR=/home/ubuntu/ci
+export CI_DIR=/home/circleci/ci
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
 if [ -z "${PACK_NAME}" ]; then

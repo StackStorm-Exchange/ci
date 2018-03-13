@@ -6,6 +6,18 @@ FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
+if [ -z "${PACK_NAME}" ]; then
+    export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml)
+else
+    export PACK_NAME="${PACK_NAME}"
+fi
+
+if [[ -z "${PACK_NAME}" ]]
+then
+  echo "Unable to retrieve pack name."
+  exit 1
+fi
+
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exchange/index ~/index 2>/dev/null
