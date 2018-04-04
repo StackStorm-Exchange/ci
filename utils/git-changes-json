@@ -11,4 +11,4 @@ fi
 
 cd ${ROOT_DIRECTORY}
 # Note: We include all but deleted files ("D" flag)
-echo $(git diff --diff-filter=ACMRTUXB --name-only ${BASE_BRANCH} -- '*.json')
+echo $(git diff --relative --diff-filter=ACMRTUXB --name-only ${BASE_BRANCH} -- '*.json')
