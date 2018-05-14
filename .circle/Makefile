@@ -1,5 +1,4 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-DESTINATION_DIR := /tmp/st2contrib/packs/$(PACK_NAME)
 CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files)
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 CHANGED_PY := $(shell ${CI_DIR}/utils/git-changes py)
@@ -118,11 +117,9 @@ requirements: virtualenv
 	@echo
 	@echo "==================== requirements ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade pip
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip>=9.0,<9.1"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
-	# Note: Line below is a work around for corrupted Travis Python wheel cache issue
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --no-cache-dir --no-binary :all: --upgrade --force-reinstall greenlet
 
 .PHONY: virtualenv
 virtualenv: $(VIRTUALENV_DIR)/bin/activate

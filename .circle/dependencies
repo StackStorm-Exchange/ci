@@ -16,15 +16,12 @@ git clone --depth 1 --single-branch --branch master https://github.com/StackStor
 # Create a directory for debian packages so we can cache it in Circle CI
 sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
 
-# removing broken symlink
-sudo rm -f /usr/local/lib/python2.7/dist-packages/setuptools-3.4.4-py2.7.egg
-
 # Note: We can't directly install imagemagick since it results an error
 # We use work-around from https://discuss.circleci.com/t/error-installing-imagemagick/2963
 sudo apt-get update
 sudo apt-get -y install python-dev jq gmic optipng
 
-sudo pip install -U pip setuptools virtualenv
+sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv
 
 virtualenv ~/virtualenv
 . ~/virtualenv/bin/activate

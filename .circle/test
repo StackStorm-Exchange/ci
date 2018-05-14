@@ -4,7 +4,7 @@ set -e
 
 . ~/virtualenv/bin/activate
 
-export CI_DIR=/home/ubuntu/ci
+export CI_DIR=/home/circleci/ci
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
 if [ -z "${PACK_NAME}" ]; then
@@ -31,13 +31,6 @@ fi
 
 # We want to use special config file for tests which sets pack base path to /tmp/packs/
 export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
-
-# Note: Travis performs a shallow clone of a single branch which means we end up
-# in a detached head state where git-changes-* scripts won't work since master
-# branch is not available.
-# We fix this by pulling down master branch.
-git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*
-git fetch origin master
 
 echo "ROOT_DIR=${ROOT_DIR}"
 

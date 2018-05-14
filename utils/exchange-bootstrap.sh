@@ -90,9 +90,10 @@ fi
 # Git: push - add various files which are needed to bootstrap the repo:
 # - circle.yml
 # - .gitignore
-curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample" > circle.yml
-chmod 755 circle.yml
-git add circle.yml
+mkdir .circleci
+curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample" > .circleci/config.yml
+chmod 755 .circleci/config.yml
+git add .circleci/config.yml
 
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/files/.gitignore.sample" > .gitignore
 git add .gitignore
@@ -106,7 +107,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
 # Github: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
-if [[ -v SLACK_WEBHOOK_URL_COMMUNITY ]];
+if [[ ! -z $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
 	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 		-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
