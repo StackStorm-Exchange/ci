@@ -73,7 +73,7 @@ else
 fi
 
 # Create version tags
-METADATA_CHANGES=$(git rev-list --all --no-abbrev -- pack.yaml)
+METADATA_CHANGES=$(git rev-list --all --no-abbrev --remove-empty -- pack.yaml)
 for COMMIT in $(echo $METADATA_CHANGES)
 do
   git checkout ${COMMIT} pack.yaml > /dev/null
