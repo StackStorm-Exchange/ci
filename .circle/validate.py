@@ -55,4 +55,4 @@ if __name__ == '__main__':
     validate_schema(pack_meta, PACK_SCHEMA)
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
 
-    print pack_ref
+    print(pack_ref)
