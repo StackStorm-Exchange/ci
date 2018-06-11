@@ -26,7 +26,7 @@ PACK_SCHEMA = PackAPI.schema
 
 
 def load_yaml_file(path):
-    with file(path, 'r') as stream:
+    with open(path, 'r') as stream:
         text = yaml.load(stream)
 
     return text
