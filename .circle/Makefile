@@ -72,6 +72,10 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_YAML}" ]; then echo "No files have changed, skipping run..."; fi; for file in $(CHANGED_YAML); do if [ -n "$$file" ]; then st2-check-validate-yaml-file $$file || exit 1 ; fi; done
 	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_JSON}" ]; then echo "No files have changed, skipping run..."; fi; for file in $(CHANGED_JSON); do if [ -n "$$file" ]; then st2-check-validate-json-file $$file || exit 1 ; fi; done
 	@echo
+	@echo "==================== config schema check ===================="
+	@echo
+	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else $(CI_DIR)/.circle/validate-config-schema-exists.sh /tmp/packs/$(PACK_NAME) || exit 1; fi;
+	@echo
 	@echo "==================== example config check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else st2-check-validate-pack-example-config /tmp/packs/$(PACK_NAME) || exit 1; fi;
