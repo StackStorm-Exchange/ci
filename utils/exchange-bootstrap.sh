@@ -135,5 +135,16 @@ curl -sS --fail -X PUT --header "Content-Type: application/json" \
 	-d '{"feature_flags":{"build-fork-prs":true}}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings?circle-token=${CIRCLECI_TOKEN}"
 
+# CircleCI has started automatically adding a read-only deploy key when following a project
+# This breaks our deployment process.
+# So we need to get a list of read-only keys, and delete them
+RO_KEYS=$(curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
+        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
+
+for RO_KEY in ${RO_KEYS};
+ do
+    curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
+done
+
 # Clean up
 rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
