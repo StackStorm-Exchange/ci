@@ -14,6 +14,7 @@ export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
 # All components are prefixed by st2
 COMPONENTS := $(wildcard /tmp/st2/st2*)
+COMPONENTS_RUNNERS := $(wildcard /tmp/st2/contrib/runners/*)
 
 .PHONY: all
 all: requirements lint packs-resource-register packs-tests
@@ -112,8 +113,20 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@rm -rf /tmp/st2
 	@git clone https://github.com/StackStorm/st2.git --depth 1 --single-branch --branch $(ST2_REPO_BRANCH) /tmp/st2
 
+.PHONY: .install-runners
+.install-runners:
+	@echo ""
+	@echo "================== install runners ===================="
+	@echo ""
+	@for component in $(COMPONENTS_RUNNERS); do \
+		echo "==========================================================="; \
+		echo "Installing runner:" $$component; \
+		echo "==========================================================="; \
+        (. $(VIRTUALENV_DIR)/bin/activate; cd $$component; python setup.py develop); \
+	done
+
 .PHONY: requirements
-requirements: virtualenv
+requirements: virtualenv .install-runners
 	@echo
 	@echo "==================== requirements ===================="
 	@echo
