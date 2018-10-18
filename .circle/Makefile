@@ -126,7 +126,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	done
 
 .PHONY: requirements
-requirements: virtualenv .install-runners
+requirements: virtualenv .clone_st2_repo .install-runners
 	@echo
 	@echo "==================== requirements ===================="
 	@echo
