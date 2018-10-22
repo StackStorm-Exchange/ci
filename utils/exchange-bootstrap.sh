@@ -52,6 +52,7 @@ mkdir "${REPO_DIR}" && cd "${REPO_DIR}"
 git init && git remote add origin "${REPO_URL}"
 
 # Generate a keypair
+echo "Generating random private SSH key"
 ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N ""
 
 # GitHub: create a repo or create an alias and move
@@ -66,17 +67,19 @@ else
 fi
 
 # GitHub: rename the alias repo to its full name
-echo "Renaming the repo to ${REPO_NAME}."
+echo "Github: Renaming the repo to ${REPO_NAME}."
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
 -d '{"name": "'"${REPO_NAME}"'"}' \
 "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # GitHub: create a read-write key for the repo
+echo "Github: Creating a read-write key for the Github repo"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
 # GitHub: create a user-scope token
+echo "Github: Creating a Github user-scoped token"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
 	"https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
@@ -102,6 +105,7 @@ git commit -m "Bootstrap a StackStorm Exchange pack repository for pack ${PACK}.
 git push origin master
 
 # Github: Configure webhook to send notifications to our Slack instance on changes
+echo "Github: Configuring Github to send webhook notifications to our Slack"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
@@ -109,20 +113,24 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 # Github: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
 if [[ ! -z $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
+    echo "Github: Configuring Github to send webhook notifications to our community Slack"
 	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 		-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
 		"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
 # CircleCI: follow the project
+echo "CircleCI: Following the project"
 curl -sS --fail -X POST "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow?circle-token=${CIRCLECI_TOKEN}"
 
 # CircleCI: upload the read-write key
+echo "CircleCI: Adding read-write SSH key"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
 	-d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key?circle-token=${CIRCLECI_TOKEN}"
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
+echo "CircleCI: Setting credentials (machine login and user-scoped token)"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
 	-d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
@@ -131,6 +139,7 @@ curl -sS --fail -X POST --header "Content-Type: application/json" \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
 
 # CircleCI: Enable builds for pull requests from forks
+echo "CircleCI: Enabling builds for pull requests from forks"
 curl -sS --fail -X PUT --header "Content-Type: application/json" \
 	-d '{"feature_flags":{"build-fork-prs":true}}' \
 	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings?circle-token=${CIRCLECI_TOKEN}"
@@ -138,6 +147,7 @@ curl -sS --fail -X PUT --header "Content-Type: application/json" \
 # CircleCI has started automatically adding a read-only deploy key when following a project
 # This breaks our deployment process.
 # So we need to get a list of read-only keys, and delete them
+echo "CircleCI: Remove read-only keys."
 RO_KEYS=$(curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
         "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
 
