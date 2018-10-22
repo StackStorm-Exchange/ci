@@ -53,7 +53,7 @@ git init && git remote add origin "${REPO_URL}"
 
 # Generate a keypair
 echo "Generating random private SSH key"
-ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N ""
+ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N "" -m pem
 
 # GitHub: create a repo or create an alias and move
 if git ls-remote "${ALIAS_URL}" > /dev/null 2>&1;
