@@ -29,6 +29,10 @@ if [ "${GIT_BRANCH}" = "master" ]; then
     export FORCE_CHECK_ALL_FILES="true"
 fi
 
+if [ ! -z "${FORCE_CHECK_ALL_FILES}" ]; then
+    export FORCE_CHECK_ALL_FILES="${FORCE_CHECK_ALL_FILES}"
+fi
+
 # We want to use special config file for tests which sets pack base path to /tmp/packs/
 export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 
