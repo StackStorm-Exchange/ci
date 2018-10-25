@@ -33,6 +33,7 @@ fi
 export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 
 echo "ROOT_DIR=${ROOT_DIR}"
+echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES}"
 
 if [ ! -z "${ROOT_DIR}" ]; then
     export ROOT_DIR="${ROOT_DIR}"
