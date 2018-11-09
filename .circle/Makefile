@@ -134,10 +134,6 @@ requirements: virtualenv .clone_st2_repo .install-runners
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
-	# Install st2common package to load metrics drivers defined in st2common setup.py
-	(cd /tmp/st2/st2common; $(VIRTUALENV_DIR)/bin/python setup.py develop)
-
-
 .PHONY: virtualenv
 virtualenv: $(VIRTUALENV_DIR)/bin/activate
 $(VIRTUALENV_DIR)/bin/activate:
