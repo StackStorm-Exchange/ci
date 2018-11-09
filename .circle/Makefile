@@ -129,7 +129,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	@echo ""
 
         # Install st2common to register metrics drivers
-        (cd ${ROOT_DIR}/st2common; ${ROOT_DIR}/$(VIRTUALENV_DIR)/bin/python setup.py develop)
+        (. $(VIRTUALENV_DIR)/bin/activate; cd $(ST2_REPO_PATH)/st2common; python setup.py develop)
 
 .PHONY: requirements
 requirements: virtualenv .clone_st2_repo .install-runners
