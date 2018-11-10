@@ -19,6 +19,9 @@ COMPONENTS_RUNNERS := $(wildcard /tmp/st2/contrib/runners/*)
 .PHONY: all
 all: requirements lint packs-resource-register packs-tests
 
+.PHONY: all-ci
+all-ci: .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
+
 .PHONY: lint
 lint: requirements flake8 pylint configs-check metadata-check
 
@@ -136,6 +139,15 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 requirements: virtualenv .clone_st2_repo .install-runners
 	@echo
 	@echo "==================== requirements ===================="
+	@echo
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip>=9.0,<9.1"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
+
+.PHONY: requirements-ci
+requirements-ci:
+	@echo
+	@echo "==================== requirements-ci ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip>=9.0,<9.1"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
