@@ -106,7 +106,8 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 	if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1); fi;
 
 .PHONY: .clone_st2_repo
-.clone_st2_repo:
+.clone_st2_repo: /tmp/st2
+/tmp/st2:
 	@echo
 	@echo "==================== cloning st2 repo ===================="
 	@echo
