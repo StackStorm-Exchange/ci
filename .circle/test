@@ -41,11 +41,9 @@ echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES}"
 
 if [ ! -z "${ROOT_DIR}" ]; then
     export ROOT_DIR="${ROOT_DIR}"
-    cp ~/ci/.circle/Makefile ${ROOT_DIR}
-    make -C ${ROOT_DIR} all
+    make -C ${ROOT_DIR} all-ci
 else
-    cp ~/ci/.circle/Makefile .
-    make all
+    make all-ci
 fi
 
 EXIT_CODE=$?

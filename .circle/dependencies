@@ -2,7 +2,10 @@
 
 set -e
 
-my_dir="$(dirname "$0")"
+CURRENT_DIR="$(dirname "$0")"
+
+export CI_DIR=/home/circleci/ci
+export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
 git config --global user.name "StackStorm Exchange"
 git config --global user.email "info@stackstorm.com"
@@ -24,10 +27,24 @@ sudo apt-get -y install python-dev jq gmic optipng
 sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv
 
 virtualenv ~/virtualenv
-. ~/virtualenv/bin/activate
+source ~/virtualenv/bin/activate
 
 # Install StackStorm requirements
+echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
 ~/virtualenv/bin/pip install -r "/tmp/st2/requirements.txt"
 
+# Copy over Makefile and  install StackStorm runners and register metrics drivers
+echo "Installing StackStorm runners and registering metrics drivers"
+if [ ! -z "${ROOT_DIR}" ]; then
+    cp ~/ci/.circle/Makefile ${ROOT_DIR}
+    make -C requirements-ci .install-runners
+else
+    cp ~/ci/.circle/Makefile .
+    make requirements-ci .install-runners
+fi
+
 # Install pack requirements
-~/virtualenv/bin/pip install -r "$my_dir/requirements.txt"
+if [ -f "${CURRENT_DIR}/requirements.txt" ]; then
+    echo "Installing pack requirements from ${CURRENT_DIR}/requirements.txt"
+    ~/virtualenv/bin/pip install -r "${CURRENT_DIR}/requirements.txt"
+fi

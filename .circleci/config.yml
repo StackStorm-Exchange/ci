@@ -17,12 +17,12 @@ jobs:
       - restore_cache:
           key: v1-dependency-cache-{{ checksum "requirements.txt" }}
       - run:
-          name: Download dependencies
+          name: Download and Install Dependencies
           command: |
             git clone -b master git://github.com/stackstorm-exchange/ci.git ~/ci
             ~/ci/.circle/dependencies
       - run:
-          name: Run tests
+          name: Run Lint Checks and Tests
           command: ~/ci/.circle/test
       - save_cache:
           key: v1-dependency-cache-{{ checksum "requirements.txt" }}
