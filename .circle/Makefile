@@ -58,7 +58,7 @@ packs-tests: requirements .clone_st2_repo .packs-tests
 .compile:
 	@echo "======================= compile ========================"
 	@echo "------- Compile all .py files (syntax check test) ------"
-	@if python -c 'import compileall,re; compileall.compile_dir(".", rx=re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox"), quiet=True)' | grep .; then exit 1; else exit 0; fi
+	if python -c 'import compileall,re; compileall.compile_dir(".", rx=re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox"), quiet=True)' | grep .; then exit 1; else exit 0; fi
 
 .PHONY: .flake8
 .flake8:
