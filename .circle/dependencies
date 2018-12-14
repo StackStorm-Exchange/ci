@@ -40,9 +40,11 @@ echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
 # Copy over Makefile and  install StackStorm runners and register metrics drivers
 echo "Installing StackStorm runners and registering metrics drivers"
 if [ ! -z "${ROOT_DIR}" ]; then
+    echo "Copying Makefile to ${ROOT_DIR}"
     cp ~/ci/.circle/Makefile ${ROOT_DIR}
     make -C requirements-ci .install-runners
 else
+    echo "Copying Makefile to $(pwd)"
     cp ~/ci/.circle/Makefile .
     make requirements-ci .install-runners
 fi
