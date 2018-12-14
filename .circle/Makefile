@@ -20,7 +20,7 @@ COMPONENTS_RUNNERS := $(wildcard /tmp/st2/contrib/runners/*)
 all: requirements lint packs-resource-register packs-tests
 
 .PHONY: all-ci
-all-ci: .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
+all-ci: compile .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
 
 .PHONY: lint
 lint: requirements flake8 pylint configs-check metadata-check
@@ -53,6 +53,12 @@ packs-missing-tests: requirements .packs-missing-tests
 
 .PHONY: packs-tests
 packs-tests: requirements .clone_st2_repo .packs-tests
+
+.PHONY: compile
+compile:
+	@echo "======================= compile ========================"
+	@echo "------- Compile all .py files (syntax check test) ------"
+	if python -c 'import compileall,re; compileall.compile_dir(".", rx=re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox"), quiet=True)' | grep .; then exit 1; else exit 0; fi
 
 .PHONY: .flake8
 .flake8:
