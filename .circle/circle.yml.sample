@@ -69,14 +69,6 @@ jobs:
           paths:
             - ~/.cache/pip
             - ~/.apt-cache
-      - persist_to_workspace:
-          root: /
-          paths:
-            - home/circleci/ci
-            - home/circleci/virtualenv
-            - tmp/st2
-            - home/circleci/repo
-            - home/circleci/.gitconfig
 
   deploy:
     docker:
