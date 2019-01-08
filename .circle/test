@@ -20,12 +20,12 @@ then
 fi
 
 GIT_BRANCH=$(git for-each-ref --format='%(objectname) %(refname:short)' refs/heads | awk "/^$(git rev-parse HEAD)/ {print \$2}")
-PYTHON_VERSION=$(python -v)
+PYTHON_VERSION=$(python --version)
 
 # When running on master branch we want to run checks on all the files / packs not only on
 # changed ones.
 echo "Running on branch: ${GIT_BRANCH}"
-echo "Python version: $(PYTHON_VERSION)"
+echo "Python version: ${PYTHON_VERSION}"
 
 if [ "${GIT_BRANCH}" = "master" ]; then
     echo "Running on master branch, forcing check of all files"
