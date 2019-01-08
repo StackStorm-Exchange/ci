@@ -10,6 +10,10 @@ export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 git config --global user.name "StackStorm Exchange"
 git config --global user.email "info@stackstorm.com"
 
+# Print out environment info
+python --version
+pip --version
+
 # Clone st2 repo so other scripts can reference StackStorm Python code
 git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
 
