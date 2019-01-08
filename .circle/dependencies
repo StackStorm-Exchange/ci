@@ -54,3 +54,6 @@ if [ -f "${CURRENT_DIR}/requirements.txt" ]; then
     echo "Installing pack requirements from ${CURRENT_DIR}/requirements.txt"
     ~/virtualenv/bin/pip install -r "${CURRENT_DIR}/requirements.txt"
 fi
+
+echo "Installed dependencies:"
+pip list
