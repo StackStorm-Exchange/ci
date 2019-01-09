@@ -39,20 +39,25 @@ echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
 
 # Copy over Makefile and  install StackStorm runners and register metrics drivers
 echo "Installing StackStorm runners and registering metrics drivers"
+
 if [ ! -z "${ROOT_DIR}" ]; then
+    PACK_REQUIREMENTS_FILE="${ROOT_DIR}/requirements.txt"
+
     echo "Copying Makefile to ${ROOT_DIR}"
     cp ~/ci/.circle/Makefile ${ROOT_DIR}
     make -C requirements-ci .install-runners
 else
+    PACK_REQUIREMENTS_FILE="$(pwd)/requirements.txt"
+
     echo "Copying Makefile to $(pwd)"
     cp ~/ci/.circle/Makefile .
     make requirements-ci .install-runners
 fi
 
 # Install pack requirements
-if [ -f "${CURRENT_DIR}/requirements.txt" ]; then
-    echo "Installing pack requirements from ${CURRENT_DIR}/requirements.txt"
-    ~/virtualenv/bin/pip install -r "${CURRENT_DIR}/requirements.txt"
+if [ -f "${PACK_REQUIREMENTS_FILE}" ]; then
+    echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
+    ~/virtualenv/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
 fi
 
 echo "Installed dependencies:"
