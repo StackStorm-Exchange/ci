@@ -65,7 +65,7 @@ jobs:
             ~/ci/.circle/dependencies
       - run:
           name: Run tests (Python 3.6)
-          command: ~/ci/.circle/test ; ~/ci/.circle/exit_on_py3_checks
+          command: ~/ci/.circle/test ; ~/ci/.circle/exit_on_py3_checks $?
       - save_cache:
           key: v1-dependency-cache-py36-{{ checksum "requirements.txt" }}
           paths:
