@@ -62,7 +62,7 @@ jobs:
           name: Download dependencies
           command: |
             git clone -b master git://github.com/stackstorm-exchange/ci.git ~/ci
-            ~/ci/.circle/dependencies
+            ~/ci/.circle/dependencies ; ~/ci/.circle/exit_on_py3_checks $?
       - run:
           name: Run tests (Python 3.6)
           command: ~/ci/.circle/test ; ~/ci/.circle/exit_on_py3_checks $?
