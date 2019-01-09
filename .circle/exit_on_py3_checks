@@ -13,7 +13,7 @@ TEST_EXIT_CODE=$1
 echo "Original script exit code: ${TEST_EXIT_CODE}"
 
 # If pack doesnt' declare Python 3 support, we don't treat failures as fatal
-SUPPORTS_PYTHON3=$(python -c $'import yaml, sys\nresult = yaml.safe_load(open("pack.yaml", "r").read())\nif "3" in result.get("python_versions", []):\n    print("yes")')
+SUPPORTS_PYTHON3=$(~/virtualenv/bin/python -c $'import yaml, sys\nresult = yaml.safe_load(open("pack.yaml", "r").read())\nif "3" in result.get("python_versions", []):\n    print("yes")')
 
 if [ "${SUPPORTS_PYTHON3}" != "yes" ] && [ ${TEST_EXIT_CODE} -ne 0 ] ; then
     echo "Ignoring failures since pack doesn't declare Python 3 support in pack.yaml"
