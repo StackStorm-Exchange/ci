@@ -18,10 +18,10 @@ EXCHANGE_PREFIX = "stackstorm"
 def build_index(path_glob, output_path):
     result = OrderedDict({
         'packs': OrderedDict(),
-        'metadata': OrderedDict({
-            'generated_ts': None,  # Timestamp of when the file has been generated
-            'hash': None  # MD5 hash of all the content, useful when mirror the index
-        })
+        'metadata': OrderedDict([
+            ('generated_ts', None),  # Timestamp of when the file has been generated
+            ('hash', None)  # MD5 hash of all the content, useful when mirror the index
+        ])
     })
 
     data_hash = hashlib.md5()
