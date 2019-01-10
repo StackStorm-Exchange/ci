@@ -108,7 +108,7 @@ def return_resource_count(resources):
         if len(entities):
             key = RESOURCE_LOCATOR[resource]['key']
             result[resource] = {
-                'resources': [item[key] for item in entities],
+                'resources': sorted([item[key] for item in entities]),
                 'count': len(entities)
             }
     return result
