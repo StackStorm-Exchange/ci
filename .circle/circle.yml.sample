@@ -132,9 +132,8 @@ workflows:
     triggers:
       # Run nightly build for the pack
       - schedule:
-          # NOTE: We run it at 2 am UTC because it's least likely to have any
-          # activity then (building all the repos takes around 2 hours)
-          cron: "0 2 * * *"
+          # NOTE: We run it at 1 am UTC on every Saturday
+          cron: "0 1 * * 6"
           filters:
             branches:
               only:
