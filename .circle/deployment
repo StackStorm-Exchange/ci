@@ -95,3 +95,12 @@ do
     git push origin v${VERSION}
   fi
 done
+
+
+RANDOM=$((1 + RANDOM % 5))
+
+if [ ${RANDOM} -eq 1 ]; then
+    echo "Random failure to test retry"
+    exit 1
+fi
+
