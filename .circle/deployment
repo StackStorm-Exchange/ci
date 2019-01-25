@@ -95,10 +95,3 @@ do
     git push origin v${VERSION}
   fi
 done
-
-RANDOM_VALUE=$((1 + $RANDOM % 3))
-
-if [ ${RANDOM_VALUE} -eq 1 ]; then
-    echo "Random failure to test retry"
-    exit 1
-fi
