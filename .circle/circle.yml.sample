@@ -132,8 +132,8 @@ workflows:
     triggers:
       # Run nightly build for the pack
       - schedule:
-          # NOTE: We run it at 1 am UTC on every Saturday
-          cron: "0 1 * * 6"
+          # NOTE: We run it at 1 am UTC on every Sunday
+          cron: "0 1 * * 0"
           filters:
             branches:
               only:
