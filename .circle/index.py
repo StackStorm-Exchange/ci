@@ -52,7 +52,10 @@ def build_index(path_glob, output_path):
             EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
         )
 
-        pack_meta['tags'] = get_tags_for_pack(pack_ref)
+        tags = get_tags_for_pack(pack_ref)
+
+        if tags is not None:
+            pack_meta['tags'] = tags
 
         # Note: Key in the index dictionary is ref and not a name
         result['packs'][pack_ref] = pack_meta
@@ -90,7 +93,7 @@ def get_tags_for_pack(pack_ref):
 
     if resp.status_code != 200:
         print('Got non 200 response: %s' % (resp.text))
-        return []
+        return None
 
     tags = []
 
