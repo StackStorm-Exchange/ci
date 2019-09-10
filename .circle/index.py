@@ -9,10 +9,18 @@ import hashlib
 from glob import glob
 from collections import OrderedDict
 
+import requests
+
 from st2common.util.pack import get_pack_ref_from_metadata
 
 EXCHANGE_NAME = "StackStorm-Exchange"
 EXCHANGE_PREFIX = "stackstorm"
+
+GITHUB_USERNAME = os.environ.get('MACHINE_USER')
+GITHUB_PASSWORD = os.environ.get('MACHINE_PASSWORD')
+
+SESSION = requests.Session()
+SESSION.auth = (GITHUB_USERNAME, GITHUB_PASSWORD)
 
 
 def build_index(path_glob, output_path):
@@ -44,6 +52,11 @@ def build_index(path_glob, output_path):
             EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
         )
 
+        versions = get_available_versions_for_pack(pack_ref)
+
+        if versions is not None:
+            pack_meta['versions'] = versions
+
         # Note: Key in the index dictionary is ref and not a name
         result['packs'][pack_ref] = pack_meta
 
@@ -66,6 +79,32 @@ def build_index(path_glob, output_path):
     print('')
     print('Processed %s packs.' % (counter))
     print('Index data written to "%s".' % (output_path))
+
+
+def get_available_versions_for_pack(pack_ref):
+    """
+    Retrieve all the available versions for a particular pack.
+
+    NOTE: This function uses Github API.
+    """
+    url = ('https://api.github.com/repos/%s/%s-%s/tags' %
+           (EXCHANGE_NAME, EXCHANGE_PREFIX, pack_ref))
+    resp = SESSION.get(url)
+
+    if resp.status_code != 200:
+        print('Got non 200 response: %s' % (resp.text))
+        return None
+
+    versions = []
+
+    for item in resp.json():
+        if item.get('name', '').startswith('v'):
+            versions.append(item['name'].replace('v', ''))
+
+    versions = list(reversed(sorted(versions)))
+
+    return versions
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate StackStorm exchange index.json')
