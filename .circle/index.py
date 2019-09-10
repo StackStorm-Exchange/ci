@@ -16,8 +16,8 @@ from st2common.util.pack import get_pack_ref_from_metadata
 EXCHANGE_NAME = "StackStorm-Exchange"
 EXCHANGE_PREFIX = "stackstorm"
 
-GITHUB_USERNAME = os.environ.get('GITHUB_USERNAME')
-GITHUB_PASSWORD = os.environ.get('GITHUB_PASSWORD')
+GITHUB_USERNAME = os.environ.get('MACHINE_USER')
+GITHUB_PASSWORD = os.environ.get('MACHINE_PASSWORD')
 
 SESSION = requests.Session()
 SESSION.auth = (GITHUB_USERNAME, GITHUB_PASSWORD)
