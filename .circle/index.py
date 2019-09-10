@@ -99,7 +99,9 @@ def get_tags_for_pack(pack_ref):
 
     for item in resp.json():
         if item.get('name', None).startswith('v'):
-            tags.append(item['name'])
+            tags.append(item['name'].replace('v', ''))
+
+    tags = list(reversed(sorted(tags)))
 
     return tags
 
