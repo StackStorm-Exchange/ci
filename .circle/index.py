@@ -52,10 +52,10 @@ def build_index(path_glob, output_path):
             EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
         )
 
-        tags = get_tags_for_pack(pack_ref)
+        versions = get_available_versions_for_pack(pack_ref)
 
-        if tags is not None:
-            pack_meta['tags'] = tags
+        if versions is not None:
+            pack_meta['versions'] = versions
 
         # Note: Key in the index dictionary is ref and not a name
         result['packs'][pack_ref] = pack_meta
@@ -81,9 +81,9 @@ def build_index(path_glob, output_path):
     print('Index data written to "%s".' % (output_path))
 
 
-def get_tags_for_pack(pack_ref):
+def get_available_versions_for_pack(pack_ref):
     """
-    Retrieve all the available tags for a particular pack.
+    Retrieve all the available versions for a particular pack.
 
     NOTE: This function uses Github API.
     """
@@ -95,15 +95,15 @@ def get_tags_for_pack(pack_ref):
         print('Got non 200 response: %s' % (resp.text))
         return None
 
-    tags = []
+    versions = []
 
     for item in resp.json():
         if item.get('name', None).startswith('v'):
-            tags.append(item['name'].replace('v', ''))
+            versions.append(item['name'].replace('v', ''))
 
-    tags = list(reversed(sorted(tags)))
+    versions = list(reversed(sorted(versions)))
 
-    return tags
+    return versions
 
 
 if __name__ == '__main__':
