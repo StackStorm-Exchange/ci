@@ -9,10 +9,14 @@ import hashlib
 from glob import glob
 from collections import OrderedDict
 
+import requests
+
 from st2common.util.pack import get_pack_ref_from_metadata
 
 EXCHANGE_NAME = "StackStorm-Exchange"
 EXCHANGE_PREFIX = "stackstorm"
+
+SESSION = requests.Session()
 
 
 def build_index(path_glob, output_path):
@@ -44,6 +48,8 @@ def build_index(path_glob, output_path):
             EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
         )
 
+        pack_meta['tags'] = get_tags_for_pack(pack_ref)
+
         # Note: Key in the index dictionary is ref and not a name
         result['packs'][pack_ref] = pack_meta
 
@@ -66,6 +72,30 @@ def build_index(path_glob, output_path):
     print('')
     print('Processed %s packs.' % (counter))
     print('Index data written to "%s".' % (output_path))
+
+
+def get_tags_for_pack(pack_ref):
+    """
+    Retrieve all the available tags for a particular pack.
+
+    NOTE: This function uses Github API.
+    """
+    url = ('https://api.github.com/repos/%s/%s-%s/tags' %
+           (EXCHANGE_NAME, EXCHANGE_PREFIX, pack_ref))
+    resp = SESSION.get(url)
+
+    if resp.status_code != 200:
+        print('Got non 200 response: %s' % (resp.text))
+        return []
+
+    tags = []
+
+    for item in resp.json():
+        if item.get('name', None).startswith('v'):
+            tags.append(item['name'])
+
+    return tags
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate StackStorm exchange index.json')
