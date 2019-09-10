@@ -98,7 +98,7 @@ def get_available_versions_for_pack(pack_ref):
     versions = []
 
     for item in resp.json():
-        if item.get('name', None).startswith('v'):
+        if item.get('name', '').startswith('v'):
             versions.append(item['name'].replace('v', ''))
 
     versions = list(reversed(sorted(versions)))
