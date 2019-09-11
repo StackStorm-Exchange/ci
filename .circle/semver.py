@@ -34,6 +34,5 @@ def get_semver_string(version):
         raise ValueError("Cannot convert %s to semver." % version)
 
 if __name__ == '__main__':
-
     pack = validate.load_yaml_file(sys.argv[1])
-    print get_semver_string(pack['version'])
+    print(get_semver_string(pack['version']))
