@@ -54,6 +54,10 @@ done
 # Afer pushing the version, make sure we check out the latest commit
 # This is important so index reflects latest changes
 git checkout master
+git reset --hard master
+
+# Verify there are no unstaged changes
+git status
 
 # Rebuild pack index directory
 ~/virtualenv/bin/python ~/ci/utils/pack_content.py --input . --output ~/index/v1/packs/"${PACK_NAME}"
