@@ -40,7 +40,7 @@ def build_index(path_glob, output_path):
     counter = 0
     for filename in generator:
         with open(filename, 'r') as pack:
-            pack_meta = yaml.load(pack)
+            pack_meta = yaml.safe_load(pack)
 
         pack_name = pack_meta['name']
         pack_ref = get_pack_ref_from_metadata(metadata=pack_meta)
