@@ -98,21 +98,35 @@ compile:
 	@echo
 	@echo "==================== packs-resource-register ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; fi;
+	. $(VIRTUALENV_DIR)/bin/activate; \
+	if [ ! "${CHANGED_FILES}" ]; then \
+		echo "No files have changed, skipping run..."; \
+	else \
+		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
+	fi;
 
 .PHONY: .packs-tests
 .packs-tests:
 	@echo
 	@echo "==================== packs-tests ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate; if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else ($(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1); fi;
+	. $(VIRTUALENV_DIR)/bin/activate; \
+	if [ ! "${CHANGED_FILES}" ]; then \
+		echo "No files have changed, skipping run..."; \
+	else \
+		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
+	fi;
 
 .PHONY: .packs-missing-tests
 .packs-missing-tests:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ ! "${CHANGED_FILES}" ]; then echo "No files have changed, skipping run..."; else (st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1); fi;
+	if [ ! "${CHANGED_FILES}" ]; then \
+		echo "No files have changed, skipping run..."; \
+	else \
+		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
+	fi;
 
 .PHONY: .clone_st2_repo
 .clone_st2_repo: /tmp/st2
