@@ -15,10 +15,10 @@ python --version
 pip --version
 
 # Clone st2 repo so other scripts can reference StackStorm Python code
-git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/st2.git /tmp/st2
+git clone --depth 1 --single-branch --branch ${ST2_BRANCH} https://github.com/StackStorm/st2.git /tmp/st2
 
 # Clone lint-configs
-git clone --depth 1 --single-branch --branch master https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
+git clone --depth 1 --single-branch --branch ${LINT_CONFIGS_BRANCH} https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
 
 # Create a directory for debian packages so we can cache it in Circle CI
 sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
