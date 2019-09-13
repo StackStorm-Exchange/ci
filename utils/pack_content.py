@@ -45,7 +45,7 @@ RESOURCE_LOCATOR = {
 }
 
 
-def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
+def ordered_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
     class OrderedLoader(Loader):
         pass
 
@@ -55,7 +55,7 @@ def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
     OrderedLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
         construct_mapping)
-    return yaml.safe_load(stream, OrderedLoader)
+    return yaml.load(stream, OrderedLoader)
 
 
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(os.path.join(args.input, 'pack.yaml'), 'r+') as fp:
-        meta = ordered_load(fp.read(), yaml.SafeLoader)
+        meta = ordered_load(fp.read())
 
     content = get_pack_resources(args.input)
     meta['content'] = return_resource_count(content)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # Copy config schema
     try:
         with open(os.path.join(args.input, 'config.schema.yaml'), 'r+') as fp:
-            config = ordered_load(fp.read(), yaml.SafeLoader)
+            config = ordered_load(fp.read())
 
         with open(os.path.join(args.output, 'config.schema.json'), 'w') as fp:
             json.dump(config, fp, indent=4, sort_keys=True,
