@@ -9,8 +9,8 @@ CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 VIRTUALENV_DIR ?= virtualenv
 ST2_REPO_PATH ?= /tmp/st2
 ST2_REPO_BRANCH ?= master
-FORCE_CHECK_ALL_FILES =? false
-FORCE_CHECK_PACK =? false
+FORCE_CHECK_ALL_FILES ?= false
+FORCE_CHECK_PACK ?= false
 
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
@@ -68,7 +68,7 @@ compile:
 	@echo "==================== flake8 ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" ]; then \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
 		find ./* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
@@ -88,7 +88,7 @@ compile:
 	@echo "==================== pylint ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" ] || [ -n "${CHANGED_PY}" ]; then \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_PY}" ]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
 		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
@@ -142,11 +142,7 @@ compile:
 	@echo "==================== example config check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
-		find ./* | while read file; do \
-			st2-check-validate-pack-example-config $$file || exit 1; \
-		done; \
-	elif [ -n "${CHANGED_FILES}" ]; then \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_FILES}" ]; then \
 		st2-check-validate-pack-example-config /tmp/packs/$(PACK_NAME) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -170,7 +166,7 @@ compile:
 	@echo "==================== packs-resource-register ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ ! "${CHANGED_FILES}" ]; then \
+	if [ -z "${CHANGED_FILES}" ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
@@ -182,7 +178,7 @@ compile:
 	@echo "==================== packs-tests ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ ! "${CHANGED_FILES}" ]; then \
+	if [ -z "${CHANGED_FILES}" ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
@@ -193,7 +189,7 @@ compile:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ ! "${CHANGED_FILES}" ]; then \
+	if [ -z "${CHANGED_FILES}" ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
