@@ -49,14 +49,14 @@ if [ ! -z "${ROOT_DIR}" ]; then
 
     echo "Copying Makefile to ${ROOT_DIR}"
     cp ~/ci/.circle/Makefile ${ROOT_DIR}
-    make -C requirements-ci .install-runners
+    make -C requirements install-runners
 else
     PACK_REQUIREMENTS_FILE="$(pwd)/requirements.txt"
     PACK_TESTS_REQUIREMENTS_FILE="$(pwd)/requirements-tests.txt"
 
     echo "Copying Makefile to $(pwd)"
     cp ~/ci/.circle/Makefile .
-    make requirements-ci .install-runners
+    make requirements install-runners
 fi
 
 # Install pack requirements
