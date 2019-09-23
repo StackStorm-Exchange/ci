@@ -12,7 +12,9 @@ from . import copy
 def compile_(ctx):
     print("======================= compile ========================")
     print("------- Compile all .py files (syntax check test) ------")
-    compileall.compile_dir(".", rx=re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox"), quiet=True)
+    rgx = re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox")
+    if not compileall.compile_dir(".", rx=rgx, quiet=True):
+        raise Exception("Could not compile all files")
 
 
 @task(copy.copy_pack_to_subdirectory)
