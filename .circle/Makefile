@@ -213,7 +213,6 @@ compile:
 		cat $(ROOT_DIR)/LICENSE | grep -q "www.apache.org/licenses/LICENSE-2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
 	fi;
 
-
 .PHONY: .clone_st2_repo
 .clone_st2_repo: /tmp/st2
 /tmp/st2:
