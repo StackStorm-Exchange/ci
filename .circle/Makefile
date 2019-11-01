@@ -22,7 +22,7 @@ COMPONENTS_RUNNERS := $(wildcard /tmp/st2/contrib/runners/*)
 all: requirements lint packs-resource-register packs-tests
 
 .PHONY: all-ci
-all-ci: compile .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
+all-ci: compile .license-check .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
 
 .PHONY: lint
 lint: requirements flake8 pylint configs-check metadata-check
@@ -193,6 +193,24 @@ compile:
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
+	fi;
+
+# Target which veries repo root contains LICENSE file with ASF 2.0 content
+.PHONY: .license-check
+.license-check:
+	@echo
+	@echo "==================== license-check ===================="
+	@echo
+	if [ -z "${CHANGED_FILES}" ] && [ "$${FORCE_CHECK_ALL_FILES}" = "false" ]; then \
+		echo "No files have changed, skipping run..."; \
+	else \
+		if [ ! -f "$(ROOT_DIR)/LICENSE" ]; then \
+			echo "Missing LICENSE file in $(ROOT_DIR)"; \
+			exit 2;\
+		fi;\
+		cat $(ROOT_DIR)/LICENSE | grep -q "Apache License"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
+		cat $(ROOT_DIR)/LICENSE | grep -q "Version 2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
+		cat $(ROOT_DIR)/LICENSE | grep -q "www.apache.org/licenses/LICENSE-2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
 	fi;
 
 .PHONY: .clone_st2_repo
