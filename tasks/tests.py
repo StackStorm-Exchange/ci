@@ -19,7 +19,7 @@ def packs_resource_register(ctx):
         files = ctx.run("git diff --relative --diff-filter=ACMRTUXB "
                         "--name-only {}".format(base_branch)).stdout.splitlines()
     if files:
-        ctx.run("st2-check-register-pack-resources /tmp/packs/{pack_name}".format(pack_name=pack_name))
+        ctx.run("st2-check-register-pack-resources /tmp/packs/{pack_name}".format(pack_name=os.environ['PACK_NAME']))
     else:
         print("No files have changed, skipping run...")
 
