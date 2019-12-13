@@ -18,8 +18,9 @@ def all_(ctx):
     pass
 
 
-@task(check.compile_, lint.flake8, lint.pylint, copy.copy_pack_to_subdirectory,
-      check.configs, check.metadata, tests.packs_resource_register, tests.packs_tests)
+@task(check.compile_, check.license, lint.flake8, lint.pylint,
+      copy.copy_pack_to_subdirectory, check.configs, check.metadata,
+      tests.packs_resource_register, tests.packs_tests)
 def all_ci(ctx):
     pass
 
