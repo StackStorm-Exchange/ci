@@ -30,6 +30,9 @@ echo "Python version: ${PYTHON_VERSION}"
 if [ "${GIT_BRANCH}" = "master" ]; then
     echo "Running on master branch, forcing check of all files"
     export FORCE_CHECK_ALL_FILES="true"
+elif (git diff --unified=0 --relative --diff-filter=ACMRTUXB origin/master -- pack.yaml | grep -q '^[-+]python_versions:'); then
+    echo "Detected changes to Python versions, forcing check of all files"
+    export FORCE_CHECK_ALL_FILES="true"
 fi
 
 if [ ! -z "${FORCE_CHECK_ALL_FILES}" ]; then
