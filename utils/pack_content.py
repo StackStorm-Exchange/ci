@@ -11,37 +11,37 @@ import argparse
 from collections import OrderedDict
 
 RESOURCE_LOCATOR = {
-  'sensors': {
-    'path': ['sensors/*.yaml', 'sensors/*.yml'],
-    'key': 'class_name'
-  },
-  'actions': {
-    'path': ['actions/*.yaml', 'actions/*.yml'],
-    'key': 'name'
-  },
-  'rules': {
-    'path': ['rules/*.yaml', 'rules/*.yml'],
-    'key': 'name'
-  },
-  'runners': {
-    'path': ['runners/*/runner.yaml', 'runners/*/runner.yml'],
-    'key': 'name'
-  },
-  'triggers': {
-    'path': ['triggers/*.yaml', 'triggers/*.yml'],
-    'key': 'name'
-  },
-  'aliases': {
-    'path': ['aliases/*.yaml', 'aliases/*.yml'],
-    'key': 'name'
-  },
-  'policies': {
-    'path': ['policies/*.yaml', 'policies/*.yml'],
-    'key': 'name'
-  },
-  'tests': {
-    'key': 'filename'
-  }
+    'sensors': {
+        'path': ['sensors/*.yaml', 'sensors/*.yml'],
+        'key': 'class_name',
+    },
+    'actions': {
+        'path': ['actions/*.yaml', 'actions/*.yml'],
+        'key': 'name',
+    },
+    'rules': {
+        'path': ['rules/*.yaml', 'rules/*.yml'],
+        'key': 'name',
+    },
+    'runners': {
+        'path': ['runners/*/runner.yaml', 'runners/*/runner.yml'],
+        'key': 'name',
+    },
+    'triggers': {
+        'path': ['triggers/*.yaml', 'triggers/*.yml'],
+        'key': 'name',
+    },
+    'aliases': {
+        'path': ['aliases/*.yaml', 'aliases/*.yml'],
+        'key': 'name',
+    },
+    'policies': {
+        'path': ['policies/*.yaml', 'policies/*.yml'],
+        'key': 'name',
+    },
+    'tests': {
+        'key': 'filename',
+    },
 }
 
 

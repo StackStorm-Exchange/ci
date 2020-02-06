@@ -54,11 +54,12 @@ def calculate_git_sha(content):
     sha.update('blob {}\0{}'.format(len(content), content))
     return sha.hexdigest()
 
+
 if __name__ == '__main__':
     local_path = sys.argv[1]
     pack_name = sys.argv[2]
 
-    with file(local_path) as f:
+    with open(local_path) as f:
         content = f.read()
 
     current_pack_meta = get_file(pack_name)

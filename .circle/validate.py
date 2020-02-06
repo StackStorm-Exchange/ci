@@ -48,6 +48,7 @@ def validate_repo_name(instance, repo_name):
     if '%s-%s' % (PREFIX, pack_meta['name']) != repo_name:
         raise ValueError('Pack name is different from repository name.')
 
+
 if __name__ == '__main__':
     repo_name = sys.argv[1]
     pack_meta = load_yaml_file(sys.argv[2])
