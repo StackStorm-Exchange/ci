@@ -44,7 +44,7 @@ jobs:
           name: Check Python files
           command: |
             ~/virtualenv/bin/flake8 --config=~/ci/lint-configs/python/.flake8-exchange
-            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc
+            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc-pack-ci
       - run:
           name: Check Makefile syntax
           command: |
@@ -102,7 +102,7 @@ jobs:
           name: Check Python files
           command: |
             ~/virtualenv/bin/flake8 --config=~/ci/lint-configs/python/.flake8-exchange
-            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc
+            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc-pack-ci
       - run:
           name: Check Makefile syntax
           command: |
