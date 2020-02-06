@@ -1,13 +1,14 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
-import os
-import json
-import yaml
-import time
 import argparse
 import hashlib
+import json
+import os
+import time
 from glob import glob
 from collections import OrderedDict
+import yaml
 
 import requests
 

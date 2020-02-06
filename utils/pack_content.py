@@ -2,51 +2,53 @@
 #
 # A helper script to count content in a pack.
 #
-import os
+from __future__ import print_function
+
+import argparse
 import errno
 import glob
 import json
-import yaml
-import argparse
+import os
 from collections import OrderedDict
+import yaml
 
 RESOURCE_LOCATOR = {
-  'sensors': {
-    'path': ['sensors/*.yaml', 'sensors/*.yml'],
-    'key': 'class_name'
-  },
-  'actions': {
-    'path': ['actions/*.yaml', 'actions/*.yml'],
-    'key': 'name'
-  },
-  'rules': {
-    'path': ['rules/*.yaml', 'rules/*.yml'],
-    'key': 'name'
-  },
-  'runners': {
-    'path': ['runners/*/runner.yaml', 'runners/*/runner.yml'],
-    'key': 'name'
-  },
-  'triggers': {
-    'path': ['triggers/*.yaml', 'triggers/*.yml'],
-    'key': 'name'
-  },
-  'aliases': {
-    'path': ['aliases/*.yaml', 'aliases/*.yml'],
-    'key': 'name'
-  },
-  'policies': {
-    'path': ['policies/*.yaml', 'policies/*.yml'],
-    'key': 'name'
-  },
-  'tests': {
-    'key': 'filename'
-  }
+    'sensors': {
+        'path': ['sensors/*.yaml', 'sensors/*.yml'],
+        'key': 'class_name',
+    },
+    'actions': {
+        'path': ['actions/*.yaml', 'actions/*.yml'],
+        'key': 'name',
+    },
+    'rules': {
+        'path': ['rules/*.yaml', 'rules/*.yml'],
+        'key': 'name',
+    },
+    'runners': {
+        'path': ['runners/*/runner.yaml', 'runners/*/runner.yml'],
+        'key': 'name',
+    },
+    'triggers': {
+        'path': ['triggers/*.yaml', 'triggers/*.yml'],
+        'key': 'name',
+    },
+    'aliases': {
+        'path': ['aliases/*.yaml', 'aliases/*.yml'],
+        'key': 'name',
+    },
+    'policies': {
+        'path': ['policies/*.yaml', 'policies/*.yml'],
+        'key': 'name',
+    },
+    'tests': {
+        'key': 'filename',
+    },
 }
 
 
 def ordered_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
-    class OrderedLoader(Loader):
+    class OrderedLoader(Loader):  # pylint: disable=too-many-ancestors
         pass
 
     def construct_mapping(loader, node):
@@ -59,7 +61,7 @@ def ordered_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
 
 
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
-    class OrderedDumper(Dumper):
+    class OrderedDumper(Dumper):  # pylint: disable=too-many-ancestors
         pass
 
     def _dict_representer(dumper, data):
@@ -73,7 +75,7 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
 def get_pack_resources(pack_dir):
     resources = {}
 
-    for resource, locator in RESOURCE_LOCATOR.iteritems():
+    for resource, locator in RESOURCE_LOCATOR.items():
 
         resources[resource] = []
         matching_files = []
@@ -84,8 +86,8 @@ def get_pack_resources(pack_dir):
         for path in locator['path']:
             matching_files += glob.glob(os.path.join(pack_dir, path))
 
-        for file in matching_files:
-            with open(file, 'r') as fp:
+        for f in matching_files:
+            with open(f, 'r') as fp:
                 metadata = fp.read()
             metadata = yaml.safe_load(metadata)
             valid = True
@@ -104,8 +106,8 @@ def get_pack_resources(pack_dir):
 
 def return_resource_count(resources):
     result = {}
-    for resource, entities in resources.iteritems():
-        if len(entities):
+    for resource, entities in resources.items():
+        if entities:
             key = RESOURCE_LOCATOR[resource]['key']
             result[resource] = {
                 'resources': sorted([item[key] for item in entities]),
@@ -128,7 +130,7 @@ if __name__ == '__main__':
     content = get_pack_resources(args.input)
     meta['content'] = return_resource_count(content)
 
-    for resource_type, resource_entities in content.iteritems():
+    for resource_type, resource_entities in content.items():
         key = RESOURCE_LOCATOR[resource_type]['key']
         directory = os.path.join(args.output, resource_type)
         try:

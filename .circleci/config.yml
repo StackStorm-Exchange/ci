@@ -1,13 +1,14 @@
+# DO NOT COPY THIS CONFIG - this is the CI config for the ci repository itself,
+# IT IS NOT THE CI CONFIG FOR PACKS.
+# The sample pack CI config is .circle/config.yml.sample
 version: 2
 
 jobs:
-  build_and_test:
+  test_py27:
     docker:
       - image: circleci/python:2.7
-      - image: rabbitmq:3
-      - image: mongo:3.4
 
-    working_directory: ~/repo
+    working_directory: ~/ci
 
     environment:
       VIRTUALENV_DIR: "~/virtualenv"
@@ -15,34 +16,55 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependency-cache-{{ checksum "requirements.txt" }}
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
       - run:
           name: Download and Install Dependencies
           command: |
-            git clone -b master git://github.com/stackstorm-exchange/ci.git ~/ci
-            ~/ci/.circle/dependencies
-      - run:
-          name: Run Lint Checks and Tests
-          command: ~/ci/.circle/test
+            git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
+            sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
+            virtualenv ~/virtualenv
+            ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
       - save_cache:
-          key: v1-dependency-cache-{{ checksum "requirements.txt" }}
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
           paths:
             - ~/.cache/pip
             - ~/.apt-cache
-      - persist_to_workspace:
-          root: /
-          paths:
-            - home/circleci/ci
-            - home/circleci/virtualenv
-            - tmp/st2
-            - home/circleci/repo
-            - home/circleci/.gitconfig
+      - run:
+          name: Check YAML file syntax
+          command: >
+            find . \( -name '*.yml' \
+                   -o -name '*.yml.sample' \
+                   -o -name '*.yaml' \
+                   -o -name '*.yaml.sample' \) \
+                   -print | \
+            xargs -I "{}" python -c 'import yaml; yaml.safe_load(open("{}").read())'
+      - run:
+          name: Check Bash file syntax
+          command: |
+            find . -name '*.sh' | xargs bash -n
+            grep -lrE '^#!/bin/bash' | xargs bash -n
+            grep -lrE '^#!/usr/bin/env sh' . | xargs sh -n\
+      - run:
+          name: Check Python files
+          command: |
+            ~/virtualenv/bin/flake8 --max-line-length=100 --config=~/ci/lint-configs/python/.flake8-exchange
+            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc-pack-ci
+      - run:
+          name: Check Makefile syntax
+          command: |
+            find . -name Makefile | xargs make -n
+      # - persist_to_workspace:
+      #     root: /
+      #     paths:
+      #       - home/circleci/ci
+      #       - home/circleci/virtualenv
+      #       - home/circleci/.gitconfig
 
-  deploy:
+  test_py36:
     docker:
-      - image: circleci/python:2.7
+      - image: circleci/python:3.6
 
-    working_directory: ~/repo
+    working_directory: ~/ci
 
     environment:
       VIRTUALENV_DIR: "~/virtualenv"
@@ -50,24 +72,53 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependency-cache-{{ checksum "requirements.txt" }}
-      - attach_workspace:
-          at: /
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
       - run:
-          name: Install dependencies
-          command: sudo apt -y install gmic optipng
+          name: Download and Install Dependencies
+          command: |
+            git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
+            sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
+            virtualenv ~/virtualenv
+            ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
+      - save_cache:
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
+          paths:
+            - ~/.cache/pip
+            - ~/.apt-cache
       - run:
-          name: Update exchange.stackstorm.org
-          command:  ~/ci/.circle/deployment
+          name: Check YAML file syntax
+          command: >
+            find . \( -name '*.yml' \
+                   -o -name '*.yml.sample' \
+                   -o -name '*.yaml' \
+                   -o -name '*.yaml.sample' \) \
+                   -print | \
+            xargs -I "{}" python -c 'import yaml; yaml.safe_load(open("{}").read())'
+      - run:
+          name: Check Bash file syntax
+          command: |
+            find . -name '*.sh' | xargs bash -n
+            grep -lrE '^#!/bin/bash' | xargs bash -n
+            grep -lrE '^#!/usr/bin/env sh' . | xargs sh -n\
+      - run:
+          name: Check Python files
+          command: |
+            ~/virtualenv/bin/flake8 --max-line-length=100 --config=~/ci/lint-configs/python/.flake8-exchange
+            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc-pack-ci
+      - run:
+          name: Check Makefile syntax
+          command: |
+            find . -name Makefile | xargs make -n
+      # - persist_to_workspace:
+      #     root: /
+      #     paths:
+      #       - home/circleci/ci
+      #       - home/circleci/virtualenv
+      #       - home/circleci/.gitconfig
 
 workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - build_and_test
-      - deploy:
-          requires:
-            - build_and_test
-          filters:
-            branches:
-              only: master
+      - test_py27
+      - test_py36

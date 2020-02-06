@@ -12,26 +12,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import print_function
 
 import sys
 import re
 
 import validate
 
-SEMVER_REGEX = "^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?$"
-SINGLE_VERSION_REGEX = "^\d+$"
-DOUBLE_VERSION_REGEX = "^\d+\.\d+$"
+SEMVER_REGEX = re.compile(r"""^(?:0|[1-9]\d*)
+                              \.
+                              (?:0|[1-9]\d*)
+                              \.
+                              (?:0|[1-9]\d*)
+                              (?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?
+                              (?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?$""",
+                          re.VERBOSE)
+SINGLE_VERSION_REGEX = re.compile(r"^\d+$")
+DOUBLE_VERSION_REGEX = re.compile(r"^\d+\.\d+$")
 
 
 def get_semver_string(version):
-    if re.match(SINGLE_VERSION_REGEX, str(version)):
-        return "%s.0.0" % version
-    elif re.match(DOUBLE_VERSION_REGEX, str(version)):
-        return "%s.0" % version
-    elif re.match(SEMVER_REGEX, version):
-        return version
+    if SINGLE_VERSION_REGEX.match(str(version)):
+        semver = "%s.0.0" % version
+    elif DOUBLE_VERSION_REGEX.match(str(version)):
+        semver = "%s.0" % version
+    elif SEMVER_REGEX.match(version):
+        semver = version
     else:
         raise ValueError("Cannot convert %s to semver." % version)
+    return semver
+
 
 if __name__ == '__main__':
     pack = validate.load_yaml_file(sys.argv[1])
