@@ -8,7 +8,7 @@ jobs:
     docker:
       - image: circleci/python:2.7
 
-    working_directory: ~/repo
+    working_directory: ~/ci
 
     environment:
       VIRTUALENV_DIR: "~/virtualenv"
@@ -20,7 +20,6 @@ jobs:
       - run:
           name: Download and Install Dependencies
           command: |
-            git clone -b "${CI_BRANCH:-master}" git://github.com/stackstorm-exchange/ci.git ~/ci
             git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
             sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
             virtualenv ~/virtualenv
@@ -59,14 +58,13 @@ jobs:
       #     paths:
       #       - home/circleci/ci
       #       - home/circleci/virtualenv
-      #       - home/circleci/repo
       #       - home/circleci/.gitconfig
 
   test_py36:
     docker:
       - image: circleci/python:3.6
 
-    working_directory: ~/repo
+    working_directory: ~/ci
 
     environment:
       VIRTUALENV_DIR: "~/virtualenv"
@@ -78,7 +76,6 @@ jobs:
       - run:
           name: Download and Install Dependencies
           command: |
-            git clone -b "${CI_BRANCH:-master}" git://github.com/stackstorm-exchange/ci.git ~/ci
             git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
             sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
             virtualenv ~/virtualenv
@@ -117,7 +114,6 @@ jobs:
       #     paths:
       #       - home/circleci/ci
       #       - home/circleci/virtualenv
-      #       - home/circleci/repo
       #       - home/circleci/.gitconfig
 
 workflows:
