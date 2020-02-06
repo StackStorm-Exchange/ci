@@ -86,8 +86,8 @@ def get_pack_resources(pack_dir):
         for path in locator['path']:
             matching_files += glob.glob(os.path.join(pack_dir, path))
 
-        for file in matching_files:
-            with open(file, 'r') as fp:
+        for f in matching_files:
+            with open(f, 'r') as fp:
                 metadata = fp.read()
             metadata = yaml.safe_load(metadata)
             valid = True
