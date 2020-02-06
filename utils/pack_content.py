@@ -2,13 +2,13 @@
 #
 # A helper script to count content in a pack.
 #
-import os
+import argparse
 import errno
 import glob
 import json
-import yaml
-import argparse
+import os
 from collections import OrderedDict
+import yaml
 
 RESOURCE_LOCATOR = {
     'sensors': {
@@ -46,7 +46,7 @@ RESOURCE_LOCATOR = {
 
 
 def ordered_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
-    class OrderedLoader(Loader):
+    class OrderedLoader(Loader):  # pylint: disable=too-many-ancestors
         pass
 
     def construct_mapping(loader, node):
@@ -59,7 +59,7 @@ def ordered_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
 
 
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
-    class OrderedDumper(Dumper):
+    class OrderedDumper(Dumper):  # pylint: disable=too-many-ancestors
         pass
 
     def _dict_representer(dumper, data):
@@ -73,7 +73,7 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
 def get_pack_resources(pack_dir):
     resources = {}
 
-    for resource, locator in RESOURCE_LOCATOR.iteritems():
+    for resource, locator in RESOURCE_LOCATOR.items():
 
         resources[resource] = []
         matching_files = []
@@ -104,8 +104,8 @@ def get_pack_resources(pack_dir):
 
 def return_resource_count(resources):
     result = {}
-    for resource, entities in resources.iteritems():
-        if len(entities):
+    for resource, entities in resources.items():
+        if entities:
             key = RESOURCE_LOCATOR[resource]['key']
             result[resource] = {
                 'resources': sorted([item[key] for item in entities]),
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     content = get_pack_resources(args.input)
     meta['content'] = return_resource_count(content)
 
-    for resource_type, resource_entities in content.iteritems():
+    for resource_type, resource_entities in content.items():
         key = RESOURCE_LOCATOR[resource_type]['key']
         directory = os.path.join(args.output, resource_type)
         try:

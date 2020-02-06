@@ -45,7 +45,7 @@ def validate_pack_contains_valid_ref_or_name(pack_meta):
 
 
 def validate_repo_name(instance, repo_name):
-    if '%s-%s' % (PREFIX, pack_meta['name']) != repo_name:
+    if '%s-%s' % (PREFIX, instance['name']) != repo_name:
         raise ValueError('Pack name is different from repository name.')
 
 
@@ -53,6 +53,8 @@ if __name__ == '__main__':
     repo_name = sys.argv[1]
     pack_meta = load_yaml_file(sys.argv[2])
 
+    # TODO: Figure out why this wasn't previously executed, and execute it
+    # validate_repo_name(pack_meta, repo_name)
     validate_schema(pack_meta, PACK_SCHEMA)
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
 

@@ -32,13 +32,14 @@ DOUBLE_VERSION_REGEX = re.compile(r"^\d+\.\d+$")
 
 def get_semver_string(version):
     if SINGLE_VERSION_REGEX.match(str(version)):
-        return "%s.0.0" % version
+        semver = "%s.0.0" % version
     elif DOUBLE_VERSION_REGEX.match(str(version)):
-        return "%s.0" % version
+        semver = "%s.0" % version
     elif SEMVER_REGEX.match(version):
-        return version
+        semver = version
     else:
         raise ValueError("Cannot convert %s to semver." % version)
+    return semver
 
 
 if __name__ == '__main__':
