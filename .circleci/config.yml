@@ -15,8 +15,8 @@ jobs:
 
     steps:
       - checkout
-      # - restore_cache:
-      #     key: v1-dependency-cache-{{ checksum "requirements.txt" }}
+      - restore_cache:
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
       - run:
           name: Download and Install Dependencies
           command: |
@@ -24,6 +24,11 @@ jobs:
             sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
             virtualenv ~/virtualenv
             ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
+      - save_cache:
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
+          paths:
+            - ~/.cache/pip
+            - ~/.apt-cache
       - run:
           name: Check YAML file syntax
           command: >
@@ -48,11 +53,6 @@ jobs:
           name: Check Makefile syntax
           command: |
             find . -name Makefile | xargs make -n
-      # - save_cache:
-      #     key: v1-dependency-cache-{{ checksum "requirements.txt" }}
-      #     paths:
-      #       - ~/.cache/pip
-      #       - ~/.apt-cache
       # - persist_to_workspace:
       #     root: /
       #     paths:
@@ -71,8 +71,8 @@ jobs:
 
     steps:
       - checkout
-      # - restore_cache:
-      #     key: v1-dependency-cache-{{ checksum "requirements.txt" }}
+      - restore_cache:
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
       - run:
           name: Download and Install Dependencies
           command: |
@@ -80,6 +80,11 @@ jobs:
             sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
             virtualenv ~/virtualenv
             ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
+      - save_cache:
+          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
+          paths:
+            - ~/.cache/pip
+            - ~/.apt-cache
       - run:
           name: Check YAML file syntax
           command: >
@@ -104,11 +109,6 @@ jobs:
           name: Check Makefile syntax
           command: |
             find . -name Makefile | xargs make -n
-      # - save_cache:
-      #     key: v1-dependency-cache-{{ checksum "requirements.txt" }}
-      #     paths:
-      #       - ~/.cache/pip
-      #       - ~/.apt-cache
       # - persist_to_workspace:
       #     root: /
       #     paths:
