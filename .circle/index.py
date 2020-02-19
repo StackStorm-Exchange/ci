@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import six
 import time
 from glob import glob
 from collections import OrderedDict
@@ -66,7 +67,10 @@ def build_index(path_glob, output_path):
         if pack_name != pack_ref:
             result['packs'].pop(pack_name, None)
 
-        data_hash.update(str(pack_meta))
+        if six.PY2:
+            data_hash.update(str(pack_meta))
+        else:
+            data_hash.update(str(pack_meta).encode('utf-8'))
         counter += 1
 
     result['metadata']['generated_ts'] = int(time.time())
