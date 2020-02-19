@@ -5,13 +5,13 @@ import argparse
 import hashlib
 import json
 import os
-import six
 import time
-from glob import glob
 from collections import OrderedDict
+from glob import glob
 import yaml
 
 import requests
+import six
 
 from st2common.util.pack import get_pack_ref_from_metadata
 
