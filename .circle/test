@@ -45,6 +45,7 @@ echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES}"
 
 if [[ -n "${ROOT_DIR}" ]]; then
     export ROOT_DIR="${ROOT_DIR}"
+    echo "ROOT_DIR: ${ROOT_DIR}"
     make -C ${ROOT_DIR} all-ci
 else
     make all-ci
