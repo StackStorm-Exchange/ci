@@ -1,7 +1,7 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ifndef FORCE_CHECK_ALL_FILES
 NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
-CHANGED_PY := $(shell ${CI_DIR}/utils/git-changes py)
+NUM_CHANGED_PY := $(shell $(CI_DIR)/utils/git-changes py | wc -w)
 NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
 NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
 endif
@@ -26,7 +26,7 @@ all-ci: compile .license-check .flake8 .pylint .copy-pack-to-subdirectory .confi
 
 .PHONY: changed-files
 changed-files:
-	@echo "CHANGED_PY: $(CHANGED_PY)"
+	@echo "NUM_CHANGED_PY: $(NUM_CHANGED_PY)"
 	@echo "NUM_CHANGED_JSON: $(NUM_CHANGED_JSON)"
 	@echo "NUM_CHANGED_YAML: $(NUM_CHANGED_YAML)"
 	@echo "NUM_CHANGED_FILES: $(NUM_CHANGED_FILES)"
@@ -80,12 +80,15 @@ compile:
 		find ./* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
-	elif [[ -n "${CHANGED_PY}" ]]; then \
-		for file in ${CHANGED_PY}; do \
+	elif [[ ${NUM_CHANGED_PY} -gt 0 ]]; then \
+		echo "Checking ${NUM_CHANGED_PY} Python files"; \
+		$(CI_DIR)/utils/git-changes py >~/.git-changes-py; \
+		while read -r file; do \
 			if [[ -n "$$file" ]]; then \
 				flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$file || exit 1; \
 			fi; \
-		done; \
+		done < ~/.git-changes-py; \
+		if [[ -e ~/.git-changes-py ]]; then rm ~/.git-changes-py; fi; \
 	else \
 		echo "No files have changed, skipping run..."; \
 	fi;
@@ -96,7 +99,7 @@ compile:
 	@echo "==================== pylint ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ -n "${CHANGED_PY}" ]]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ ${NUM_CHANGED_PY} -gt 0 ]]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
 		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
