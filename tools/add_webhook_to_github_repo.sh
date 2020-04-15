@@ -16,7 +16,7 @@ set -e
 SCRIPT_PATH=$(dirname "$(readlink -f "$0")")
 source "${SCRIPT_PATH}/common.sh"
 
-if [ ! $# -eq 1 ];
+if [[ ! $# -eq 1 ]];
 then
     echo "Usage: $0 <webhook url>"
     exit 1;
@@ -24,7 +24,7 @@ fi
 
 WEBHOOK_URL="$1"
 
-if [ ! -z "${REPO_NAMES}" ]; then
+if [[ ! -z "${REPO_NAMES}" ]]; then
   OIFS=$IFS;
   IFS=" "
   REPO_NAMES=($REPO_NAMES)

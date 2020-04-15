@@ -5,17 +5,17 @@ MAX_RETRIES=5
 
 COMMAND=$1
 
-if [ $# -ne 1 ]; then
+if [[ $# -ne 1 ]]; then
     echo "Usage: ${0} <shell command>"
     exit 1
 fi
 
 COUNT=0
-while [  ${COUNT} -lt ${MAX_RETRIES} ]; do
+while [[  ${COUNT} -lt ${MAX_RETRIES} ]]; do
    ${COMMAND}
    EXIT_CODE=$?
 
-   if [ ${EXIT_CODE} -eq 0 ]; then
+   if [[ ${EXIT_CODE} -eq 0 ]]; then
       exit 0
    fi
 

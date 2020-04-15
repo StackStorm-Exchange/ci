@@ -23,7 +23,7 @@
 
 set -e
 
-if [ ! $# -eq 1 ];
+if [[ ! $# -eq 1 ]];
 then
 	echo "Usage: $0 <pack>"
 	exit 1;
@@ -84,7 +84,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 	-d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
 	"https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
 
-if [ ! -s "/tmp/${PACK}_user_token" ];
+if [[ ! -s "/tmp/${PACK}_user_token" ]];
 then
 	echo "Could not create a token."
 	exit 1

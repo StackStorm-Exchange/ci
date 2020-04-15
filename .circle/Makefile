@@ -81,13 +81,13 @@ compile:
 	@echo "==================== flake8 ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]]; then \
 		find ./* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
-	elif [ -n "${CHANGED_PY}" ]; then \
+	elif [[ -n "${CHANGED_PY}" ]]; then \
 		for file in ${CHANGED_PY}; do \
-			if [ -n "$$file" ]; then \
+			if [[ -n "$$file" ]]; then \
 				flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$file || exit 1; \
 			fi; \
 		done; \
@@ -101,7 +101,7 @@ compile:
 	@echo "==================== pylint ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_PY}" ]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ -n "${CHANGED_PY}" ]]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
 		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
@@ -121,13 +121,13 @@ compile:
 	@# make variable to a Bash string, convert that to a Bash array, and then
 	@# iterate through each element of the array
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]]; then \
 		find $(CI_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
 			st2-check-validate-yaml-file "$$yaml_file" || exit 1 ; \
 		done; \
-	elif [ -n "${CHANGED_YAML}" ]; then \
+	elif [[ -n "${CHANGED_YAML}" ]]; then \
 		for file in $(CHANGED_YAML); do \
-			if [ -n "$$file" ]; then \
+			if [[ -n "$$file" ]]; then \
 				st2-check-validate-yaml-file $$file || exit 1 ; \
 			fi; \
 		done; \
@@ -136,13 +136,13 @@ compile:
 	fi
 	@#
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]]; then \
 		find $(CI_DIR)/* -name "*.json" | while read json_file; do \
 			st2-check-validate-json-file "$$json_file" || exit 1 ; \
 		done; \
-	elif [ -n "${CHANGED_JSON}" ]; then \
+	elif [[ -n "${CHANGED_JSON}" ]]; then \
 		for file in $(CHANGED_JSON); do \
-			if [ -n "$$file" ]; then \
+			if [[ -n "$$file" ]]; then \
 				echo "file: $$file"; \
 				st2-check-validate-json-file $$file || exit 1 ; \
 			fi; \
@@ -155,7 +155,7 @@ compile:
 	@echo "==================== example config check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_FILES}" ]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ -n "${CHANGED_FILES}" ]]; then \
 		st2-check-validate-pack-example-config /tmp/packs/$(PACK_NAME) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -167,7 +167,7 @@ compile:
 	@echo "==================== metadata-check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_YAML}" ]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ -n "${CHANGED_YAML}" ]]; then \
 		st2-check-validate-pack-metadata-exists $(ROOT_DIR) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -179,7 +179,7 @@ compile:
 	@echo "==================== packs-resource-register ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ -z "${CHANGED_FILES}" ]; then \
+	if [[ -z "${CHANGED_FILES}" ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
@@ -191,7 +191,7 @@ compile:
 	@echo "==================== packs-tests ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ -z "${CHANGED_FILES}" ]; then \
+	if [[ -z "${CHANGED_FILES}" ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
@@ -202,7 +202,7 @@ compile:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ -z "${CHANGED_FILES}" ]; then \
+	if [[ -z "${CHANGED_FILES}" ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
@@ -214,10 +214,10 @@ compile:
 	@echo
 	@echo "==================== license-check ===================="
 	@echo
-	if [ -z "${CHANGED_FILES}" ] && [ "$${FORCE_CHECK_ALL_FILES}" = "false" ]; then \
+	if [[ -z "${CHANGED_FILES}" ]] && [[ "$${FORCE_CHECK_ALL_FILES}" = "false" ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
-		if [ ! -f "$(ROOT_DIR)/LICENSE" ]; then \
+		if [[ ! -f "$(ROOT_DIR)/LICENSE" ]]; then \
 			echo "Missing LICENSE file in $(ROOT_DIR)"; \
 			exit 2;\
 		fi;\

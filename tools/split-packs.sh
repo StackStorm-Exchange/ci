@@ -11,13 +11,13 @@
 
 set -e
 
-if [ $# -lt 1 ] || [[ $1 =~ ^-+h(elp)?$ ]] ; then
+if [[ $# -lt 1 ]] || [[ $1 =~ ^-+h(elp)?$ ]] ; then
     echo "Usage: $0 subtree_repo_url [new_org_url]"
     echo "Example: $0 https://github.com/example/mysubtreerepo.git git@github.com:example2"
     exit
 fi
 SUBTREE_REPO_URL=$1
-if [ $# -gt 1 ] ; then
+if [[ $# -gt 1 ]] ; then
     EXCHANGE_ORG_URL=$2
 else
     EXCHANGE_ORG_URL=$(dirname $1)

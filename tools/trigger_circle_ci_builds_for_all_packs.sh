@@ -19,12 +19,12 @@ source "${SCRIPT_PATH}/common.sh"
 
 FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 
-if [ ! ${CIRCLECI_TOKEN} ]; then
+if [[ ! ${CIRCLECI_TOKEN} ]]; then
   echo "CIRCLECI_TOKEN environment variable not set"
   exit 2
 fi
 
-if [ ! -z "${REPO_NAMES}" ]; then
+if [[ ! -z "${REPO_NAMES}" ]]; then
   # Only force build for provided repos
   OIFS=$IFS;
   IFS=" "
@@ -41,7 +41,7 @@ for REPO_NAME in ${REPO_NAMES[@]}; do
 
   CIRCLE_TRIGGER_BUILD_URL="https://circleci.com/api/v1/project/${EXCHANGE_ORG}/${REPO_NAME}/tree/master?circle-token=${CIRCLECI_TOKEN}"
 
-  if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
+  if [[ ${FORCE_REBUILD_INDEX} == "1" ]]; then
     curl \
       --header "Content-Type: application/json" \
       --request POST \
