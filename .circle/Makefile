@@ -26,16 +26,11 @@ all-ci: compile .license-check .flake8 .pylint .copy-pack-to-subdirectory .confi
 
 .PHONY: changed-files
 changed-files:
-	@echo "CHANGED_PY:"
-	@echo "$(CHANGED_PY)"
-	@echo "CHANGED_JSON:"
-	@echo "$(CHANGED_JSON)"
-	@echo "CHANGED_DIRECTORIES:"
-	@echo "$(CHANGED_DIRECTORIES)"
-	@echo "CHANGED_YAML:"
-	@echo "$(CHANGED_YAML)"
-	@echo "CHANGED_FILES:"
-	@echo "$(CHANGED_FILES)"
+	@echo "CHANGED_PY: $(CHANGED_PY)"
+	@echo "CHANGED_JSON: $(CHANGED_JSON)"
+	@echo "NUM_CHANGED_YAML: $(NUM_CHANGED_YAML)"
+	@echo "NUM_CHANGED_FILES: $(NUM_CHANGED_FILES)"
+	@echo "CHANGED_DIRECTORIES: $(CHANGED_DIRECTORIES)"
 
 .PHONY: lint
 lint: requirements flake8 pylint configs-check metadata-check
