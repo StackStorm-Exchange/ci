@@ -33,7 +33,7 @@ if [[ "${GIT_BRANCH}" = "master" ]]; then
     export FORCE_CHECK_ALL_FILES="true"
 fi
 
-if [[ ! -z "${FORCE_CHECK_ALL_FILES}" ]]; then
+if [[ -n "${FORCE_CHECK_ALL_FILES}" ]]; then
     export FORCE_CHECK_ALL_FILES="${FORCE_CHECK_ALL_FILES}"
 fi
 
@@ -43,7 +43,7 @@ export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 echo "ROOT_DIR=${ROOT_DIR}"
 echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES}"
 
-if [[ ! -z "${ROOT_DIR}" ]]; then
+if [[ -n "${ROOT_DIR}" ]]; then
     export ROOT_DIR="${ROOT_DIR}"
     make -C ${ROOT_DIR} all-ci
 else

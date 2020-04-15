@@ -16,7 +16,7 @@ set -e
 SCRIPT_PATH=$(dirname "$(readlink -f "$0")")
 source "${SCRIPT_PATH}/common.sh"
 
-if [[ ! -z "${REPO_NAMES}" ]]; then
+if [[ -n "${REPO_NAMES}" ]]; then
   OIFS=$IFS;
   IFS=" "
   REPO_NAMES=($REPO_NAMES)

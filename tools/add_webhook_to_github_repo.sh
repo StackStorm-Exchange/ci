@@ -24,7 +24,7 @@ fi
 
 WEBHOOK_URL="$1"
 
-if [[ ! -z "${REPO_NAMES}" ]]; then
+if [[ -n "${REPO_NAMES}" ]]; then
   OIFS=$IFS;
   IFS=" "
   REPO_NAMES=($REPO_NAMES)

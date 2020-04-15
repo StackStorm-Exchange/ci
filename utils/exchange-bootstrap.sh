@@ -111,7 +111,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
 # Github: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
-if [[ ! -z $SLACK_WEBHOOK_URL_COMMUNITY ]];
+if [[ -n $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
     echo "Github: Configuring Github to send webhook notifications to our community Slack"
 	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \

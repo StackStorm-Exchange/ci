@@ -24,7 +24,7 @@ if [[ ! ${CIRCLECI_TOKEN} ]]; then
   exit 2
 fi
 
-if [[ ! -z "${REPO_NAMES}" ]]; then
+if [[ -n "${REPO_NAMES}" ]]; then
   # Only force build for provided repos
   OIFS=$IFS;
   IFS=" "

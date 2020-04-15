@@ -43,7 +43,7 @@ echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
 # Copy over Makefile and  install StackStorm runners and register metrics drivers
 echo "Installing StackStorm runners and registering metrics drivers"
 
-if [[ ! -z "${ROOT_DIR}" ]]; then
+if [[ -n "${ROOT_DIR}" ]]; then
     PACK_REQUIREMENTS_FILE="${ROOT_DIR}/requirements.txt"
     PACK_TESTS_REQUIREMENTS_FILE="${ROOT_DIR}/requirements-tests.txt"
 
