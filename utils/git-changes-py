@@ -1,6 +1,6 @@
 #!/bin/bash
 ROOT_DIRECTORY=$1
-BASE_BRANCH="origin/master"
+BASE_BRANCH="${BASE_BRANCH:-origin/master}"
 
 cd ${ROOT_DIRECTORY}
 # Note: We include all but deleted files ("D" flag)

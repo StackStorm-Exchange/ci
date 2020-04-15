@@ -1,6 +1,6 @@
 #!/bin/bash
 ROOT_DIRECTORY=$1
-BASE_BRANCH="origin/master"
+BASE_BRANCH="${BASE_BRANCH:-origin/master}"
 
 # If this environment variable if specified we will return all the files so the
 # checks run on all the files not only changed ones.
