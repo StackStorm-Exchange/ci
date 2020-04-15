@@ -30,7 +30,7 @@ echo "Python version: ${PYTHON_VERSION}"
 
 if [[ "${GIT_BRANCH}" = "master" ]]; then
     echo "Running on master branch, forcing check of all files"
-    export FORCE_CHECK_ALL_FILES="true"
+    export FORCE_CHECK_ALL_FILES="${FORCE_CHECK_ALL_FILES:-true}"
 fi
 
 if [[ -n "${FORCE_CHECK_ALL_FILES}" ]]; then
