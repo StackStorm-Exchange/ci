@@ -2,7 +2,7 @@ ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ifndef FORCE_CHECK_ALL_FILES
 NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
 CHANGED_PY := $(shell ${CI_DIR}/utils/git-changes py)
-CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml)
+NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
 CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json)
 endif
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
@@ -120,12 +120,15 @@ compile:
 		find $(CI_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
 			st2-check-validate-yaml-file "$$yaml_file" || exit 1 ; \
 		done; \
-	elif [[ -n "${CHANGED_YAML}" ]]; then \
-		for file in $(CHANGED_YAML); do \
+	elif [[ ${NUM_CHANGED_YAML} -gt 0 ]]; then \
+		echo "Checking $(NUM_CHANGED_YAML) YAML files"; \
+		$(CI_DIR)/utils/git-changes yaml >~/.git-changes-yaml; \
+		while read -r file; do \
 			if [[ -n "$$file" ]]; then \
 				st2-check-validate-yaml-file $$file || exit 1 ; \
 			fi; \
-		done; \
+		done < ~/.git-changes-yaml; \
+		if [[ -e ~/.git-changes-yaml ]]; then rm ~/.git-changes-yaml; fi; \
 	else \
 		echo "No files have changed, skipping run..."; \
 	fi
