@@ -1,6 +1,6 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ifndef FORCE_CHECK_ALL_FILES
-CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files)
+NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
 CHANGED_PY := $(shell ${CI_DIR}/utils/git-changes py)
 CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml)
 CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json)
@@ -150,7 +150,7 @@ compile:
 	@echo "==================== example config check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ -n "${CHANGED_FILES}" ]]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ ${NUM_CHANGED_FILES} -gt 0 ]]; then \
 		st2-check-validate-pack-example-config /tmp/packs/$(PACK_NAME) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -162,7 +162,7 @@ compile:
 	@echo "==================== metadata-check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ -n "${CHANGED_YAML}" ]]; then \
+	if [[ "$${FORCE_CHECK_ALL_FILES}" = "true" ]] || [[ ${NUM_CHANGED_YAML} -gt 0 ]]; then \
 		st2-check-validate-pack-metadata-exists $(ROOT_DIR) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -174,7 +174,7 @@ compile:
 	@echo "==================== packs-resource-register ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [[ -z "${CHANGED_FILES}" ]]; then \
+	if [[ ${NUM_CHANGED_FILES} -eq 0 ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
@@ -186,7 +186,7 @@ compile:
 	@echo "==================== packs-tests ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [[ -z "${CHANGED_FILES}" ]]; then \
+	if [[ ${NUM_CHANGED_FILES} -eq 0 ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
@@ -197,7 +197,7 @@ compile:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [[ -z "${CHANGED_FILES}" ]]; then \
+	if [[ ${NUM_CHANGED_FILES} -eq 0 ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
@@ -209,7 +209,7 @@ compile:
 	@echo
 	@echo "==================== license-check ===================="
 	@echo
-	if [[ -z "${CHANGED_FILES}" ]] && [[ "$${FORCE_CHECK_ALL_FILES}" = "false" ]]; then \
+	if [[ ${NUM_CHANGED_FILES} -eq 0 ]] && [[ "$${FORCE_CHECK_ALL_FILES}" = "false" ]]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		if [[ ! -f "$(ROOT_DIR)/LICENSE" ]]; then \
