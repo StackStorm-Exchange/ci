@@ -3,7 +3,7 @@ ifndef FORCE_CHECK_ALL_FILES
 NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
 CHANGED_PY := $(shell ${CI_DIR}/utils/git-changes py)
 NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
-CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json)
+NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
 endif
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 VIRTUALENV_DIR ?= virtualenv
@@ -27,7 +27,7 @@ all-ci: compile .license-check .flake8 .pylint .copy-pack-to-subdirectory .confi
 .PHONY: changed-files
 changed-files:
 	@echo "CHANGED_PY: $(CHANGED_PY)"
-	@echo "CHANGED_JSON: $(CHANGED_JSON)"
+	@echo "NUM_CHANGED_JSON: $(NUM_CHANGED_JSON)"
 	@echo "NUM_CHANGED_YAML: $(NUM_CHANGED_YAML)"
 	@echo "NUM_CHANGED_FILES: $(NUM_CHANGED_FILES)"
 	@echo "CHANGED_DIRECTORIES: $(CHANGED_DIRECTORIES)"
@@ -138,13 +138,16 @@ compile:
 		find $(CI_DIR)/* -name "*.json" | while read json_file; do \
 			st2-check-validate-json-file "$$json_file" || exit 1 ; \
 		done; \
-	elif [[ -n "${CHANGED_JSON}" ]]; then \
-		for file in $(CHANGED_JSON); do \
+	elif [[ -n "${NUM_CHANGED_JSON}" ]]; then \
+		echo "Checking $(NUM_CHANGED_JSON) JSON files"; \
+		$(CI_DIR)/utils/git-changes json >~/.git-changes-json; \
+		while read -r file; do \
 			if [[ -n "$$file" ]]; then \
 				echo "file: $$file"; \
 				st2-check-validate-json-file $$file || exit 1 ; \
 			fi; \
-		done; \
+		done < ~/.git-changes-json; \
+		if [[ -e ~/.git-changes-json ]]; then rm ~/.git-changes-json; fi; \
 	else \
 		echo "No files have changed, skipping run..."; \
 	fi
