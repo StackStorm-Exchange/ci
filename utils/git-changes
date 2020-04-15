@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 METHOD=$1
 
 # Allow user to specify custom root dir when operating in scenarios with

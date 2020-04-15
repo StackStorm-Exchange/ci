@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 ROOT_DIRECTORY=$1
 BASE_BRANCH="origin/master"
 
