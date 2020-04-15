@@ -1,7 +1,7 @@
-#!/usr/bin/env sh
+#!/bin/bash
 ROOT_DIRECTORY=$1
-BASE_BRANCH="origin/master"
+BASE_BRANCH="${BASE_BRANCH:-origin/master}"
 
 cd ${ROOT_DIRECTORY}
 # Note: We include all but deleted files ("D" flag)
-echo $(git diff --relative --diff-filter=ACMRTUXB --name-only ${BASE_BRANCH} -- '*.py')
+git diff --relative --diff-filter=ACMRTUXB --name-only "${BASE_BRANCH}" -- '*.py'

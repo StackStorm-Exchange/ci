@@ -1,9 +1,9 @@
-#!/usr/bin/env sh
+#!/bin/bash
 METHOD=$1
 
 # Allow user to specify custom root dir when operating in scenarios with
 # multiple packs in a repo and similar
-if [ -z "${ROOT_DIR}" ]; then
+if [[ -z "${ROOT_DIR}" ]]; then
     ROOT_DIR=$(git rev-parse --show-toplevel)
 fi
 

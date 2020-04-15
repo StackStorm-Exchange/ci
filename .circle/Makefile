@@ -1,9 +1,9 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ifndef FORCE_CHECK_ALL_FILES
-CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files)
-CHANGED_PY := $(shell ${CI_DIR}/utils/git-changes py)
-CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml)
-CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json)
+NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
+NUM_CHANGED_PY := $(shell $(CI_DIR)/utils/git-changes py | wc -w)
+NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
+NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
 endif
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 VIRTUALENV_DIR ?= virtualenv
@@ -23,6 +23,14 @@ all: requirements lint packs-resource-register packs-tests
 
 .PHONY: all-ci
 all-ci: compile .license-check .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
+
+.PHONY: changed-files
+changed-files:
+	@echo "NUM_CHANGED_PY: $(NUM_CHANGED_PY)"
+	@echo "NUM_CHANGED_JSON: $(NUM_CHANGED_JSON)"
+	@echo "NUM_CHANGED_YAML: $(NUM_CHANGED_YAML)"
+	@echo "NUM_CHANGED_FILES: $(NUM_CHANGED_FILES)"
+	@echo "CHANGED_DIRECTORIES: $(CHANGED_DIRECTORIES)"
 
 .PHONY: lint
 lint: requirements flake8 pylint configs-check metadata-check
@@ -72,12 +80,15 @@ compile:
 		find ./* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
-	elif [ -n "${CHANGED_PY}" ]; then \
-		for file in ${CHANGED_PY}; do \
+	elif [ ${NUM_CHANGED_PY} -gt 0 ]; then \
+		echo "Checking ${NUM_CHANGED_PY} Python files"; \
+		$(CI_DIR)/utils/git-changes py >~/.git-changes-py; \
+		while read -r file; do \
 			if [ -n "$$file" ]; then \
 				flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$file || exit 1; \
 			fi; \
-		done; \
+		done < ~/.git-changes-py; \
+		if [ -e ~/.git-changes-py ]; then rm ~/.git-changes-py; fi; \
 	else \
 		echo "No files have changed, skipping run..."; \
 	fi;
@@ -88,7 +99,7 @@ compile:
 	@echo "==================== pylint ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_PY}" ]; then \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_PY} -gt 0 ]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
 		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
@@ -112,12 +123,15 @@ compile:
 		find $(CI_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
 			st2-check-validate-yaml-file "$$yaml_file" || exit 1 ; \
 		done; \
-	elif [ -n "${CHANGED_YAML}" ]; then \
-		for file in $(CHANGED_YAML); do \
+	elif [ ${NUM_CHANGED_YAML} -gt 0 ]; then \
+		echo "Checking $(NUM_CHANGED_YAML) YAML files"; \
+		$(CI_DIR)/utils/git-changes yaml >~/.git-changes-yaml; \
+		while read -r file; do \
 			if [ -n "$$file" ]; then \
 				st2-check-validate-yaml-file $$file || exit 1 ; \
 			fi; \
-		done; \
+		done < ~/.git-changes-yaml; \
+		if [ -e ~/.git-changes-yaml ]; then rm ~/.git-changes-yaml; fi; \
 	else \
 		echo "No files have changed, skipping run..."; \
 	fi
@@ -127,13 +141,16 @@ compile:
 		find $(CI_DIR)/* -name "*.json" | while read json_file; do \
 			st2-check-validate-json-file "$$json_file" || exit 1 ; \
 		done; \
-	elif [ -n "${CHANGED_JSON}" ]; then \
-		for file in $(CHANGED_JSON); do \
+	elif [ -n "${NUM_CHANGED_JSON}" ]; then \
+		echo "Checking $(NUM_CHANGED_JSON) JSON files"; \
+		$(CI_DIR)/utils/git-changes json >~/.git-changes-json; \
+		while read -r file; do \
 			if [ -n "$$file" ]; then \
 				echo "file: $$file"; \
 				st2-check-validate-json-file $$file || exit 1 ; \
 			fi; \
-		done; \
+		done < ~/.git-changes-json; \
+		if [ -e ~/.git-changes-json ]; then rm ~/.git-changes-json; fi; \
 	else \
 		echo "No files have changed, skipping run..."; \
 	fi
@@ -142,7 +159,7 @@ compile:
 	@echo "==================== example config check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_FILES}" ]; then \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		st2-check-validate-pack-example-config /tmp/packs/$(PACK_NAME) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -154,7 +171,7 @@ compile:
 	@echo "==================== metadata-check ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ -n "${CHANGED_YAML}" ]; then \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_YAML} -gt 0 ]; then \
 		st2-check-validate-pack-metadata-exists $(ROOT_DIR) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -166,7 +183,7 @@ compile:
 	@echo "==================== packs-resource-register ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ -z "${CHANGED_FILES}" ]; then \
+	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
@@ -178,7 +195,7 @@ compile:
 	@echo "==================== packs-tests ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ -z "${CHANGED_FILES}" ]; then \
+	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
@@ -189,7 +206,7 @@ compile:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ -z "${CHANGED_FILES}" ]; then \
+	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
@@ -201,7 +218,7 @@ compile:
 	@echo
 	@echo "==================== license-check ===================="
 	@echo
-	if [ -z "${CHANGED_FILES}" ] && [ "$${FORCE_CHECK_ALL_FILES}" = "false" ]; then \
+	if [ ${NUM_CHANGED_FILES} -eq 0 ] && [ "$${FORCE_CHECK_ALL_FILES}" = "false" ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		if [ ! -f "$(ROOT_DIR)/LICENSE" ]; then \

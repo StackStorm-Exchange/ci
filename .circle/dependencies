@@ -18,10 +18,10 @@ python --version
 pip --version
 
 # Clone st2 repo so other scripts can reference StackStorm Python code
-[ -d /tmp/st2 ] || git clone --depth 1 --single-branch --branch "${ST2_BRANCH}" https://github.com/StackStorm/st2.git /tmp/st2
+[[ -d /tmp/st2 ]] || git clone --depth 1 --single-branch --branch "${ST2_BRANCH}" https://github.com/StackStorm/st2.git /tmp/st2
 
 # Clone lint-configs
-[ -d ~/ci/lint-configs ] || git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
+[[ -d ~/ci/lint-configs ]] || git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
 
 # Create a directory for debian packages so we can cache it in Circle CI
 sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
@@ -43,7 +43,7 @@ echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
 # Copy over Makefile and  install StackStorm runners and register metrics drivers
 echo "Installing StackStorm runners and registering metrics drivers"
 
-if [ ! -z "${ROOT_DIR}" ]; then
+if [[ -n "${ROOT_DIR}" ]]; then
     PACK_REQUIREMENTS_FILE="${ROOT_DIR}/requirements.txt"
     PACK_TESTS_REQUIREMENTS_FILE="${ROOT_DIR}/requirements-tests.txt"
 
@@ -60,13 +60,13 @@ else
 fi
 
 # Install pack requirements
-if [ -f "${PACK_REQUIREMENTS_FILE}" ]; then
+if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
     echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
     ~/virtualenv/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
 fi
 
 # Install pack tests requirements
-if [ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]; then
+if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
     echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
     ~/virtualenv/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
 fi

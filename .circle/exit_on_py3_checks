@@ -2,7 +2,7 @@
 
 # Script which checks exit code of "test" script under Python 3.6 environment
 # and exists with an appropriate code
-if [ $# -lt 1 ] ; then
+if [[ $# -lt 1 ]] ; then
     echo "Usage: $0 <test script exit code>"
     echo "Example: $0 1"
     exit 2
@@ -15,7 +15,7 @@ echo "Original script exit code: ${TEST_EXIT_CODE}"
 # If pack doesn't declare Python 3 support, we don't treat failures as fatal
 SUPPORTS_PYTHON3=$(~/virtualenv/bin/python -c $'import yaml, sys\nresult = yaml.safe_load(open("pack.yaml", "r").read())\nif "3" in result.get("python_versions", []):\n    print("yes")')
 
-if [ "${SUPPORTS_PYTHON3}" != "yes" ] && [ ${TEST_EXIT_CODE} -ne 0 ] ; then
+if [[ "${SUPPORTS_PYTHON3}" != "yes" ]] && [[ ${TEST_EXIT_CODE} -ne 0 ]] ; then
     echo "Ignoring failures since pack doesn't declare Python 3 support in pack.yaml"
     exit 0
 fi

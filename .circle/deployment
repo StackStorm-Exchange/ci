@@ -6,7 +6,7 @@ FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
-if [ -z "${PACK_NAME}" ]; then
+if [[ -z "${PACK_NAME}" ]]; then
     export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml)
 else
     export PACK_NAME="${PACK_NAME}"
@@ -21,7 +21,7 @@ fi
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 
-# Clean up so the script can be retries in case of failure (e.g. race)
+# Clean up so the script can be retried in case of failure (e.g. race)
 rm -rf ~/index
 git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exchange/index ~/index 2>/dev/null
 
@@ -63,9 +63,9 @@ git status
 ~/virtualenv/bin/python ~/ci/utils/pack_content.py --input . --output ~/index/v1/packs/"${PACK_NAME}"
 
 # Rebuild the index JSON
-if [ -n "$(git -C ~/index status -s)" ] || [ ${FORCE_REBUILD_INDEX} == "1" ];
+if [[ -n "$(git -C ~/index status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "1" ]];
 then
-  if [ ${FORCE_REBUILD_INDEX} == "1" ]; then
+  if [[ ${FORCE_REBUILD_INDEX} == "1" ]]; then
       echo "Forcing index rebuild..."
   fi
   ~/virtualenv/bin/python ~/ci/.circle/index.py --glob "~/index/v1/packs/*/pack.yaml" --output "~/index/v1/"
@@ -75,7 +75,7 @@ fi
 
 # Check if an icon has been added or changed
 ICON_TARGET="${HOME}/index/v1/icons/${PACK_NAME}.png"
-if [ -f icon.png ] && { [ ! -f ${ICON_TARGET} ] || ! cmp -s icon.png ${ICON_TARGET}; }
+if [[ -f icon.png ]] && { [[ ! -f ${ICON_TARGET} ]] || ! cmp -s icon.png ${ICON_TARGET}; }
 then
   echo "Uploading the pack icon..."
   mkdir -p ~/index/v1/icons/

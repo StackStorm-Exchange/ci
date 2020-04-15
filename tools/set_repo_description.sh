@@ -16,7 +16,7 @@ set -e
 SCRIPT_PATH=$(dirname "$(readlink -f "$0")")
 source "${SCRIPT_PATH}/common.sh"
 
-if [ ! -z "${REPO_NAMES}" ]; then
+if [[ -n "${REPO_NAMES}" ]]; then
   OIFS=$IFS;
   IFS=" "
   REPO_NAMES=($REPO_NAMES)
@@ -32,7 +32,7 @@ for REPO_NAME in ${REPO_NAMES[@]}; do
     PACK_YAML_URL="https://raw.githubusercontent.com/StackStorm-Exchange/${REPO_NAME}/master/pack.yaml"
     PACK_DESCRIPTION=$(curl -sS --fail -X GET "${PACK_YAML_URL}" | python -c 'import yaml,sys; c=yaml.safe_load(sys.stdin);print c["description"]')
 
-    if [ -z "${PACK_DESCRIPTION}" ]; then
+    if [[ -z "${PACK_DESCRIPTION}" ]]; then
         echo "Description not available for pack ${REPO_NAME}, skipping..."
     else
         curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \

@@ -42,8 +42,7 @@ jobs:
           name: Check Bash file syntax
           command: |
             find . -name '*.sh' | xargs bash -n
-            grep -lrE '^#!/bin/bash' | xargs bash -n
-            grep -lrE '^#!/usr/bin/env sh' . | xargs sh -n\
+            grep -lrE '^#!/bin/bash' . | xargs bash -n
       - run:
           name: Check Python files
           command: |
@@ -98,8 +97,7 @@ jobs:
           name: Check Bash file syntax
           command: |
             find . -name '*.sh' | xargs bash -n
-            grep -lrE '^#!/bin/bash' | xargs bash -n
-            grep -lrE '^#!/usr/bin/env sh' . | xargs sh -n\
+            grep -lrE '^#!/bin/bash' . | xargs bash -n
       - run:
           name: Check Python files
           command: |

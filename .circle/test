@@ -7,7 +7,7 @@ set -e
 export CI_DIR=/home/circleci/ci
 export PYTHONPATH=/tmp/st2/st2common:${PYTHONPATH}
 
-if [ -z "${PACK_NAME}" ]; then
+if [[ -z "${PACK_NAME}" ]]; then
     export PACK_NAME=$(~/virtualenv/bin/python ~/ci/.circle/validate.py "${CIRCLE_PROJECT_REPONAME}" pack.yaml)
 else
     export PACK_NAME="${PACK_NAME}"
@@ -28,12 +28,12 @@ echo "Running on branch: ${GIT_BRANCH}"
 echo "Running with Python from $(which python)"
 echo "Python version: ${PYTHON_VERSION}"
 
-if [ "${GIT_BRANCH}" = "master" ]; then
+if [[ "${GIT_BRANCH}" = "master" ]]; then
     echo "Running on master branch, forcing check of all files"
-    export FORCE_CHECK_ALL_FILES="true"
+    export FORCE_CHECK_ALL_FILES="${FORCE_CHECK_ALL_FILES:-true}"
 fi
 
-if [ ! -z "${FORCE_CHECK_ALL_FILES}" ]; then
+if [[ -n "${FORCE_CHECK_ALL_FILES}" ]]; then
     export FORCE_CHECK_ALL_FILES="${FORCE_CHECK_ALL_FILES}"
 fi
 
@@ -43,8 +43,9 @@ export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 echo "ROOT_DIR=${ROOT_DIR}"
 echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES}"
 
-if [ ! -z "${ROOT_DIR}" ]; then
+if [[ -n "${ROOT_DIR}" ]]; then
     export ROOT_DIR="${ROOT_DIR}"
+    echo "ROOT_DIR: ${ROOT_DIR}"
     make -C ${ROOT_DIR} all-ci
 else
     make all-ci
