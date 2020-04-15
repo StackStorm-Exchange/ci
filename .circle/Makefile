@@ -24,6 +24,19 @@ all: requirements lint packs-resource-register packs-tests
 .PHONY: all-ci
 all-ci: compile .license-check .flake8 .pylint .copy-pack-to-subdirectory .configs-check .metadata-check .packs-resource-register .packs-tests
 
+.PHONY: changed-files
+changed-files:
+	@echo "CHANGED_PY:"
+	@echo "$(CHANGED_PY)"
+	@echo "CHANGED_JSON:"
+	@echo "$(CHANGED_JSON)"
+	@echo "CHANGED_DIRECTORIES:"
+	@echo "$(CHANGED_DIRECTORIES)"
+	@echo "CHANGED_YAML:"
+	@echo "$(CHANGED_YAML)"
+	@echo "CHANGED_FILES:"
+	@echo "$(CHANGED_FILES)"
+
 .PHONY: lint
 lint: requirements flake8 pylint configs-check metadata-check
 
