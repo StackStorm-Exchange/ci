@@ -195,10 +195,10 @@ compile:
 	@echo "==================== packs-tests ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
-		echo "No files have changed, skipping run..."; \
-	else \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
+	else \
+		echo "No files have changed, skipping run..."; \
 	fi;
 
 .PHONY: .packs-missing-tests
