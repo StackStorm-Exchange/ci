@@ -67,6 +67,8 @@ compile:
 	@echo "======================= compile ========================"
 	@echo "------- Compile all .py files (syntax check test) ------"
 	if python -c 'import compileall,re; compileall.compile_dir(".", rx=re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox"), quiet=True)' | grep .; then exit 1; else exit 0; fi
+	@echo
+	@echo "All files compiled successfully"
 
 .PHONY: .flake8
 .flake8:
@@ -226,7 +228,9 @@ compile:
 		cat $(ROOT_DIR)/LICENSE | grep -q "Apache License"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
 		cat $(ROOT_DIR)/LICENSE | grep -q "Version 2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
 		cat $(ROOT_DIR)/LICENSE | grep -q "www.apache.org/licenses/LICENSE-2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
-	fi;
+	fi
+	@echo
+	@echo "License looks good"
 
 .PHONY: .clone_st2_repo
 .clone_st2_repo: /tmp/st2
