@@ -34,6 +34,7 @@ if [[ "${GIT_BRANCH}" = "master" ]]; then
 fi
 
 if [[ -n "${FORCE_CHECK_ALL_FILES}" ]]; then
+    echo "FORCE_CHECK_ALL_FILES is non-empty: ${FORCE_CHECK_ALL_FILES}"
     export FORCE_CHECK_ALL_FILES="${FORCE_CHECK_ALL_FILES}"
 fi
 

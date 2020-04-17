@@ -1,10 +1,8 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-ifndef FORCE_CHECK_ALL_FILES
 NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
 NUM_CHANGED_PY := $(shell $(CI_DIR)/utils/git-changes py | wc -w)
 NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
 NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
-endif
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 VIRTUALENV_DIR ?= virtualenv
 ST2_REPO_PATH ?= /tmp/st2
@@ -69,6 +67,8 @@ compile:
 	@echo "======================= compile ========================"
 	@echo "------- Compile all .py files (syntax check test) ------"
 	if python -c 'import compileall,re; compileall.compile_dir(".", rx=re.compile(r"/virtualenv|virtualenv-osx|virtualenv-py3|.tox|.git|.venv-st2devbox"), quiet=True)' | grep .; then exit 1; else exit 0; fi
+	@echo
+	@echo "All files compiled successfully"
 
 .PHONY: .flake8
 .flake8:
@@ -77,7 +77,8 @@ compile:
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
-		find ./* -name "*.py" | while read py_file; do \
+		echo "Force flake8 checks on all files"; \
+		find $(ROOT_DIR)/* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
 	elif [ ${NUM_CHANGED_PY} -gt 0 ]; then \
@@ -120,7 +121,8 @@ compile:
 	@# iterate through each element of the array
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
-		find $(CI_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
+		echo "Force checking all YAML files"; \
+		find $(ROOT_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
 			st2-check-validate-yaml-file "$$yaml_file" || exit 1 ; \
 		done; \
 	elif [ ${NUM_CHANGED_YAML} -gt 0 ]; then \
@@ -138,7 +140,8 @@ compile:
 	@#
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
-		find $(CI_DIR)/* -name "*.json" | while read json_file; do \
+		echo "Force checking all JSON files"; \
+		find $(ROOT_DIR)/* -name "*.json" | while read json_file; do \
 			st2-check-validate-json-file "$$json_file" || exit 1 ; \
 		done; \
 	elif [ -n "${NUM_CHANGED_JSON}" ]; then \
@@ -183,10 +186,10 @@ compile:
 	@echo "==================== packs-resource-register ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
-		echo "No files have changed, skipping run..."; \
-	else \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
+	else \
+		echo "No files have changed, skipping run..."; \
 	fi;
 
 .PHONY: .packs-tests
@@ -195,10 +198,10 @@ compile:
 	@echo "==================== packs-tests ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
-		echo "No files have changed, skipping run..."; \
-	else \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		$(ST2_REPO_PATH)/st2common/bin/st2-run-pack-tests -c -t -x -j -p $(ROOT_DIR) || exit 1; \
+	else \
+		echo "No files have changed, skipping run..."; \
 	fi;
 
 .PHONY: .packs-missing-tests
@@ -206,10 +209,10 @@ compile:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
-		echo "No files have changed, skipping run..."; \
-	else \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
+	else \
+		echo "No files have changed, skipping run..."; \
 	fi;
 
 # Target which veries repo root contains LICENSE file with ASF 2.0 content
@@ -228,7 +231,9 @@ compile:
 		cat $(ROOT_DIR)/LICENSE | grep -q "Apache License"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
 		cat $(ROOT_DIR)/LICENSE | grep -q "Version 2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
 		cat $(ROOT_DIR)/LICENSE | grep -q "www.apache.org/licenses/LICENSE-2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
-	fi;
+	fi
+	@echo
+	@echo "License looks good"
 
 .PHONY: .clone_st2_repo
 .clone_st2_repo: /tmp/st2
