@@ -1,10 +1,8 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-ifndef FORCE_CHECK_ALL_FILES
 NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
 NUM_CHANGED_PY := $(shell $(CI_DIR)/utils/git-changes py | wc -w)
 NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
 NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
-endif
 CHANGED_DIRECTORIES := $(shell $(CI_DIR)/utils/git-changes directories)
 VIRTUALENV_DIR ?= virtualenv
 ST2_REPO_PATH ?= /tmp/st2
