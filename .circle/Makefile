@@ -181,10 +181,10 @@ compile:
 	@echo "==================== packs-resource-register ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
-		echo "No files have changed, skipping run..."; \
-	else \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		st2-check-register-pack-resources /tmp/packs/$(PACK_NAME) || exit 1; \
+	else \
+		echo "No files have changed, skipping run..."; \
 	fi;
 
 .PHONY: .packs-tests
@@ -204,10 +204,10 @@ compile:
 	@echo
 	@echo "==================== pack-missing-tests ===================="
 	@echo
-	if [ ${NUM_CHANGED_FILES} -eq 0 ]; then \
-		echo "No files have changed, skipping run..."; \
-	else \
+	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_FILES} -gt 0 ]; then \
 		st2-check-print-pack-tests-coverage $(ROOT_DIR) || exit 1; \
+	else \
+		echo "No files have changed, skipping run..."; \
 	fi;
 
 # Target which veries repo root contains LICENSE file with ASF 2.0 content
