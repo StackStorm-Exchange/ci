@@ -77,6 +77,7 @@ compile:
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
+		echo "Force flake8 checks on all files"; \
 		find ./* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
@@ -120,6 +121,7 @@ compile:
 	@# iterate through each element of the array
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
+		echo "Force checking all YAML files"; \
 		find $(CI_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
 			st2-check-validate-yaml-file "$$yaml_file" || exit 1 ; \
 		done; \
@@ -138,6 +140,7 @@ compile:
 	@#
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
+		echo "Force checking all JSON files"; \
 		find $(CI_DIR)/* -name "*.json" | while read json_file; do \
 			st2-check-validate-json-file "$$json_file" || exit 1 ; \
 		done; \
