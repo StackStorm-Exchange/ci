@@ -78,7 +78,7 @@ compile:
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
 		echo "Force flake8 checks on all files"; \
-		find ./* -name "*.py" | while read py_file; do \
+		find $(ROOT_DIR)/* -name "*.py" | while read py_file; do \
 			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
 		done; \
 	elif [ ${NUM_CHANGED_PY} -gt 0 ]; then \
@@ -122,7 +122,7 @@ compile:
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
 		echo "Force checking all YAML files"; \
-		find $(CI_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
+		find $(ROOT_DIR)/* -name "*.yaml" -o -name "*.yml" | while read yaml_file; do \
 			st2-check-validate-yaml-file "$$yaml_file" || exit 1 ; \
 		done; \
 	elif [ ${NUM_CHANGED_YAML} -gt 0 ]; then \
@@ -141,7 +141,7 @@ compile:
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
 		echo "Force checking all JSON files"; \
-		find $(CI_DIR)/* -name "*.json" | while read json_file; do \
+		find $(ROOT_DIR)/* -name "*.json" | while read json_file; do \
 			st2-check-validate-json-file "$$json_file" || exit 1 ; \
 		done; \
 	elif [ -n "${NUM_CHANGED_JSON}" ]; then \
