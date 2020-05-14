@@ -216,24 +216,36 @@ compile:
 	fi;
 
 # Target which veries repo root contains LICENSE file with ASF 2.0 content
+# We allow the napalm_logs and netbox packs to have MIT licenses, since they
+# adopted those licenses before this check was put in place, so they are
+# effectively grandfathered in
+# However, all other packs, including any new packs, are required to be
+# licensed under the Apache 2.0 License
 .PHONY: .license-check
 .license-check:
 	@echo
 	@echo "==================== license-check ===================="
 	@echo
-	if [ ${NUM_CHANGED_FILES} -eq 0 ] && [ "$${FORCE_CHECK_ALL_FILES}" = "false" ]; then \
+	@if [ ${NUM_CHANGED_FILES} -eq 0 ] && [ "$${FORCE_CHECK_ALL_FILES}" = "false" ]; then \
 		echo "No files have changed, skipping run..."; \
 	else \
 		if [ ! -f "$(ROOT_DIR)/LICENSE" ]; then \
 			echo "Missing LICENSE file in $(ROOT_DIR)"; \
 			exit 2;\
 		fi;\
-		cat $(ROOT_DIR)/LICENSE | grep -q "Apache License"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
-		cat $(ROOT_DIR)/LICENSE | grep -q "Version 2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
-		cat $(ROOT_DIR)/LICENSE | grep -q "www.apache.org/licenses/LICENSE-2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
+		if [ "$$(python -c 'import yaml; f = open("/home/circleci/repo/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "napalm_logs" ] || \
+		   [ "$$(python -c 'import yaml; f = open("/home/circleci/repo/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "netbox" ]; then \
+			cat $(ROOT_DIR)/LICENSE | grep -q "MIT License"  || (echo "LICENSE file doesn't contain MIT license text" ; exit 2); \
+			cat $(ROOT_DIR)/LICENSE | grep -q "Copyright (c) 2017 John Anderson"  || (echo "LICENSE file doesn't include John Anderson's name" ; exit 2); \
+			cat $(ROOT_DIR)/LICENSE | grep -q "Permission is hereby granted, free of charge, to any person obtaining a copy"  || (echo "LICENSE file doesn't contain MIT license text" ; exit 2); \
+			echo "Pack is licensed under the MIT License -- :)"; \
+		else \
+			cat $(ROOT_DIR)/LICENSE | grep -q "Apache License"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
+			cat $(ROOT_DIR)/LICENSE | grep -q "Version 2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
+			cat $(ROOT_DIR)/LICENSE | grep -q "www.apache.org/licenses/LICENSE-2.0"  || (echo "LICENSE file doesn't contain Apache 2.0 license text" ; exit 2); \
+			echo "Pack is licensed under the Apache 2.0 License -- :)"; \
+		fi; \
 	fi
-	@echo
-	@echo "License looks good"
 
 .PHONY: .clone_st2_repo
 .clone_st2_repo: /tmp/st2
