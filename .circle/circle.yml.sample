@@ -105,7 +105,9 @@ jobs:
           at: /
       - run:
           name: Install dependencies
-          command: sudo apt -y install gmic optipng
+          command: |
+            sudo apt-get update
+            sudo apt -y install gmic optipng
       - run:
           # NOTE: We try to retry the script up to 5 times if it fails. The command could fail due
           # to the race (e.g. we try to push changes to index, but index has been updated by some
