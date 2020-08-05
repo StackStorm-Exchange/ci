@@ -100,6 +100,11 @@ compile:
 	@echo "==================== pylint ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
+	if [[" ${COMMON_LIBS}" = "true" ]]; then \
+  		echo "Common libs PATH selected" \
+  		export PYTHONPATH=/home/circleci/repo/lib:${PYTHONPATH} \
+  	fi \
+
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_PY} -gt 0 ]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
 		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
