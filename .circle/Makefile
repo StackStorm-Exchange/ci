@@ -100,7 +100,7 @@ compile:
 	@echo "==================== pylint ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate; \
-	if [[ "${COMMON_LIBS}" = "true" ]]; then \
+	if [ "${COMMON_LIBS}" = "true" ]; then \
 		echo "Common libs PATH selected" \
 		export PYTHONPATH=/home/circleci/repo/lib:${PYTHONPATH}; \
 	fi; \
