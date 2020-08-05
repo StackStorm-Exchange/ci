@@ -20,4 +20,8 @@ See [the index repo](https://github.com/StackStorm-Exchange/index) for details, 
 are at it, check out [the web front-end source code](https://github.com/StackStorm-Exchange/web)
 as well.
 
+If you wish to test a pack that uses the [pack.enable_common_libs](https://docs.stackstorm.com/reference/sharing_code_sensors_actions.html)
+capability, then set the environment variable `COMMON_LIBS=true` in circleci or in your 
+`.circleci/config.yml` file.
+
 That's all folks!
