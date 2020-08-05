@@ -41,7 +41,8 @@ fi
 # We want to use special config file for tests which sets pack base path to /tmp/packs/
 if "${COMMON_LIBS}"; then
   echo "Common libs PATH selected"
-  export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
+  # export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
+  export PYTHONPATH=/home/circleci/repo/lib:${PYTHONPATH}
 else
   export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
 fi
