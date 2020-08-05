@@ -27,7 +27,6 @@ PYTHON_VERSION=$(python --version 2>&1)
 echo "Running on branch: ${GIT_BRANCH}"
 echo "Running with Python from $(which python)"
 echo "Python version: ${PYTHON_VERSION}"
-echo "Common libs enabled"
 
 if [[ "${GIT_BRANCH}" = "master" ]]; then
     echo "Running on master branch, forcing check of all files"
@@ -40,7 +39,8 @@ if [[ -n "${FORCE_CHECK_ALL_FILES}" ]]; then
 fi
 
 # We want to use special config file for tests which sets pack base path to /tmp/packs/
-if $COMMON_LIBS; then
+if "${COMMON_LIBS}"; then
+  echo "Common libs PATH selected"
   export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
 else
   export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
@@ -52,7 +52,7 @@ echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES}"
 if [[ -n "${ROOT_DIR}" ]]; then
     export ROOT_DIR="${ROOT_DIR}"
     echo "ROOT_DIR: ${ROOT_DIR}"
-    make -C ${ROOT_DIR} all-ci
+    make -C "${ROOT_DIR}" all-ci
 else
     make all-ci
 fi
