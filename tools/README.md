@@ -7,7 +7,7 @@ This tool is used to insert and update copyright headers into the following:
 * LICENSE files (Apache only for now)
 * README.md files (only used in StackStorm/st2/README.md for now)
 
-### Useage 
+### Usage 
 
 To update all of the files in a repo it's as simple as:
 
