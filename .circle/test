@@ -39,7 +39,7 @@ if [[ -n "${FORCE_CHECK_ALL_FILES}" ]]; then
 fi
 
 # We want to use special config file for tests which sets pack base path to /tmp/packs/
-if [[ ! -z "${COMMON_LIBS}" ]]; then
+if [[ -n "${COMMON_LIBS}" ]]; then
   echo "Common libs PATH selected"
   export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
 else
