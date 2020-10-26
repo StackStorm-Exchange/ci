@@ -56,15 +56,21 @@ fi
 # GitHub: create a user-scope token
 # TODO: Delete any existing token for that repo
 echo "Github: Creating a Github user-scoped token"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+GITHUB_USER_TOKEN=$(curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+    --header "Content-Type: application/json" \
     -d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
-    "https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
+    "https://api.github.com/authorizations" | jq --raw-output ".token")
 
-if [[ ! -s "/tmp/${PACK}_user_token" ]];
+if [[ -z "$GITHUB_USER_TOKEN" ]];
 then
-    echo "Could not create a token."
+    echo "Could not create a GitHub Personal Access Token."
     exit 1
 fi
+
+echo "GitHub Personal Access Token for ${USERNAME}:"
+echo
+echo "    ${GITHUB_USER_TOKEN}"
+echo
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
 echo "CircleCI: Setting credentials (machine login and user-scoped token)"
@@ -72,5 +78,5 @@ curl -sS --fail -X POST --header "Content-Type: application/json" \
     -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-    -d '{"name":"MACHINE_PASSWORD", "value":'"$(cat "/tmp/${PACK}_user_token")"'}' \
+    -d '{"name":"MACHINE_PASSWORD", "value": "'"${GITHUB_USER_TOKEN}"'"}' \
     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
