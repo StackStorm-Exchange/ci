@@ -40,6 +40,7 @@ def build_index(path_glob, output_path):
     generator = sorted(glob(path_glob))
 
     counter = 0
+    failed_count = 0
     for filename in generator:
         with open(filename, 'r') as pack:
             pack_meta = yaml.safe_load(pack)
@@ -55,6 +56,9 @@ def build_index(path_glob, output_path):
         )
 
         versions = get_available_versions_for_pack(pack_ref)
+
+        if versions is None:
+            failed_count += 1
 
         if versions is not None:
             pack_meta['versions'] = versions
@@ -81,8 +85,23 @@ def build_index(path_glob, output_path):
         json.dump(result, outfile, indent=4, sort_keys=True,
                   separators=(',', ': '))
 
+    failed_message = ''
+    if failed_count > 0:
+        failed_message = (
+            ', {failed_count} packs failed to update.\n'
+            'The GitHub Personal Access Tokens for CircleCI for the pack may '
+            'need to be refreshed.\n'
+            '\n'
+            'See the tools/reset_github_user_token_and_update_circleci.sh script in\n'
+            '  https://github.com/{exchange_name}/ci\n'
+            '\n'
+            'If you do not have the necessary GitHub and CircleCI credentials, you\n'
+            'will need to ask a member of the StackStorm TSC to update the Personal\n'
+            'Access Token on your behalf.'
+        ).format(failed_count=failed_count, exchange_name=EXCHANGE_NAME)
+
     print('')
-    print('Processed %s packs.' % (counter))
+    print('Processed %s packs%s.' % (counter, failed_message))
     print('Index data written to "%s".' % (output_path))
 
 
