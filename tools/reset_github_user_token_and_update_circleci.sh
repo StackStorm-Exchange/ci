@@ -22,6 +22,31 @@ EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
 REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
 
+DEFAULT_USERNAME="stackstorm-neptr"
+if [[ -z "$USERNAME" ]];
+then
+    echo "What is the username for the GitHub user?"
+    echo "Default: $DEFAULT_USERNAME (just hit enter to use this)"
+    read USERNAME
+    USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
+fi
+
+if [[ -z "$PASSWORD" ]];
+then
+    echo "What is the password for the GitHub user (${USERNAME})?"
+    echo "This password is stored in LastPass under the ${DEFAULT_USERNAME}"
+    echo "account."
+    read -s PASSWORD
+fi
+
+if [[ -z "$CIRCLECI_TOKEN" ]];
+then
+    echo "What is the CircleCI token for the ${EXCHANGE_ORG}?"
+    echo "This token is stored in LastPass in the notes section under the "
+    echo "${DEFAULT_USERNAME} for GitHub."
+    read -s CIRCLECI_TOKEN
+fi
+
 # GitHub: create a user-scope token
 # TODO: Delete any existing token for that repo
 echo "Github: Creating a Github user-scoped token"
