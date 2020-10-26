@@ -20,7 +20,13 @@ fi
 PACK="$1"
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
-REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
+# Add the stackstorm- prefix to the repo name if it doesn't exist already
+if [[ "$PACK" = ${EXCHANGE_PREFIX}-* ]];
+then
+    REPO_NAME="$PACK"
+else
+    REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
+fi
 
 DEFAULT_USERNAME="stackstorm-neptr"
 if [[ -z "$USERNAME" ]];
