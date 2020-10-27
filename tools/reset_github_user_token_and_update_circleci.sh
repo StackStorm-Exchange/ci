@@ -20,20 +20,57 @@ fi
 PACK="$1"
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
-REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
+# Add the stackstorm- prefix to the repo name if it doesn't exist already
+if [[ "$PACK" = ${EXCHANGE_PREFIX}-* ]];
+then
+    REPO_NAME="$PACK"
+else
+    REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
+fi
+
+DEFAULT_USERNAME="stackstorm-neptr"
+if [[ -z "$USERNAME" ]];
+then
+    echo "What is the username for the GitHub user?"
+    echo "Default: $DEFAULT_USERNAME (just hit enter to use this)"
+    read USERNAME
+    USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
+fi
+
+if [[ -z "$PASSWORD" ]];
+then
+    echo "What is the password for the GitHub user (${USERNAME})?"
+    echo "This password is stored in LastPass under the ${DEFAULT_USERNAME}"
+    echo "account."
+    read -s PASSWORD
+fi
+
+if [[ -z "$CIRCLECI_TOKEN" ]];
+then
+    echo "What is the CircleCI token for the ${EXCHANGE_ORG}?"
+    echo "This token is stored in LastPass in the notes section under the "
+    echo "${DEFAULT_USERNAME} for GitHub."
+    read -s CIRCLECI_TOKEN
+fi
 
 # GitHub: create a user-scope token
 # TODO: Delete any existing token for that repo
 echo "Github: Creating a Github user-scoped token"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+GITHUB_USER_TOKEN=$(curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+    --header "Content-Type: application/json" \
     -d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
-    "https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
+    "https://api.github.com/authorizations" | jq --raw-output ".token")
 
-if [[ ! -s "/tmp/${PACK}_user_token" ]];
+if [[ -z "$GITHUB_USER_TOKEN" ]];
 then
-    echo "Could not create a token."
+    echo "Could not create a GitHub Personal Access Token."
     exit 1
 fi
+
+echo "GitHub Personal Access Token for ${USERNAME}:"
+echo
+echo "    ${GITHUB_USER_TOKEN}"
+echo
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
 echo "CircleCI: Setting credentials (machine login and user-scoped token)"
@@ -41,5 +78,5 @@ curl -sS --fail -X POST --header "Content-Type: application/json" \
     -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-    -d '{"name":"MACHINE_PASSWORD", "value":'"$(cat "/tmp/${PACK}_user_token")"'}' \
+    -d '{"name":"MACHINE_PASSWORD", "value": "'"${GITHUB_USER_TOKEN}"'"}' \
     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
