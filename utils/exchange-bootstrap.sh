@@ -101,6 +101,11 @@ git add .circleci/config.yml
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/files/.gitignore.sample" > .gitignore
 git add .gitignore
 
+mkdir tests
+curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/setup_testing_env.sh.sample" > tests/setup_testing_env.sh
+# no execute bit until pack-author enables it.
+git add tests/setup_testing_env.sh
+
 git commit -m "Bootstrap a StackStorm Exchange pack repository for pack ${PACK}."
 git push origin master
 
