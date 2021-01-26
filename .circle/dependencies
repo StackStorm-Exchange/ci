@@ -48,6 +48,7 @@ echo "Installing StackStorm runners and registering metrics drivers"
 if [[ -n "${ROOT_DIR}" ]]; then
     PACK_REQUIREMENTS_FILE="${ROOT_DIR}/requirements.txt"
     PACK_TESTS_REQUIREMENTS_FILE="${ROOT_DIR}/requirements-tests.txt"
+    PACK_SETUP_TESTING_ENV="${ROOT_DIR}/tests/setup_testing_env.sh"
 
     echo "Copying Makefile to ${ROOT_DIR}"
     cp ~/ci/.circle/Makefile ${ROOT_DIR}
@@ -55,6 +56,7 @@ if [[ -n "${ROOT_DIR}" ]]; then
 else
     PACK_REQUIREMENTS_FILE="$(pwd)/requirements.txt"
     PACK_TESTS_REQUIREMENTS_FILE="$(pwd)/requirements-tests.txt"
+    PACK_SETUP_TESTING_ENV="$(pwd)/tests/setup_testing_env.sh"
 
     echo "Copying Makefile to $(pwd)"
     cp ~/ci/.circle/Makefile .
@@ -71,6 +73,12 @@ fi
 if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
     echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
     ~/virtualenv/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+fi
+
+# Install custom pack testing enviornment
+if [[ -x "${PACK_SETUP_TESTING_ENV}" ]]; then
+    echo "Setting up custom pack testing environment with ${PACK_SETUP_TESTING_ENV}"
+    "${PACK_SETUP_TESTING_ENV}"
 fi
 
 echo "Installed dependencies:"
