@@ -38,10 +38,16 @@ sudo apt-get -y install libldap2-dev libsasl2-dev
 # Hit github's API to keep the PAT active (without failing if it's not)
 (GH_TOKEN=${MACHINE_PASSWORD} gh repo view | head -n2) || true
 
-sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv
+# This should track the pinned version of pip in st2's Makefile
+PIP_DEP="pip==20.0.2"
+sudo pip install -U "${PIP_DEP}" setuptools virtualenv
 
 virtualenv ~/virtualenv
 source ~/virtualenv/bin/activate
+
+# virtualenv is updating pip. Revert back to our pinned version.
+pip install -U "${PIP_DEP}"
+pip --version
 
 # Install StackStorm requirements
 echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
