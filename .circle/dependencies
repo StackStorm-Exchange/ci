@@ -39,15 +39,12 @@ sudo apt-get -y install libldap2-dev libsasl2-dev
 (GH_TOKEN=${MACHINE_PASSWORD} gh repo view | head -n2) || true
 
 # This should track the pinned version of pip in st2's Makefile
-PIP_DEP="pip==20.0.2"
-sudo pip install -U "${PIP_DEP}" setuptools virtualenv
+# Also, make sure virtualenv is built with same pip version below.
+PIP_VERSION="20.0.2"
 
-virtualenv ~/virtualenv
+sudo pip install -U "pip==${PIP_VERSION}" setuptools virtualenv
+virtualenv --pip "${PIP_VERSION}" ~/virtualenv
 source ~/virtualenv/bin/activate
-
-# virtualenv is updating pip. Revert back to our pinned version.
-pip install -U "${PIP_DEP}"
-pip --version
 
 # Install StackStorm requirements
 echo "Installing StackStorm requirements from /tmp/st2/requirements.txt"
