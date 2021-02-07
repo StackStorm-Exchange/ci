@@ -23,7 +23,7 @@ fi
 
 # Clean up so the script can be retried in case of failure (e.g. race)
 rm -rf ~/index
-git clone https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exchange/index ~/index 2>/dev/null
+git clone -q -- "https://${MACHINE_USER}:${MACHINE_PASSWORD}@github.com/StackStorm-Exchange/index" ~/index
 
 echo "Processing pack ${PACK_NAME}"
 
@@ -33,7 +33,7 @@ echo "Processing pack ${PACK_NAME}"
 METADATA_CHANGES=$(git rev-list --all --no-abbrev --remove-empty -- pack.yaml)
 for COMMIT in $(echo $METADATA_CHANGES)
 do
-  git checkout ${COMMIT} pack.yaml > /dev/null
+  git checkout -q ${COMMIT} pack.yaml
   VERSION=$(~/virtualenv/bin/python ~/ci/.circle/semver.py pack.yaml 2>/dev/null || true)
 
   # 1. Create a tag if version is specified and tag doesn't exist locally
@@ -93,7 +93,7 @@ if ! git -C ~/index diff --quiet --exit-code --cached
 then
   echo "Updating the index repo..."
   git -C ~/index commit -m "Update the ${PACK_NAME} pack."
-  git -C ~/index push origin 2>/dev/null
+  git -C ~/index push -q origin
   echo "Index updated."
 
   # echo "Updating the repo description..."
