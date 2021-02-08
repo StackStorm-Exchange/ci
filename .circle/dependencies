@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 CURRENT_DIR="$(dirname "$0")"
 
@@ -32,6 +32,9 @@ sudo apt-get update
 sudo apt-get -y install python-dev jq gmic optipng
 # Installing dependencies for st2 pip build
 sudo apt-get -y install libldap2-dev libsasl2-dev
+
+# make `gh` available for github API calls
+~/ci/.circle/install_gh
 
 sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv
 

@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import subprocess
 import time
 from collections import OrderedDict
 from glob import glob
@@ -19,11 +20,28 @@ EXCHANGE_NAME = "StackStorm-Exchange"
 EXCHANGE_PREFIX = "stackstorm"
 
 GITHUB_USERNAME = os.environ.get('MACHINE_USER')
-GITHUB_PASSWORD = os.environ.get('MACHINE_PASSWORD')
+GITHUB_PASSWORD = os.environ.get("MACHINE_PASSWORD", os.environ.get("GH_TOKEN"))
 
 SESSION = requests.Session()
 SESSION.auth = (GITHUB_USERNAME, GITHUB_PASSWORD)
 
+PACK_VERSIONS = {}
+
+GQL_PACK_TAGS_QUERY = """
+query ($owner: String!, $per_page: Int = 100, $endCursor: String) {
+  repositoryOwner(login: $owner) {
+    repositories(first: $per_page, after: $endCursor, ownerAffiliations: OWNER) {
+      nodes {
+        name
+        refs(refPrefix: "refs/tags/", last: 100) {
+          nodes { name }
+        }
+      }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}
+"""
 
 def build_index(path_glob, output_path):
     result = OrderedDict({
@@ -105,27 +123,85 @@ def build_index(path_glob, output_path):
     print('Index data written to "%s".' % (output_path))
 
 
+def get_available_versions():
+    """
+    Retrieve all the available versions for all packs
+
+    NOTE: This function uses Github API.
+    """
+    pages = []
+
+    # use `gh` to handle getting all pages
+    proc = subprocess.Popen(
+        [
+            "gh", "api", "--paginate", "graphql",
+            "-f", "owner=" + EXCHANGE_NAME,
+            "-f", "query=" + GQL_PACK_TAGS_QUERY,
+        ],
+        env={"GH_TOKEN": GITHUB_PASSWORD},
+        stdout=subprocess.PIPE,
+    )
+    # This should never take more than 5 seconds.
+    # If network is really bad, let it go for 30.
+    try:
+        outs, _ = proc.communicate(timeout=30)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, _ = proc.communicate()
+    result = outs.decode().strip()
+
+    # https://stackoverflow.com/a/43807246/1134951
+    decoder = json.JSONDecoder()
+    pos = 0
+    len_result = len(result)
+    while pos < len_result:
+        j, json_len = decoder.raw_decode(result, idx=pos)
+        pos += json_len
+        pages.append(j)
+
+    # PREFIX-<pack name>
+    prefix_len = len(EXCHANGE_PREFIX) + 1
+
+    for page in pages:
+        repos = page["data"]["repositoryOwner"]["repositories"]["nodes"]
+        packs = [
+            {
+                "reponame": repo["name"],
+                "tags": [tag["name"] for tag in repo["refs"]["nodes"]]
+            } for repo in repos if repo["name"].startswith(EXCHANGE_PREFIX)
+        ]
+        for pack in packs:
+            pack_name = pack["reponame"][prefix_len:]
+            PACK_VERSIONS.setdefault(pack_name, []).extend(
+                tag.replace("v", "") for tag in pack["tags"]
+                if tag.startswith("v")  # only version tags
+            )
+
+
 def get_available_versions_for_pack(pack_ref):
     """
     Retrieve all the available versions for a particular pack.
 
     NOTE: This function uses Github API.
     """
-    url = ('https://api.github.com/repos/%s/%s-%s/tags' %
-           (EXCHANGE_NAME, EXCHANGE_PREFIX, pack_ref))
-    resp = SESSION.get(url)
+    if pack_ref not in PACK_VERSIONS:
+        url = ('https://api.github.com/repos/%s/%s-%s/tags' %
+               (EXCHANGE_NAME, EXCHANGE_PREFIX, pack_ref))
+        resp = SESSION.get(url)
 
-    if resp.status_code != 200:
-        print('Got non 200 response: %s' % (resp.text))
-        return None
+        if resp.status_code != 200:
+            print('Got non 200 response: %s' % (resp.text))
+            return None
 
-    versions = []
+        versions = []
 
-    for item in resp.json():
-        if item.get('name', '').startswith('v'):
-            versions.append(item['name'].replace('v', ''))
+        for item in resp.json():
+            if item.get('name', '').startswith('v'):
+                versions.append(item['name'].replace('v', ''))
+    else:
+        versions = PACK_VERSIONS[pack_ref]
 
-    versions = list(reversed(sorted(versions)))
+    versions = list(reversed(sorted(set(versions))))
 
     return versions
 
@@ -138,4 +214,5 @@ if __name__ == '__main__':
                         required=True)
     args = parser.parse_args()
 
+    get_available_versions()
     build_index(path_glob=args.glob, output_path=args.output)
