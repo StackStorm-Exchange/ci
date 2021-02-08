@@ -18,8 +18,8 @@ then
   exit 1
 fi
 
-# make `gh` available for github API calls
-~/ci/.circle/install_gh
+# TODO: remove the install_gh call once circleci config is updated in all packs
+type gh &>/dev/null || ~/ci/.circle/install_gh
 
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
