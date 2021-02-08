@@ -172,9 +172,7 @@ def get_available_versions():
         ]
         for pack in packs:
             pack_name = pack["reponame"][prefix_len:]
-            if pack_name not in PACK_VERSIONS:
-                PACK_VERSIONS[pack_name] = []
-            PACK_VERSIONS[pack_name].extend(
+            PACK_VERSIONS.setdefault(pack_name, []).extend(
                 tag.replace("v", "") for tag in pack["tags"]
                 if tag.startswith("v")  # only version tags
             )
