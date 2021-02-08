@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 FORCE_REBUILD_INDEX="${FORCE_REBUILD_INDEX:-0}"
 

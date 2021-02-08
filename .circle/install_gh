@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 # make `gh` available for index regeneration
 GH_VERSION="${GH_VERSION:-1.5.0}"
