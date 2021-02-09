@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 import subprocess
 import time
 from collections import OrderedDict
@@ -21,6 +22,7 @@ EXCHANGE_PREFIX = "stackstorm"
 
 GITHUB_USERNAME = os.environ.get('MACHINE_USER')
 GITHUB_PASSWORD = os.environ.get("MACHINE_PASSWORD", os.environ.get("GH_TOKEN"))
+ACTIVE_PACK_NAME = os.environ.get('PACK_NAME', "unknown")
 
 SESSION = requests.Session()
 SESSION.auth = (GITHUB_USERNAME, GITHUB_PASSWORD)
@@ -149,6 +151,13 @@ def get_available_versions():
         proc.kill()
         outs, _ = proc.communicate()
     result = outs.decode().strip()
+    if proc.returncode != 0:
+        sys.exit(
+            "Error retrieving data with github graphql API.\n"
+            "The Github PAT might need to be regenerated:\n"
+            "https://github.com/settings/tokens/new?scopes=public_repo"
+            "&description=CircleCI%3A%20stackstorm-" + ACTIVE_PACK_NAME
+        )
 
     # https://stackoverflow.com/a/43807246/1134951
     decoder = json.JSONDecoder()
