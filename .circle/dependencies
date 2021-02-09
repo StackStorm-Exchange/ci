@@ -35,6 +35,8 @@ sudo apt-get -y install libldap2-dev libsasl2-dev
 
 # make `gh` available for github API calls
 ~/ci/.circle/install_gh
+# Hit github's API to keep the PAT active (without failing if it's not)
+(GH_TOKEN=${MACHINE_PASSWORD} gh repo view | head -n2) || true
 
 sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv
 
