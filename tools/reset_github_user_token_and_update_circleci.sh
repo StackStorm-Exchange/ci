@@ -16,7 +16,7 @@ then
     exit 1
 fi
 
-BROWSER_NAME=firefox
+BROWSER_NAME=Firefox
 BROWSER="/Applications/Firefox.app/Contents/MacOS/firefox -private-window"
 
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
@@ -55,35 +55,57 @@ fi
 # GitHub: create a user-scope token
 # TODO: Delete any existing token for that repo
 echo "Github: Creating a Github user-scoped token for each pack"
-echo
 
+NUM_PACKS=$#
+
+PACK_NUM=0
 for PACK in $@; do
+    PACK_NUM=$(($PACK_NUM+1))
     REPO_NAME=$(repo_name ${PACK})
-    echo "REPO_NAME=${REPO_NAME}"
+
+    # If we're doing more than one pack, add some whitespace and a counter
+    if [[ $NUM_PACKS -gt 1 ]]; then
+        # Space things out a bit
+        echo
+        echo
+
+        # Use printf instead of echo since it doesn't include a newline terminator
+        printf "[${PACK_NUM}/${NUM_PACKS}]"
+    fi
+    echo " ${REPO_NAME}"
     echo
 
     echo "Please click 'Generate Token' when ${BROWSER_NAME} opens."
-    echo "Then copy the Github PAT token and paste it here:"
+    echo "Then copy the GitHub PAT token for ${REPO_NAME} and paste it here:"
     ${BROWSER} "https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20${REPO_NAME}"
     read -s GITHUB_USER_TOKEN
 
+    # If you click the copy button in GitHub's UI it will copy correctly.
+    # But if you double click to highlight it, and then copy it manually it
+    # include a leading space character.
+    # Instead of giving users a loaded footgun, strip whitespace off the ends
+    # of the PAT.
+    # See https://stackoverflow.com/a/12973694
+    GITHUB_USER_TOKEN=$(echo $GITHUB_USER_TOKEN | xargs)
     if [[ -z "$GITHUB_USER_TOKEN" ]];
     then
         echo "Could not create a GitHub Personal Access Token."
         exit 1
     fi
 
-    echo "GitHub Personal Access Token for ${USERNAME}:"
-    echo
-    echo "    ${GITHUB_USER_TOKEN}"
     echo
 
     # CircleCI: specify the credentials (the machine login and the new user-scope token)
     echo "CircleCI: Setting credentials (machine login and user-scoped token)"
-    curl -sS --fail -X POST --header "Content-Type: application/json" \
-        -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
-        "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+    # CircleCI's API is sloooooow, so minimize the number of calls we make to it
+    # TODO: Hide this behind a command line flag
+    # curl -sS --fail -X POST --header "Content-Type: application/json" \
+    #     -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
+    #     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
     curl -sS --fail -X POST --header "Content-Type: application/json" \
         -d '{"name":"MACHINE_PASSWORD", "value": "'"${GITHUB_USER_TOKEN}"'"}' \
         "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+
+    # curl prints the response data, but doesn't print a newline
+    echo
 done
