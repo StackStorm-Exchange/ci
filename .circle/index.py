@@ -45,6 +45,7 @@ query ($owner: String!, $per_page: Int = 100, $endCursor: String) {
 }
 """
 
+
 def build_index(path_glob, output_path):
     result = OrderedDict({
         'packs': OrderedDict(),
