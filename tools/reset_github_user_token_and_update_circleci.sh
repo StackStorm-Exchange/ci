@@ -7,7 +7,6 @@
 #
 # The following env variables must be specified:
 # * USERNAME: a GitHub user to run the script under (Exchange bot).
-# * PASSWORD: password for the user (not a token).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 #
 
@@ -43,14 +42,6 @@ then
     echo "Default: $DEFAULT_USERNAME (just hit enter to use this)"
     read USERNAME
     USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
-fi
-
-if [[ -z "$PASSWORD" ]];
-then
-    echo "What is the password for the GitHub user (${USERNAME})?"
-    echo "This password is stored in LastPass under the ${DEFAULT_USERNAME}"
-    echo "account."
-    read -s PASSWORD
 fi
 
 if [[ -z "$CIRCLECI_TOKEN" ]];
