@@ -11,22 +11,30 @@
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 #
 
-if [[ ! $# -eq 1 ]];
+if [[ ! $# -gt 0 ]];
 then
-    echo "Usage: $0 <pack>"
+    echo "Usage: $0 <pack> [<pack> <pack> ...]"
     exit 1
 fi
 
-PACK="$1"
+BROWSER_NAME=firefox
+BROWSER="/Applications/Firefox.app/Contents/MacOS/firefox -private-window"
+
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
-# Add the stackstorm- prefix to the repo name if it doesn't exist already
-if [[ "$PACK" = ${EXCHANGE_PREFIX}-* ]];
-then
-    REPO_NAME="$PACK"
-else
-    REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
-fi
+
+function repo_name() {
+    local pack="$1"
+    local repo_name=""
+    # Add the stackstorm- prefix to the repo name if it doesn't exist already
+    if [[ "$pack" = ${EXCHANGE_PREFIX}-* ]];
+    then
+        repo_name="$pack"
+    else
+        repo_name="${EXCHANGE_PREFIX}-${pack}"
+    fi
+    echo ${repo_name}
+}
 
 DEFAULT_USERNAME="stackstorm-neptr"
 if [[ -z "$USERNAME" ]];
@@ -55,28 +63,36 @@ fi
 
 # GitHub: create a user-scope token
 # TODO: Delete any existing token for that repo
-echo "Github: Creating a Github user-scoped token"
-GITHUB_USER_TOKEN=$(curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
-    --header "Content-Type: application/json" \
-    -d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
-    "https://api.github.com/authorizations" | jq --raw-output ".token")
-
-if [[ -z "$GITHUB_USER_TOKEN" ]];
-then
-    echo "Could not create a GitHub Personal Access Token."
-    exit 1
-fi
-
-echo "GitHub Personal Access Token for ${USERNAME}:"
-echo
-echo "    ${GITHUB_USER_TOKEN}"
+echo "Github: Creating a Github user-scoped token for each pack"
 echo
 
-# CircleCI: specify the credentials (the machine login and the new user-scope token)
-echo "CircleCI: Setting credentials (machine login and user-scoped token)"
-curl -sS --fail -X POST --header "Content-Type: application/json" \
-    -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
-    "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
-curl -sS --fail -X POST --header "Content-Type: application/json" \
-    -d '{"name":"MACHINE_PASSWORD", "value": "'"${GITHUB_USER_TOKEN}"'"}' \
-    "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+for PACK in $@; do
+    REPO_NAME=$(repo_name ${PACK})
+    echo "REPO_NAME=${REPO_NAME}"
+    echo
+
+    echo "Please click 'Generate Token' when ${BROWSER_NAME} opens."
+    echo "Then copy the Github PAT token and paste it here:"
+    ${BROWSER} "https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20${REPO_NAME}"
+    read -s GITHUB_USER_TOKEN
+
+    if [[ -z "$GITHUB_USER_TOKEN" ]];
+    then
+        echo "Could not create a GitHub Personal Access Token."
+        exit 1
+    fi
+
+    echo "GitHub Personal Access Token for ${USERNAME}:"
+    echo
+    echo "    ${GITHUB_USER_TOKEN}"
+    echo
+
+    # CircleCI: specify the credentials (the machine login and the new user-scope token)
+    echo "CircleCI: Setting credentials (machine login and user-scoped token)"
+    curl -sS --fail -X POST --header "Content-Type: application/json" \
+        -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
+        "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+    curl -sS --fail -X POST --header "Content-Type: application/json" \
+        -d '{"name":"MACHINE_PASSWORD", "value": "'"${GITHUB_USER_TOKEN}"'"}' \
+        "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+done
