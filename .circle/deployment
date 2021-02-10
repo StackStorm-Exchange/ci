@@ -21,6 +21,10 @@ fi
 # TODO: remove the install_gh call once circleci config is updated in all packs
 type gh &>/dev/null || ~/ci/.circle/install_gh
 
+# GH_TOKEN is used by gh which is used in functions.sh
+export GH_TOKEN=${MACHINE_PASSWORD}
+source ~/ci/tools/functions.sh
+
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 
@@ -54,10 +58,11 @@ do
   fi
 done
 
+DEFAULT_BRANCH=$(_gh_default_branch)
 # Afer pushing the version, make sure we check out the latest commit
 # This is important so index reflects latest changes
-git checkout master
-git reset --hard master
+git checkout ${DEFAULT_BRANCH}
+git reset --hard ${DEFAULT_BRANCH}
 
 # Verify there are no unstaged changes
 git status
