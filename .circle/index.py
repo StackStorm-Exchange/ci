@@ -155,7 +155,7 @@ def get_available_versions():
     if proc.returncode != 0:
         sys.exit(
             "Error retrieving data with github graphql API.\n"
-            "The Github PAT might need to be regenerated:\n"
+            "The GitHub PAT might need to be regenerated:\n"
             "https://github.com/settings/tokens/new?scopes=public_repo"
             "&description=CircleCI%3A%20stackstorm-" + ACTIVE_PACK_NAME
         )

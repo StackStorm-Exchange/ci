@@ -25,6 +25,16 @@ type gh &>/dev/null || ~/ci/.circle/install_gh
 export GH_TOKEN=${MACHINE_PASSWORD}
 source ~/ci/tools/functions.sh
 
+DEFAULT_BRANCH=$(_gh_default_branch)
+# Give a good error message after the first use of github API in this script.
+if $? != 0; then
+    echo "Error retrieving data with github graphql API."
+    echo "The GitHub PAT might need to be regenerated:"
+    echo "https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20stackstorm-${PACK_NAME}"
+else
+    echo "GitHub PAT is active."
+fi
+
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 
@@ -58,7 +68,6 @@ do
   fi
 done
 
-DEFAULT_BRANCH=$(_gh_default_branch)
 # Afer pushing the version, make sure we check out the latest commit
 # This is important so index reflects latest changes
 git checkout ${DEFAULT_BRANCH}
