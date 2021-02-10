@@ -110,8 +110,14 @@ if ! git -C ~/index diff --quiet --exit-code --cached
 then
   echo "Updating the index repo..."
   git -C ~/index commit -m "Update the ${PACK_NAME} pack."
-  git -C ~/index push -q origin
-  echo "Index updated."
+  if [[ ${SKIP_INDEX:-false} == "true" ]]; then
+    echo "Skipping index update due to SKIP_INDEX=${SKIP_INDEX}"
+    echo "SKIP_INDEX is for packs that are only used in CI;"
+    echo "Normal packs push to the index repo at this point."
+  else
+    git -C ~/index push -q origin
+    echo "Index updated."
+  fi
 
   # echo "Updating the repo description..."
   # PACK_DESCRIPTION=$(cat ~/index/v1/index.json | jq ".packs.${PACK_NAME}.description")
