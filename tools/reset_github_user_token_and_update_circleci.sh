@@ -16,17 +16,18 @@ then
     exit 1
 fi
 
-if [[ "$(uname)" == "Darwin" ]]; then
+OS=$(uname)
+if [[ "${OS}" == "Darwin" ]]; then
     # We're on macOS
     # Figure out the default browser
     DEFAULT_BROWSER=$(plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist | grep 'https' -b3 |awk 'NR==3 {split($4, arr, "\""); print arr[2]}')
-    if [[ "$DEFAULT_BROWSER" == "org.mozilla.firefox" ]]; then
+    if [[ "${DEFAULT_BROWSER}" == "org.mozilla.firefox" ]]; then
         BROWSER_NAME=Firefox
         BROWSER_COMMAND="/Applications/Firefox.app/Contents/MacOS/firefox -private-window"
-    elif [[ "$DEFAULT_BROWSER" == "com.google.chrome" ]]; then
+    elif [[ "${DEFAULT_BROWSER}" == "com.google.chrome" ]]; then
         BROWSER_NAME=Chrome
         BROWSER_COMMAND='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --incognito'
-    elif [[ "$DEFAULT_BROWSER" == "com.apple.safari" ]]; then
+    elif [[ "${DEFAULT_BROWSER}" == "com.apple.safari" ]]; then
         BROWSER_NAME=Safari
         open_in_safari() {
             echo "
@@ -39,7 +40,34 @@ tell application \"Safari\"
 end tell" | osascript
         }
         BROWSER_COMMAND=open_in_safari
+    else
+        echo "Unsupported default browser: ${DEFAULT_BROWSER}"
+        echo "Supported: Firefox, Chrome, Safari"
+        echo "PR welcome to add support for your Browser."
+        exit 1
     fi
+if [[ "${OS}" == "Linux" ]]; then
+    # We're on linux
+    # Gnome, KDE, and other desktops each have different commands to run *.desktop files.
+    # So, we roll our own runner (based on: https://askubuntu.com/a/664272 )
+    DEFAULT_BROWSER=$(xdg-settings get default-web-browser)
+    DEFAULT_BROWSER_DESKTOP=$(ls -1 {~/.local,/usr}/share/applications/${DEFAULT_BROWSER}) 2>/dev/null | head -n1)
+    DEFAULT_BROWSER_BIN=$(awk '/^Exec=/ {sub("^Exec=", ""); gsub(" ?%[cDdFfikmNnUuv]", ""); gsub(" -.*", ""); print($0); exit}' ${DEFAULT_BROWSER_DESKTOP})
+    if [[ "${DEFAULT_BROWSER}" == *"firefox"* ]]; then
+        BROWSER_NAME=Firefox
+        BROWSER_COMMAND="${DEFAULT_BROWSER_BIN} -private-window"
+    elif [[ "${DEFAULT_BROWSER}" == *"chrom"* ]]; then  # chrome or chromium
+        BROWSER_NAME=Chrome
+        BROWSER_COMMAND="${DEFAULT_BROWSER_BIN} --incognito"
+    else
+        echo "Unsupported default browser: ${DEFAULT_BROWSER_BIN}"
+        echo "Supported: Firefox, Chrome, Chromium"
+        echo "PR welcome to add support for your browser."
+        exit 1
+    fi
+else
+    echo "Unsupported OS: ${OS}. Can't detect browser."
+    exit 1
 fi
 
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
