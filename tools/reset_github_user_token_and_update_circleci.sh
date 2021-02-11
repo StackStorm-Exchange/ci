@@ -135,12 +135,9 @@ for PACK in $@; do
 
     # If we're doing more than one pack, add some whitespace and a counter
     if [[ $NUM_PACKS -gt 1 ]]; then
-        # Space things out a bit
-        echo
-        echo
-
-        # Use printf instead of echo since it doesn't include a newline terminator
-        printf "[${PACK_NUM}/${NUM_PACKS}]"
+        # Space things out a bit with \n\n
+        # And use printf instead of echo since so it add another newline
+        printf "\n\n[${PACK_NUM}/${NUM_PACKS}]"
     fi
     echo " ${REPO_NAME}"
     echo
