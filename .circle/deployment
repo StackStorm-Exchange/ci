@@ -110,10 +110,11 @@ if ! git -C ~/index diff --quiet --exit-code --cached
 then
   echo "Updating the index repo..."
   git -C ~/index commit -m "Update the ${PACK_NAME} pack."
-  if [[ ${SKIP_INDEX:-false} == "true" ]]; then
-    echo "Skipping index update due to SKIP_INDEX=${SKIP_INDEX}"
-    echo "SKIP_INDEX is for packs that are only used in CI;"
-    echo "Normal packs push to the index repo at this point."
+  if [[ ${DO_NOT_ADD_TO_EXCHANGE_INDEX:-false} == "true" ]]; then
+    echo "Normal packs update the Exchange index at this point."
+    echo "This pack will not be added to the Exchange index because of this env var:"
+    echo "DO_NOT_ADD_TO_EXCHANGE_INDEX=${DO_NOT_ADD_TO_EXCHANGE_INDEX}"
+    echo "(This var should only be set per-repo in the CI system's UI.)"
   else
     git -C ~/index push -q origin
     echo "Index updated."
