@@ -9,6 +9,25 @@
 # * USERNAME: a GitHub user to run the script under (Exchange bot).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 #
+# HISTORICAL NOTE: GitHub disabled basic auth *with account passwords*[1]. Before that change,
+# this script automatically generated the Personal Access Tokens (PATs) via an API call with
+# account-password based basic auth. GitHub probably intends to force a "human in the loop" for
+# PAT generation. As such, this script was modified to open a private/incognito browser window
+# with the token details pre-filled. This is now the expected process for using this script:
+#
+#  1. Open https://github.com/settings/tokens/new in a new private/incognito browser window.
+#  2. Log in with stackstorm-neptr, the StackStorm-Exchange's bot account (not a personal account).
+#  3. Run this script:
+#         USERNAME=stackstorm-neptr CIRCLECI_TOKEN=... \
+#         ./tools/reset_github_user_token_and_update_circleci.sh pack1 pack2 pack3 pack4
+#  4. The script prints instructions and opens the token generation page in the default browser
+#  5. Manually scroll down and hit "Generate Token" (PAT name and scope are already filled in).
+#  6. Copy PAT contents/value and paste in the terminal window (it is read as a secure password).
+#  7. Wait for the script to load the PAT into the MACHINE_PASSWORD var in CircleCI
+#     (The CircleCI APIs can be quite slow, so doing many packs takes awhile).
+#  8. The script loops through steps 4-8 until all packs have been processed.
+#
+# [1] https://developer.github.com/changes/2020-02-14-deprecating-password-auth/
 
 if [[ ! $# -gt 0 ]];
 then
