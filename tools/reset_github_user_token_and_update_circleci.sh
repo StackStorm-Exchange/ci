@@ -16,8 +16,31 @@ then
     exit 1
 fi
 
-BROWSER_NAME=Firefox
-BROWSER="/Applications/Firefox.app/Contents/MacOS/firefox -private-window"
+if [[ "$(uname)" == "Darwin" ]]; then
+    # We're on macOS
+    # Figure out the default browser
+    DEFAULT_BROWSER=$(plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist | grep 'https' -b3 |awk 'NR==3 {split($4, arr, "\""); print arr[2]}')
+    if [[ "$DEFAULT_BROWSER" == "org.mozilla.firefox" ]]; then
+        BROWSER_NAME=Firefox
+        BROWSER_COMMAND="/Applications/Firefox.app/Contents/MacOS/firefox -private-window"
+    elif [[ "$DEFAULT_BROWSER" == "com.google.chrome" ]]; then
+        BROWSER_NAME=Chrome
+        BROWSER_COMMAND='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --incognito'
+    elif [[ "$DEFAULT_BROWSER" == "com.apple.safari" ]]; then
+        BROWSER_NAME=Safari
+        open_in_safari() {
+            echo "
+tell application \"Safari\"
+    activate
+    delay 0.5
+    tell window 1
+        set current tab to (make new tab with properties {URL: \"$1\"})
+    end tell
+end tell" | osascript
+        }
+        BROWSER_COMMAND=open_in_safari
+    fi
+fi
 
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
@@ -77,7 +100,7 @@ for PACK in $@; do
 
     echo "Please click 'Generate Token' when ${BROWSER_NAME} opens."
     echo "Then copy the GitHub PAT token for ${REPO_NAME} and paste it here:"
-    ${BROWSER} "https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20${REPO_NAME}"
+    eval "${BROWSER_COMMAND} https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20${REPO_NAME}"
     read -s GITHUB_USER_TOKEN
 
     # If you click the copy button in GitHub's UI it will copy correctly.
