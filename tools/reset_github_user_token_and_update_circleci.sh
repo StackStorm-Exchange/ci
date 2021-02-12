@@ -29,9 +29,26 @@
 #
 # [1] https://developer.github.com/changes/2020-02-14-deprecating-password-auth/
 
+# WARNING: CircleCI's API is sloooooow, so minimize the number of calls we make to it
+SET_MACHINE_USER=${SET_MACHINE_USER:-false}
+for ARG in $@; do
+    case $ARG in
+    --set-user)
+        SET_MACHINE_USER=true
+        shift
+        ;;
+    *)
+        break
+        ;;
+    esac
+done
+
 if [[ ! $# -gt 0 ]];
 then
-    echo "Usage: $0 <pack> [<pack> <pack> ...]"
+    echo "Usage: $0 [--set-user] <pack> [<pack> <pack> ...]"
+    echo
+    echo "By default, only sets MACHINE_PASSWORD to minimize CircleCI API calls."
+    echo "Use --set-user if you need to also configure MACHINE_USER in CircleCI."
     exit 1
 fi
 
@@ -164,11 +181,12 @@ for PACK in $@; do
 
     # CircleCI: specify the credentials (the machine login and the new user-scope token)
     echo "CircleCI: Setting credentials (machine login and user-scoped token)"
-    # CircleCI's API is sloooooow, so minimize the number of calls we make to it
-    # TODO: Hide this behind a command line flag
-    # curl -sS --fail -X POST --header "Content-Type: application/json" \
-    #     -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
-    #     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+    # use --set-user to enable setting this.
+    if [[ ${SET_MACHINE_USER} == "true" ]]; then
+        curl -sS --fail -X POST --header "Content-Type: application/json" \
+            -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
+            "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+    fi
     curl -sS --fail -X POST --header "Content-Type: application/json" \
         -d '{"name":"MACHINE_PASSWORD", "value": "'"${GITHUB_USER_TOKEN}"'"}' \
         "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
