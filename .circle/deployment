@@ -27,7 +27,7 @@ source ~/ci/tools/functions.sh
 
 DEFAULT_BRANCH=$(_gh_default_branch)
 # Give a good error message after the first use of github API in this script.
-if $? != 0; then
+if [[ $? != 0 ]]; then
     echo "Error retrieving data with github graphql API."
     echo "The GitHub PAT might need to be regenerated:"
     echo "https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20stackstorm-${PACK_NAME}"
