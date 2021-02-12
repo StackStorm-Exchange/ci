@@ -21,6 +21,20 @@ fi
 # TODO: remove the install_gh call once circleci config is updated in all packs
 type gh &>/dev/null || ~/ci/.circle/install_gh
 
+# GH_TOKEN is used by gh which is used in functions.sh
+export GH_TOKEN=${MACHINE_PASSWORD}
+source ~/ci/tools/functions.sh
+
+DEFAULT_BRANCH=$(_gh_default_branch)
+# Give a good error message after the first use of github API in this script.
+if [[ $? != 0 ]]; then
+    echo "Error retrieving data with github graphql API."
+    echo "The GitHub PAT might need to be regenerated:"
+    echo "https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20stackstorm-${PACK_NAME}"
+else
+    echo "GitHub PAT is active."
+fi
+
 # TODO: figure out how to make deploy.py rebuild the index.
 # python ~/packs/.circle/deploy.py pack.yaml "${CIRCLE_PROJECT_REPONAME}"
 
@@ -56,8 +70,8 @@ done
 
 # Afer pushing the version, make sure we check out the latest commit
 # This is important so index reflects latest changes
-git checkout master
-git reset --hard master
+git checkout ${DEFAULT_BRANCH}
+git reset --hard ${DEFAULT_BRANCH}
 
 # Verify there are no unstaged changes
 git status
@@ -96,8 +110,15 @@ if ! git -C ~/index diff --quiet --exit-code --cached
 then
   echo "Updating the index repo..."
   git -C ~/index commit -m "Update the ${PACK_NAME} pack."
-  git -C ~/index push -q origin
-  echo "Index updated."
+  if [[ ${DO_NOT_ADD_TO_EXCHANGE_INDEX:-false} == "true" ]]; then
+    echo "Normal packs update the Exchange index at this point."
+    echo "This pack will not be added to the Exchange index because of this env var:"
+    echo "DO_NOT_ADD_TO_EXCHANGE_INDEX=${DO_NOT_ADD_TO_EXCHANGE_INDEX}"
+    echo "(This var should only be set per-repo in the CI system's UI.)"
+  else
+    git -C ~/index push -q origin
+    echo "Index updated."
+  fi
 
   # echo "Updating the repo description..."
   # PACK_DESCRIPTION=$(cat ~/index/v1/index.json | jq ".packs.${PACK_NAME}.description")
