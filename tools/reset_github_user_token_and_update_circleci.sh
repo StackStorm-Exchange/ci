@@ -65,7 +65,7 @@ end tell" | osascript
         echo "PR welcome to add support for your Browser."
         exit 1
     fi
-if [[ "${OS}" == "Linux" ]]; then
+elif [[ "${OS}" == "Linux" ]]; then
     # We're on linux
     # Gnome, KDE, and other desktops each have different commands to run *.desktop files.
     # So, we roll our own runner (based on: https://askubuntu.com/a/664272 )
