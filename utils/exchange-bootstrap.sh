@@ -41,6 +41,8 @@ REPO_DIR="/tmp/${REPO_NAME}"
 REPO_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_NAME}"
 ALIAS_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
+# Generating GitHub PAT (personal access tokens) can no longer be done via the API
+# broken: https://developer.github.com/changes/2/#--deprecating-oauth-authorization-api
 if [ -z "${GITHUB_PACK_PAT}" ]; then
   echo "GitHub disabled the API allowing us to generate Personal Access Tokens for users"
   echo "Please perform the following steps:"
@@ -96,15 +98,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 	-d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
-GitHub: create a user-scope token
-broken: https://developer.github.com/changes/2/#--deprecating-oauth-authorization-api
-switching to "device flow": https://docs.github.com/en/developers/apps/authorizing-oauth-apps#device-flow
-
-echo "Github: Creating a Github user-scoped token"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-	-d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
-	"https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
-
+# GitHub: create a user-scope token
 echo -n "${GITHUB_PACK_PAT}" > "/tmp/${PACK}_user_token"
 if [[ ! -s "/tmp/${PACK}_user_token" ]];
 then
