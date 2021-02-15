@@ -96,12 +96,18 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH \
      -d '{"name": "'"${REPO_NAME}"'"}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
+# No longer needed
 # GitHub: create a read-write key for the repo
-echo "GitHub: Creating a read-write key for the GitHub repo"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
-     --header "Content-Type: application/json" \
-     -d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
-     "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
+# echo "GitHub: Creating a read-write key for the GitHub repo"
+# curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+#      --header "Content-Type: application/json" \
+#      -d '\
+#      { \
+#        "title": "CircleCI read-write key", \
+#        "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", \
+#        "read_only": false \
+#      }' \
+#      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
 # GitHub: create a user-scope token
 echo -n "${GITHUB_PACK_PAT}" > "/tmp/${PACK}_user_token"
@@ -179,11 +185,11 @@ fi
 
 
 # CircleCI: upload the read-write key
-echo "CircleCI: Adding read-write SSH key"
-curl -sS --fail -X POST --header "Content-Type: application/json" \
-     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-     -d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
-     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key"
+# echo "CircleCI: Adding read-write SSH key"
+# curl -sS --fail -X POST --header "Content-Type: application/json" \
+#   --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+#   -d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
+#   "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key"
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
 echo "CircleCI: Setting credentials (machine login and user-scoped token)"
