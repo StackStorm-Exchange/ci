@@ -26,6 +26,17 @@
 # * SLACK_WEBHOOK_URL_COMMUNITY
 set -e
 
+if [[ "$0" == "utils/exchange-bootstrap.sh" || "$0" == "./utils/exchange-bootstrap.sh" ]]; then
+  CI_REPO_ROOT=$(pwd)
+elif [[ "$0" == "exchange-bootstrap.sh" || "$0" == "./exchange-bootstrap.sh" ]]; then
+  CI_REPO_ROOT=$(pwd)/..
+else
+  echo >&2 "Warning: Unable to find the root of the ci repo."
+  echo >&2 "This script may not be able to successfully set or reset the "
+  echo >&2 "GitHub Personal Access Token in the corresponding CircleCI "
+  echo >&2 "project."
+fi
+
 if [[ ! $# -eq 1 ]];
 then
   echo "Usage: $0 <pack>"
@@ -67,7 +78,7 @@ then
 fi
 
 # Git: create an empty repo and set the remote
-rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
+rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*"
 mkdir "${REPO_DIR}" && cd "${REPO_DIR}"
 git init && git remote add origin "${REPO_URL}"
 
@@ -108,14 +119,6 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH \
 #        "read_only": false \
 #      }' \
 #      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
-
-# GitHub: create a user-scope token
-echo -n "${GITHUB_PACK_PAT}" > "/tmp/${PACK}_user_token"
-if [[ ! -s "/tmp/${PACK}_user_token" ]];
-then
-  echo "Could not find a GitHub Personal Access Token, the shell variable GITHUB_PACK_PAT is empty"
-  exit 1
-fi
 
 # Git: push - add various files which are needed to bootstrap the repo:
 # - circle.yml
@@ -176,6 +179,15 @@ then
        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
+# This will open a private tab in the user's browser to the PAT page, with the
+# name field already filled in and the scope fields already checked, and direct
+# the user to click the "Generate Token" button, then copy and paste the
+# value back into the script.
+# Then it will push the MACHINE_USER and MACHINE_PASSWORD environment variables
+# to CircleCI, with the MACHINE_PASSWORD value set to the value of the GitHub
+# PAT
+${CI_REPO_ROOT}/tools/reset_github_user_token_and_update_circleci.sh --set-user $PACK
+
 # NO longer needed, this API request fails everytime we call it
 # # CircleCI: follow the project
 # echo "CircleCI: Following the project"
@@ -190,17 +202,6 @@ fi
 #   --header "Circle-Token: ${CIRCLECI_TOKEN}" \
 #   -d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
 #   "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key"
-
-# CircleCI: specify the credentials (the machine login and the new user-scope token)
-echo "CircleCI: Setting credentials (machine login and user-scoped token)"
-curl -sS --fail -X POST --header "Content-Type: application/json" \
-     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-     -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
-     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
-curl -sS --fail -X POST --header "Content-Type: application/json" \
-     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-     -d '{"name":"MACHINE_PASSWORD", "value":"'"$(cat "/tmp/${PACK}_user_token")"'"}' \
-     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
 
 # CircleCI: Enable builds for pull requests from forks
 echo "CircleCI: Enabling builds for pull requests from forks"
@@ -223,6 +224,3 @@ for RO_KEY in ${RO_KEYS};
 do
   curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
 done
-
-# Clean up
-rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
