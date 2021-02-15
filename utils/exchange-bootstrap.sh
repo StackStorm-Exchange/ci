@@ -75,7 +75,8 @@ git init && git remote add origin "${REPO_URL}"
 echo "Generating random private SSH key"
 ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N "" -m pem
 
-# GitHub: create a repo or create an alias and move
+# GitHub: create an alias first
+# See https://github.com/StackStorm-Exchange/ci/pull/30
 if git ls-remote "${ALIAS_URL}" > /dev/null 2>&1;
 then
   echo "The alias already exists, skipping the creation."
@@ -88,6 +89,7 @@ else
 fi
 
 # GitHub: rename the alias repo to its full name
+# This will setup a redirect on GitHub: alias -> name
 echo "GitHub: Renaming the repo to ${REPO_NAME}."
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH \
      --header "Content-Type: application/json" \
