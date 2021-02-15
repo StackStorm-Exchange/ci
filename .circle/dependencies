@@ -39,7 +39,7 @@ sudo apt-get -y install libldap2-dev libsasl2-dev
 (GH_TOKEN=${MACHINE_PASSWORD} gh repo view | head -n2) || true
 
 # This should track the pinned version of pip in st2's Makefile
-# Also, make sure virtualenv is built with same pip version below.
+# Please sync this version with .circle/Makefile and .circleci/config.yml
 PIP_VERSION="20.0.2"
 
 sudo pip install -U "pip==${PIP_VERSION}" setuptools virtualenv
