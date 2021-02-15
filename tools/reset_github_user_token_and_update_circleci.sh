@@ -49,6 +49,7 @@ then
     echo
     echo "By default, only sets MACHINE_PASSWORD to minimize CircleCI API calls."
     echo "Use --set-user if you need to also configure MACHINE_USER in CircleCI."
+    echo "eg. Use --set-user when adding a new pack or fixing a misconfigured pack."
     exit 1
 fi
 
