@@ -15,14 +15,14 @@
 # * USERNAME: a GitHub user to run the script under (Exchange bot).
 # * PASSWORD: password for the user (not a token).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
-# * SLACK_WEBHOOK_URL: Full URL to Slack webhook where Github event notifications will be sent.
+# * SLACK_WEBHOOK_URL: Full URL to Slack webhook where GitHub event notifications will be sent.
 # * GITHUB_PACK_PAT: GitHub Personal Access Token for the stackstorm-neptr user
 #                    (url: https://github.com/settings/tokens)
 #                    that has a name "CircleCI: stackstorm-<pack>" and given
 #                    the 'public_repo" scope. This PAT is used by CircleCI to access
 #                    the repo.
 #
-# Optionally, this env variable can be set to send additional Github event notifications
+# Optionally, this env variable can be set to send additional GitHub event notifications
 # * SLACK_WEBHOOK_URL_COMMUNITY
 set -e
 
@@ -87,13 +87,13 @@ else
 fi
 
 # GitHub: rename the alias repo to its full name
-echo "Github: Renaming the repo to ${REPO_NAME}."
+echo "GitHub: Renaming the repo to ${REPO_NAME}."
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
      -d '{"name": "'"${REPO_NAME}"'"}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # GitHub: create a read-write key for the repo
-echo "Github: Creating a read-write key for the Github repo"
+echo "GitHub: Creating a read-write key for the GitHub repo"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
      -d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
@@ -120,16 +120,16 @@ git add .gitignore
 git commit -m "Bootstrap a StackStorm Exchange pack repository for pack ${PACK}."
 git push origin master
 
-# Github: Configure webhook to send notifications to our Slack instance on changes
-echo "Github: Configuring Github to send webhook notifications to our Slack"
+# GitHub: Configure webhook to send notifications to our Slack instance on changes
+echo "GitHub: Configuring GitHub to send webhook notifications to our Slack"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
      -d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
-# Github: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
+# GitHub: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
 if [[ -n $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
-  echo "Github: Configuring Github to send webhook notifications to our community Slack"
+  echo "GitHub: Configuring GitHub to send webhook notifications to our community Slack"
   curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
        -d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
