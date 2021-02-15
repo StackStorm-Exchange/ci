@@ -38,6 +38,21 @@ REPO_DIR="/tmp/${REPO_NAME}"
 REPO_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_NAME}"
 ALIAS_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
+if [ -z "${GITHUB_PACK_PAT}" ]; then
+  echo "GitHub disabled the API allowing us to generate Personal Access Tokens for users"
+  echo "Please perform the following steps:"
+  echo "  1) login to GitHub as the 'stackstorm-neptr' account"
+  echo "  2) visit: https://github.com/settings/tokens"
+  echo "  3) click 'Genearte new token'"
+  echo "    3a) Note: CircleCI: ${REPO_NAME}"
+  echo "    3b) Select scopes: public_repo"
+  echo "    3c) Generate token"
+  echo "  4) Copy the new token and export it as the GITHUB_PACK_PAT shell variable"
+  echo "     export GITHUB_PACK_PAT='b4d3xxx'"
+  echo "  5) Re-run this script"
+fi
+
+
 # Check if the repo exists
 
 if git ls-remote "${REPO_URL}" > /dev/null 2>&1;
@@ -61,7 +76,7 @@ then
 	echo "The alias already exists, skipping the creation."
 else
 	echo "Creating an alias ${REPO_ALIAS} for ${REPO_NAME}."
-	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+	curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"name": "'"${REPO_ALIAS}"'"}' \
 	"https://api.github.com/orgs/${EXCHANGE_ORG}/repos"
 fi
@@ -78,22 +93,26 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: app
 	-d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
 	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
-# GitHub: create a user-scope token
+GitHub: create a user-scope token
+broken: https://developer.github.com/changes/2/#--deprecating-oauth-authorization-api
+switching to "device flow": https://docs.github.com/en/developers/apps/authorizing-oauth-apps#device-flow
+
 echo "Github: Creating a Github user-scoped token"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
 	-d '{"scopes": ["public_repo"], "note": "CircleCI: '"${REPO_NAME}"'"}' \
 	"https://api.github.com/authorizations" | jq ".token" > "/tmp/${PACK}_user_token"
 
+echo -n "${GITHUB_PACK_PAT}" > "/tmp/${PACK}_user_token"
 if [[ ! -s "/tmp/${PACK}_user_token" ]];
 then
-	echo "Could not create a token."
+	echo "Could not find a GitHub Personal Access Token, the shell variable GITHUB_PACK_PAT is empty"
 	exit 1
 fi
 
 # Git: push - add various files which are needed to bootstrap the repo:
 # - circle.yml
 # - .gitignore
-mkdir .circleci
+mkdir -p .circleci
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample" > .circleci/config.yml
 chmod 755 .circleci/config.yml
 git add .circleci/config.yml
@@ -119,38 +138,48 @@ then
 		"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
-# CircleCI: follow the project
-echo "CircleCI: Following the project"
-curl -sS --fail -X POST "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow?circle-token=${CIRCLECI_TOKEN}"
+# NO longer needed, this API request fails everytime we call it
+# # CircleCI: follow the project
+# echo "CircleCI: Following the project"
+# curl -v -sS --fail -X POST \
+#      --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+#      "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow"
+
 
 # CircleCI: upload the read-write key
 echo "CircleCI: Adding read-write SSH key"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
+  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
 	-d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key?circle-token=${CIRCLECI_TOKEN}"
+	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key"
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
 echo "CircleCI: Setting credentials (machine login and user-scoped token)"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
+  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
 	-d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-	-d '{"name":"MACHINE_PASSWORD", "value":'"$(cat "/tmp/${PACK}_user_token")"'}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
+  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+	-d '{"name":"MACHINE_PASSWORD", "value":"'"$(cat "/tmp/${PACK}_user_token")"'"}' \
+	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
 
 # CircleCI: Enable builds for pull requests from forks
 echo "CircleCI: Enabling builds for pull requests from forks"
 curl -sS --fail -X PUT --header "Content-Type: application/json" \
+  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
 	-d '{"feature_flags":{"build-fork-prs":true}}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings?circle-token=${CIRCLECI_TOKEN}"
+	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings"
 
 # CircleCI has started automatically adding a read-only deploy key when following a project
 # This breaks our deployment process.
 # So we need to get a list of read-only keys, and delete them
 echo "CircleCI: Remove read-only keys."
-RO_KEYS=$(curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
-        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
+RO_KEYS=$(curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
 
+echo $RO_KEYS
 for RO_KEY in ${RO_KEYS};
  do
     curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
@@ -158,3 +187,4 @@ done
 
 # Clean up
 rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
+
