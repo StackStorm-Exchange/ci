@@ -16,11 +16,14 @@
 # * PASSWORD: password for the user (not a token).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 # * SLACK_WEBHOOK_URL: Full URL to Slack webhook where Github event notifications will be sent.
+# * GITHUB_PACK_PAT: GitHub Personal Access Token for the stackstorm-neptr user
+#                    (url: https://github.com/settings/tokens)
+#                    that has a name "CircleCI: stackstorm-<pack>" and given
+#                    the 'public_repo" scope. This PAT is used by CircleCI to access
+#                    the repo.
 #
 # Optionally, this env variable can be set to send additional Github event notifications
 # * SLACK_WEBHOOK_URL_COMMUNITY
-
-
 set -e
 
 if [[ ! $# -eq 1 ]];
