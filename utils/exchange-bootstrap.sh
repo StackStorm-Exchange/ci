@@ -32,9 +32,9 @@ then
   exit 1;
 fi
 
-PACK="$1"
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
+PACK="${1/${EXCHANGE_PREFIX}-/}"  # Ensure that PACK is just the bare pack name
 REPO_ALIAS=${PACK}
 REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
 REPO_DIR="/tmp/${REPO_NAME}"
