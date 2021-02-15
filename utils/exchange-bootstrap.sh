@@ -28,8 +28,8 @@ set -e
 
 if [[ ! $# -eq 1 ]];
 then
-	echo "Usage: $0 <pack>"
-	exit 1;
+  echo "Usage: $0 <pack>"
+  exit 1;
 fi
 
 PACK="$1"
@@ -62,8 +62,8 @@ fi
 
 if git ls-remote "${REPO_URL}" > /dev/null 2>&1;
 then
-	echo "The repository already exists, cannot bootstrap."
-	exit 1
+  echo "The repository already exists, cannot bootstrap."
+  exit 1
 fi
 
 # Git: create an empty repo and set the remote
@@ -78,32 +78,32 @@ ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N "" -m pem
 # GitHub: create a repo or create an alias and move
 if git ls-remote "${ALIAS_URL}" > /dev/null 2>&1;
 then
-	echo "The alias already exists, skipping the creation."
+  echo "The alias already exists, skipping the creation."
 else
-	echo "Creating an alias ${REPO_ALIAS} for ${REPO_NAME}."
-	curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-	-d '{"name": "'"${REPO_ALIAS}"'"}' \
-	"https://api.github.com/orgs/${EXCHANGE_ORG}/repos"
+  echo "Creating an alias ${REPO_ALIAS} for ${REPO_NAME}."
+  curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+       -d '{"name": "'"${REPO_ALIAS}"'"}' \
+       "https://api.github.com/orgs/${EXCHANGE_ORG}/repos"
 fi
 
 # GitHub: rename the alias repo to its full name
 echo "Github: Renaming the repo to ${REPO_NAME}."
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
--d '{"name": "'"${REPO_NAME}"'"}' \
-"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
+     -d '{"name": "'"${REPO_NAME}"'"}' \
+     "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # GitHub: create a read-write key for the repo
 echo "Github: Creating a read-write key for the Github repo"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-	-d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
-	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
+     -d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
+     "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
 # GitHub: create a user-scope token
 echo -n "${GITHUB_PACK_PAT}" > "/tmp/${PACK}_user_token"
 if [[ ! -s "/tmp/${PACK}_user_token" ]];
 then
-	echo "Could not find a GitHub Personal Access Token, the shell variable GITHUB_PACK_PAT is empty"
-	exit 1
+  echo "Could not find a GitHub Personal Access Token, the shell variable GITHUB_PACK_PAT is empty"
+  exit 1
 fi
 
 # Git: push - add various files which are needed to bootstrap the repo:
@@ -123,16 +123,16 @@ git push origin master
 # Github: Configure webhook to send notifications to our Slack instance on changes
 echo "Github: Configuring Github to send webhook notifications to our Slack"
 curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-	-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
-	"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
+     -d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
+     "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
 # Github: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
 if [[ -n $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
-    echo "Github: Configuring Github to send webhook notifications to our community Slack"
-	curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-		-d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
-		"https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
+  echo "Github: Configuring Github to send webhook notifications to our community Slack"
+  curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+       -d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
+       "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
 # NO longer needed, this API request fails everytime we call it
@@ -146,42 +146,41 @@ fi
 # CircleCI: upload the read-write key
 echo "CircleCI: Adding read-write SSH key"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-	-d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key"
+     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+     -d '{"hostname":"github.com","private_key":"'"$(cat "/tmp/${PACK}_rsa")"'"}' \
+     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/ssh-key"
 
 # CircleCI: specify the credentials (the machine login and the new user-scope token)
 echo "CircleCI: Setting credentials (machine login and user-scoped token)"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-	-d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
+     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+     -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
+     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
 curl -sS --fail -X POST --header "Content-Type: application/json" \
-  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-	-d '{"name":"MACHINE_PASSWORD", "value":"'"$(cat "/tmp/${PACK}_user_token")"'"}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
+     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+     -d '{"name":"MACHINE_PASSWORD", "value":"'"$(cat "/tmp/${PACK}_user_token")"'"}' \
+     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar"
 
 # CircleCI: Enable builds for pull requests from forks
 echo "CircleCI: Enabling builds for pull requests from forks"
 curl -sS --fail -X PUT --header "Content-Type: application/json" \
-  --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-	-d '{"feature_flags":{"build-fork-prs":true}}' \
-	"https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings"
+     --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+     -d '{"feature_flags":{"build-fork-prs":true}}' \
+     "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/settings"
 
 # CircleCI has started automatically adding a read-only deploy key when following a project
 # This breaks our deployment process.
 # So we need to get a list of read-only keys, and delete them
 echo "CircleCI: Remove read-only keys."
 RO_KEYS=$(curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
 
 echo $RO_KEYS
 for RO_KEY in ${RO_KEYS};
- do
-    curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
+do
+  curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
 done
 
 # Clean up
 rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*" "/tmp/${PACK}_user_token"
-
