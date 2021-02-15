@@ -4,61 +4,6 @@
 version: 2
 
 jobs:
-  test_py27:
-    docker:
-      - image: circleci/python:2.7
-
-    working_directory: ~/ci
-
-    environment:
-      VIRTUALENV_DIR: "~/virtualenv"
-
-    steps:
-      - checkout
-      - restore_cache:
-          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
-      - run:
-          name: Download and Install Dependencies
-          command: |
-            git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
-            sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
-            virtualenv ~/virtualenv
-            ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
-      - save_cache:
-          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
-          paths:
-            - ~/.cache/pip
-            - ~/.apt-cache
-      - run:
-          name: Check YAML file syntax
-          command: >
-            find . \( -name '*.yml' \
-                   -o -name '*.yml.sample' \
-                   -o -name '*.yaml' \
-                   -o -name '*.yaml.sample' \) \
-                   -print | \
-            xargs -I "{}" python -c 'import yaml; yaml.safe_load(open("{}").read())'
-      - run:
-          name: Check Bash file syntax
-          command: |
-            find . -name '*.sh' | xargs bash -n
-            grep -lrE '^#!/bin/bash' . | xargs bash -n
-      - run:
-          name: Check Python files
-          command: |
-            ~/virtualenv/bin/flake8 --max-line-length=100 --config=~/ci/lint-configs/python/.flake8-exchange
-            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc-pack-ci
-      - run:
-          name: Check Makefile syntax
-          command: |
-            find . -name Makefile | xargs make -n
-      # - persist_to_workspace:
-      #     root: /
-      #     paths:
-      #       - home/circleci/ci
-      #       - home/circleci/virtualenv
-      #       - home/circleci/.gitconfig
-
   test_py36:
     docker:
       - image: circleci/python:3.6
@@ -118,5 +63,4 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - test_py27
       - test_py36
