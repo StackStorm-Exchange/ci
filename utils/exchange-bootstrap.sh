@@ -81,20 +81,23 @@ then
   echo "The alias already exists, skipping the creation."
 else
   echo "Creating an alias ${REPO_ALIAS} for ${REPO_NAME}."
-  curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+  curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+       --header "Content-Type: application/json" \
        -d '{"name": "'"${REPO_ALIAS}"'"}' \
        "https://api.github.com/orgs/${EXCHANGE_ORG}/repos"
 fi
 
 # GitHub: rename the alias repo to its full name
 echo "GitHub: Renaming the repo to ${REPO_NAME}."
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
+curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH \
+     --header "Content-Type: application/json" \
      -d '{"name": "'"${REPO_NAME}"'"}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # GitHub: create a read-write key for the repo
 echo "GitHub: Creating a read-write key for the GitHub repo"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
+curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+     --header "Content-Type: application/json" \
      -d '{"title": "CircleCI read-write key", "key": "'"$(cat "/tmp/${PACK}_rsa.pub")"'", "read_only": false}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys"
 
@@ -122,16 +125,46 @@ git push origin master
 
 # GitHub: Configure webhook to send notifications to our Slack instance on changes
 echo "GitHub: Configuring GitHub to send webhook notifications to our Slack"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-     -d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL}"'", "content_type": "application/json"}, "events": ["commit_comment", "issue_comment", "issues", "pull_request", "pull_request_review", "pull_request_review_comment"]}' \
+curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+     --header "Content-Type: application/json" \
+     -d '\
+     { \
+       "name": "web", \
+       "active": true, \
+       "config": { \
+         "url": "'"${SLACK_WEBHOOK_URL}"'", \
+         "content_type": "application/json" \
+       }, \
+       "events": [ \
+         "commit_comment", \
+         "issue_comment", \
+         "issues", \
+         "pull_request", \
+         "pull_request_review", \
+         "pull_request_review_comment" \
+       ] \
+     }' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
 # GitHub: If second Slack webhook URL set (e.g. for community), configure that to notify on changes
 if [[ -n $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
   echo "GitHub: Configuring GitHub to send webhook notifications to our community Slack"
-  curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST --header "Content-Type: application/json" \
-       -d '{"name": "web", "active": true, "config": {"url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", "content_type": "application/json"}, "events": ["issues", "pull_request"]}' \
+  curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+       --header "Content-Type: application/json" \
+       -d '\
+       { \
+         "name": "web", \
+         "active": true, \
+         "config": { \
+           "url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", \
+           "content_type": "application/json" \
+         }, \
+         "events": [ \
+           "issues", \
+           "pull_request" \
+         ] \
+       }' \
        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
@@ -174,7 +207,8 @@ curl -sS --fail -X PUT --header "Content-Type: application/json" \
 echo "CircleCI: Remove read-only keys."
 RO_KEYS=$(curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
                -H "Accept: application/vnd.github.v3+json" \
-               "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
+               "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" \
+          | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
 
 echo $RO_KEYS
 for RO_KEY in ${RO_KEYS};
