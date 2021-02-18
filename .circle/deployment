@@ -70,7 +70,7 @@ done
 
 # Afer pushing the version, make sure we check out the latest commit
 # This is important so index reflects latest changes
-git checkout ${DEFAULT_BRANCH}
+git checkout --force ${DEFAULT_BRANCH}
 git reset --hard ${DEFAULT_BRANCH}
 
 # Verify there are no unstaged changes
