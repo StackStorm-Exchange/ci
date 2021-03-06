@@ -21,7 +21,7 @@ jobs:
           name: Download and Install Dependencies
           command: |
             git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
-            sudo pip install -U "pip>=9.0,<9.1" setuptools virtualenv pyyaml
+            sudo pip install -U "pip==20.0.2" setuptools virtualenv pyyaml
             virtualenv ~/virtualenv
             ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
       - save_cache:
