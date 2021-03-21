@@ -10,6 +10,34 @@ ST2_REPO_BRANCH ?= master
 FORCE_CHECK_ALL_FILES ?= false
 FORCE_CHECK_PACK ?= false
 
+# Grab the version of pip from the Makefile in the st2 repository
+#
+# 1. Grab the st2 branch name from ST2_REPO_BRANCH
+#        |               2. Grab the st2 branch from CIRCLE_BRANCH if ST2_REPO_BRANCH
+#                           isn't set or is empty
+#        |                     |        3. Default branch name, if CIRCLE_BRANCH
+#        |                     |           and ST2_REPO_BRANCH aren't set or are empty
+#    vvvvvvvvvv          vvvvvvvvvvvvv  vvvvvv
+# $${ST2_REPO_BRANCH:-$${CIRCLE_BRANCH:-master}}
+#
+# This line grabs the version of pip specified in the
+#
+#     PIP_VERSION ?= xx.yy.zz
+#
+# line of the st2/Makefile, grabs the third column of it, and then installs
+# that exact version of pip into the virtualenv.
+#
+# If the branch is specified in either ST2_REPO_BRANCH or CIRCLE_BRANCH, but there
+# is no corresponding branch in st2, then curl will error out, and the master
+# branch of st2 will be used.
+#
+ST2_BRANCH := $(shell echo $${ST2_REPO_BRANCH:-$${CIRCLE_BRANCH:-master}})
+PIP_VERSION := $(shell curl --silent https://raw.githubusercontent.com/StackStorm/st2/$(ST2_BRANCH)/Makefile | grep 'PIP_VERSION ?= ' | awk '{ print $$3 }')
+ifeq ($(PIP_VERSION),)
+	ST2_BRANCH := master
+	PIP_VERSION := $(shell curl --silent https://raw.githubusercontent.com/StackStorm/st2/$(ST2_BRANCH)/Makefile | grep 'PIP_VERSION ?= ' | awk '{ print $$3 }')
+endif
+
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
 # All components are prefixed by st2
@@ -283,7 +311,7 @@ requirements: virtualenv .clone_st2_repo .install-runners
 	@echo
 	@echo "==================== requirements ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.0.2"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==$(PIP_VERSION)"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
@@ -292,7 +320,7 @@ requirements-ci:
 	@echo
 	@echo "==================== requirements-ci ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.0.2"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==$(PIP_VERSION)"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
