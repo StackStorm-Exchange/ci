@@ -40,7 +40,7 @@ sudo apt-get -y install libldap2-dev libsasl2-dev
 
 # This should track the pinned version of pip in st2's Makefile
 # Please sync this version with .circle/Makefile and .circleci/config.yml
-PIP_VERSION="20.0.2"
+PIP_VERSION="20.3.3"
 
 sudo pip install -U "pip==${PIP_VERSION}" setuptools virtualenv
 virtualenv --pip "${PIP_VERSION}" ~/virtualenv

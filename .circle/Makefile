@@ -283,7 +283,7 @@ requirements: virtualenv .clone_st2_repo .install-runners
 	@echo
 	@echo "==================== requirements ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.0.2"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
@@ -292,7 +292,7 @@ requirements-ci:
 	@echo
 	@echo "==================== requirements-ci ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.0.2"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
