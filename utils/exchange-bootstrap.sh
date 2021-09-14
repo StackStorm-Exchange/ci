@@ -16,11 +16,6 @@
 # * PASSWORD: password for the user (not a token).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 # * SLACK_WEBHOOK_URL: Full URL to Slack webhook where GitHub event notifications will be sent.
-# * GITHUB_PACK_PAT: GitHub Personal Access Token for the stackstorm-neptr user
-#                    (url: https://github.com/settings/tokens)
-#                    that has a name "CircleCI: stackstorm-<pack>" and given
-#                    the 'public_repo" scope. This PAT is used by CircleCI to access
-#                    the repo.
 #
 # Optionally, this env variable can be set to send additional GitHub event notifications
 # * SLACK_WEBHOOK_URL_COMMUNITY
@@ -51,23 +46,6 @@ REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
 REPO_DIR="/tmp/${REPO_NAME}"
 REPO_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_NAME}"
 ALIAS_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_ALIAS}"
-
-# Generating GitHub PAT (personal access tokens) can no longer be done via the API
-# broken: https://developer.github.com/changes/2/#--deprecating-oauth-authorization-api
-if [ -z "${GITHUB_PACK_PAT}" ]; then
-  echo "GitHub disabled the API allowing us to generate Personal Access Tokens for users"
-  echo "Please perform the following steps:"
-  echo "  1) login to GitHub as the 'stackstorm-neptr' account"
-  echo "  2) visit: https://github.com/settings/tokens"
-  echo "  3) click 'Genearte new token'"
-  echo "    3a) Note: CircleCI: ${REPO_NAME}"
-  echo "    3b) Select scopes: public_repo"
-  echo "    3c) Generate token"
-  echo "  4) Copy the new token and export it as the GITHUB_PACK_PAT shell variable"
-  echo "     export GITHUB_PACK_PAT='b4d3xxx'"
-  echo "  5) Re-run this script"
-fi
-
 
 # Check if the repo exists
 
