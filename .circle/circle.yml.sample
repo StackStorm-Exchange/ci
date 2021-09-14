@@ -1,3 +1,14 @@
+# WARNING: Minimize edits to this file!
+#
+# This file is part of the CI infrastructure for the StackStorm-Exchange.
+# As such, it gets overwritten periodically in CI infrastructure updates.
+# Check out `tests/setup_testing_env.sh` for how to customize the test env.
+# If you need to add jobs, docker images, or other changes that do not work
+# in `tests/setup_testing_env.sh`, then please add what you need and avoid
+# changing the standard build_and_test and deploy jobs.
+#
+# Thanks for your contribution!
+---
 version: 2
 
 jobs:
