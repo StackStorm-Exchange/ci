@@ -39,6 +39,7 @@ then
 fi
 
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
+EXCHANGE_TEAM="${EXCHANGE_TEAM:-tsc}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
 PACK="${1/${EXCHANGE_PREFIX}-/}"  # Ensure that PACK is just the bare pack name
 REPO_ALIAS=${PACK}
@@ -167,6 +168,13 @@ then
        }'
        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
+
+echo "GitHub: Allow ${EXCHANGE_TEAM} team to 'maintain' ${EXCHANGE_ORG}/${REPO_NAME}"
+curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PUT \
+     --header "Content-Type: application/json" \
+     --header "Accept: application/vnd.github.v3+json" \
+     -d '{"permission": "maintain"}' \
+     "https://api.github.com/orgs/${EXCHANGE_ORG}/teams/${EXCHANGE_TEAM}/repos/${EXCHANGE_ORG}/${REPO_NAME}"
 
 # This will open a private tab in the user's browser to the PAT page, with the
 # name field already filled in and the scope fields already checked, and direct
