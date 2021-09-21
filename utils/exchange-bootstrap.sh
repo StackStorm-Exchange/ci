@@ -57,7 +57,7 @@ fi
 
 # Git: create an empty repo and set the remote
 rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*"
-mkdir "${REPO_DIR}" && cd "${REPO_DIR}"
+mkdir -p "${REPO_DIR}" && cd "${REPO_DIR}"
 git init && git remote add origin "${REPO_URL}"
 
 # Generate a keypair
@@ -109,7 +109,7 @@ git add .circleci/config.yml
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/files/.gitignore.sample" > .gitignore
 git add .gitignore
 
-mkdir tests
+mkdir -p tests
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/setup_testing_env.sh.sample" > tests/setup_testing_env.sh
 # no execute bit until pack-author enables it.
 git add tests/setup_testing_env.sh
