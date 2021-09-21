@@ -185,12 +185,12 @@ curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PUT \
 # PAT
 ${CI_REPO_ROOT}/tools/reset_github_user_token_and_update_circleci.sh --set-user $PACK
 
-# NO longer needed, this API request fails everytime we call it
-# # CircleCI: follow the project
-# echo "CircleCI: Following the project"
-# curl -v -sS --fail -X POST \
-#      --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-#      "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow"
+# XXX: this API request was failing, but it is working now. Not sure why.
+# CircleCI: follow the project (we need this, or CircleCI won't watch the repo)
+echo "CircleCI: Following the project (enables CircleCI builds)"
+curl -v -sS --fail -X POST \
+    --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+    "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow"
 
 
 # CircleCI: upload the read-write key
