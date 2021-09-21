@@ -58,7 +58,9 @@ fi
 # Git: create an empty repo and set the remote
 rm -rf "${REPO_DIR}" "/tmp/${PACK}_rsa*"
 mkdir -p "${REPO_DIR}" && cd "${REPO_DIR}"
-git init && git remote add origin "${REPO_URL}"
+# TODO: switch to main as default branch
+git init --initial-branch master \
+  && git remote add origin "${REPO_URL}"
 
 # Generate a keypair
 #echo "Generating random private SSH key"
