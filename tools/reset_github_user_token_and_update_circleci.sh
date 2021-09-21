@@ -93,7 +93,7 @@ elif [[ "${OS}" == "Linux" ]]; then
     if [[ "${DEFAULT_BROWSER}" == *"firefox"* ]]; then
         BROWSER_NAME=Firefox
         BROWSER_COMMAND="${DEFAULT_BROWSER_BIN} -private-window"
-    elif [[ "${DEFAULT_BROWSER}" == *"chrom"* ]]; then  # chrome or chromium
+    elif [[ "${DEFAULT_BROWSER}" == *"chrom"* ]] || [[ "${DEFAULT_BROWSER}" == *"brave"* ]]; then  # chrome or chromium
         BROWSER_NAME=Chrome
         BROWSER_COMMAND="${DEFAULT_BROWSER_BIN} --incognito"
     else
