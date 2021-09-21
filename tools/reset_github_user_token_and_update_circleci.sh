@@ -6,7 +6,7 @@
 # Requires: jq
 #
 # The following env variables must be specified:
-# * USERNAME: a GitHub user to run the script under (Exchange bot).
+# * GITHUB_USERNAME: a GitHub user to run the script under (Exchange bot).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 #
 # HISTORICAL NOTE: GitHub disabled basic auth *with account passwords*[1]. Before that change,
@@ -18,7 +18,7 @@
 #  1. Open https://github.com/settings/tokens/new in a new private/incognito browser window.
 #  2. Log in with stackstorm-neptr, the StackStorm-Exchange's bot account (not a personal account).
 #  3. Run this script:
-#         USERNAME=stackstorm-neptr CIRCLECI_TOKEN=... \
+#         GITHUB_USERNAME=stackstorm-neptr CIRCLECI_TOKEN=... \
 #         ./tools/reset_github_user_token_and_update_circleci.sh pack1 pack2 pack3 pack4
 #  4. The script prints instructions and opens the token generation page in the default browser
 #  5. Manually scroll down and hit "Generate Token" (PAT name and scope are already filled in).
@@ -124,12 +124,12 @@ function repo_name() {
 }
 
 DEFAULT_USERNAME="stackstorm-neptr"
-if [[ -z "$USERNAME" ]];
+if [[ -z "$GITHUB_USERNAME" ]];
 then
     echo "What is the username for the GitHub user?"
     echo "Default: $DEFAULT_USERNAME (just hit enter to use this)"
-    read USERNAME
-    USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
+    read GITHUB_USERNAME
+    GITHUB_USERNAME="${GITHUB_USERNAME:-$DEFAULT_USERNAME}"
 fi
 
 if [[ -z "$CIRCLECI_TOKEN" ]];
@@ -160,9 +160,11 @@ for PACK in $@; do
     echo " ${REPO_NAME}"
     echo
 
-    echo "Please click 'Generate Token' when ${BROWSER_NAME} opens."
-    echo "Then copy the GitHub PAT token for ${REPO_NAME} and paste it here:"
-    eval "${BROWSER_COMMAND} https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20${REPO_NAME}"
+    echo "Please do the following when ${BROWSER_NAME} opens:"
+    echo "  Select 'No expiration' under Expiration,"  # sadly we can't prefill this via url
+    echo "  then click 'Generate Token' at the bottom,"
+    echo "  and copy the GitHub PAT token for ${REPO_NAME} and paste it here:"
+    eval "${BROWSER_COMMAND} 'https://github.com/settings/tokens/new?scopes=public_repo&description=CircleCI%3A%20${REPO_NAME}'"
     read -s GITHUB_USER_TOKEN
 
     # If you click the copy button in GitHub's UI it will copy correctly.
@@ -185,7 +187,7 @@ for PACK in $@; do
     # use --set-user to enable setting this.
     if [[ ${SET_MACHINE_USER} == "true" ]]; then
         curl -sS --fail -X POST --header "Content-Type: application/json" \
-            -d '{"name":"MACHINE_USER", "value":"'"${USERNAME}"'"}' \
+            -d '{"name":"MACHINE_USER", "value":"'"${GITHUB_USERNAME}"'"}' \
             "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/envvar?circle-token=${CIRCLECI_TOKEN}"
     fi
     curl -sS --fail -X POST --header "Content-Type: application/json" \

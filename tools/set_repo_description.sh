@@ -5,8 +5,8 @@
 # Requires: jq
 #
 # attribute from pack.yaml metadata file.
-# * USERNAME: a GitHub user to run the script under (Exchange bot).
-# * PASSWORD: password for the user (not a token).
+# * GITHUB_USERNAME: a GitHub user to run the script under (Exchange bot).
+# * GITHUB_TOKEN: PAT for the user (not a password, as github doesn't support that anymore).
 # * REPO_NAMES: If specified only set description for specified repo(s)
 #               otherwise set it for all the repos.
 
@@ -35,7 +35,7 @@ for REPO_NAME in ${REPO_NAMES[@]}; do
     if [[ -z "${PACK_DESCRIPTION}" ]]; then
         echo "Description not available for pack ${REPO_NAME}, skipping..."
     else
-        curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH --header "Content-Type: application/json" \
+        curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PATCH --header "Content-Type: application/json" \
         -d '{"name": "'"${REPO_NAME}"'", "description": "'"${PACK_DESCRIPTION}"'", "homepage": "https://exchange.stackstorm.org/"}' \
         "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}"
 

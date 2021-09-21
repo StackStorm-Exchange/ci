@@ -12,8 +12,8 @@
 # Requires: jq
 #
 # The following env variables must be specified:
-# * USERNAME: a GitHub user to run the script under (Exchange bot).
-# * PASSWORD: password for the user (not a token).
+# * GITHUB_USERNAME: a GitHub user to run the script under (Exchange bot).
+# * GITHUB_TOKEN: PAT for the user (not a password, as github doesn't support that anymore).
 # * CIRCLECI_TOKEN: a CircleCI token for the Exchange organization.
 # * SLACK_WEBHOOK_URL: Full URL to Slack webhook where GitHub event notifications will be sent.
 #
@@ -44,8 +44,8 @@ PACK="${1/${EXCHANGE_PREFIX}-/}"  # Ensure that PACK is just the bare pack name
 REPO_ALIAS=${PACK}
 REPO_NAME="${EXCHANGE_PREFIX}-${PACK}"
 REPO_DIR="/tmp/${REPO_NAME}"
-REPO_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_NAME}"
-ALIAS_URL="https://${USERNAME}:${PASSWORD}@github.com/${EXCHANGE_ORG}/${REPO_ALIAS}"
+REPO_URL="https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${EXCHANGE_ORG}/${REPO_NAME}"
+ALIAS_URL="https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${EXCHANGE_ORG}/${REPO_ALIAS}"
 
 # Check if the repo exists
 
@@ -71,7 +71,7 @@ then
   echo "The alias already exists, skipping the creation."
 else
   echo "Creating an alias ${REPO_ALIAS} for ${REPO_NAME}."
-  curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+  curl -v -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X POST \
        --header "Content-Type: application/json" \
        -d '{"name": "'"${REPO_ALIAS}"'"}' \
        "https://api.github.com/orgs/${EXCHANGE_ORG}/repos"
@@ -80,7 +80,7 @@ fi
 # GitHub: rename the alias repo to its full name
 # This will setup a redirect on GitHub: alias -> name
 echo "GitHub: Renaming the repo to ${REPO_NAME}."
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH \
+curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PATCH \
      --header "Content-Type: application/json" \
      -d '{"name": "'"${REPO_NAME}"'"}' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_ALIAS}"
@@ -88,7 +88,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X PATCH \
 # No longer needed
 # GitHub: create a read-write key for the repo
 # echo "GitHub: Creating a read-write key for the GitHub repo"
-# curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+# curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X POST \
 #      --header "Content-Type: application/json" \
 #      -d '\
 #      { \
@@ -119,7 +119,7 @@ git push origin master
 
 # GitHub: Configure webhook to send notifications to our Slack instance on changes
 echo "GitHub: Configuring GitHub to send webhook notifications to our Slack"
-curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X POST \
      --header "Content-Type: application/json" \
      -d '\
      { \
@@ -144,7 +144,7 @@ curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
 if [[ -n $SLACK_WEBHOOK_URL_COMMUNITY ]];
 then
   echo "GitHub: Configuring GitHub to send webhook notifications to our community Slack"
-  curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X POST \
+  curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X POST \
        --header "Content-Type: application/json" \
        -d '\
        { \
@@ -197,7 +197,7 @@ curl -sS --fail -X PUT --header "Content-Type: application/json" \
 # This breaks our deployment process.
 # So we need to get a list of read-only keys, and delete them
 echo "CircleCI: Remove read-only keys."
-RO_KEYS=$(curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
+RO_KEYS=$(curl -v -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X GET \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys" \
           | jq -r '.[]| select(.read_only == true) | [.id]| @sh')
@@ -205,5 +205,5 @@ RO_KEYS=$(curl -v -sS --fail -u "${USERNAME}:${PASSWORD}" -X GET \
 echo $RO_KEYS
 for RO_KEY in ${RO_KEYS};
 do
-  curl -sS --fail -u "${USERNAME}:${PASSWORD}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
+  curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X DELETE "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/keys/${RO_KEY}"
 done
