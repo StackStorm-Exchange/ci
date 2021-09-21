@@ -125,22 +125,23 @@ git push origin master
 echo "GitHub: Configuring GitHub to send webhook notifications to our Slack"
 curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X POST \
      --header "Content-Type: application/json" \
-     -d '\
-     { \
-       "name": "web", \
-       "active": true, \
-       "config": { \
-         "url": "'"${SLACK_WEBHOOK_URL}"'", \
-         "content_type": "application/json" \
-       }, \
-       "events": [ \
-         "commit_comment", \
-         "issue_comment", \
-         "issues", \
-         "pull_request", \
-         "pull_request_review", \
-         "pull_request_review_comment" \
-       ] \
+     --header "Accept: application/vnd.github.v3+json" \
+     -d '
+     {
+       "name": "web",
+       "active": true,
+       "config": {
+         "url": "'"${SLACK_WEBHOOK_URL}"'",
+         "content_type": "application/json"
+       },
+       "events": [
+         "commit_comment",
+         "issue_comment",
+         "issues",
+         "pull_request",
+         "pull_request_review",
+         "pull_request_review_comment"
+       ]
      }' \
      "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 
@@ -150,19 +151,20 @@ then
   echo "GitHub: Configuring GitHub to send webhook notifications to our community Slack"
   curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X POST \
        --header "Content-Type: application/json" \
+       --header "Accept: application/vnd.github.v3+json" \
        -d '\
-       { \
-         "name": "web", \
-         "active": true, \
-         "config": { \
-           "url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'", \
-           "content_type": "application/json" \
-         }, \
-         "events": [ \
-           "issues", \
-           "pull_request" \
-         ] \
-       }' \
+       {
+         "name": "web",
+         "active": true,
+         "config": {
+           "url": "'"${SLACK_WEBHOOK_URL_COMMUNITY}"'",
+           "content_type": "application/json"
+         },
+         "events": [
+           "issues",
+           "pull_request"
+         ]
+       }'
        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
