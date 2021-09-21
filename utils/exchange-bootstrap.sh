@@ -61,8 +61,8 @@ mkdir "${REPO_DIR}" && cd "${REPO_DIR}"
 git init && git remote add origin "${REPO_URL}"
 
 # Generate a keypair
-echo "Generating random private SSH key"
-ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N "" -m pem
+#echo "Generating random private SSH key"
+#ssh-keygen -b 2048 -t rsa -f "/tmp/${PACK}_rsa" -q -N "" -m pem
 
 # GitHub: create an alias first
 # See https://github.com/StackStorm-Exchange/ci/pull/30
