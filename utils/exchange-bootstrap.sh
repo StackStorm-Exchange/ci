@@ -103,7 +103,7 @@ curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PATCH \
 # - .gitignore
 mkdir -p .circleci
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/.circle/circle.yml.sample" > .circleci/config.yml
-chmod 755 .circleci/config.yml
+chmod 644 .circleci/config.yml
 git add .circleci/config.yml
 
 curl -sS --fail "https://raw.githubusercontent.com/StackStorm-Exchange/ci/master/files/.gitignore.sample" > .gitignore
