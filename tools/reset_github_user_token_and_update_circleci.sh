@@ -88,7 +88,7 @@ elif [[ "${OS}" == "Linux" ]]; then
     # Gnome, KDE, and other desktops each have different commands to run *.desktop files.
     # So, we roll our own runner (based on: https://askubuntu.com/a/664272 )
     DEFAULT_BROWSER=$(xdg-settings get default-web-browser)
-    DEFAULT_BROWSER_DESKTOP=$(ls -1 {~/.local,/usr}/share/applications/${DEFAULT_BROWSER}) 2>/dev/null | head -n1)
+    DEFAULT_BROWSER_DESKTOP=$(ls -1 {~/.local,/usr}/share/applications/${DEFAULT_BROWSER} 2>/dev/null | head -n1)
     DEFAULT_BROWSER_BIN=$(awk '/^Exec=/ {sub("^Exec=", ""); gsub(" ?%[cDdFfikmNnUuv]", ""); gsub(" -.*", ""); print($0); exit}' ${DEFAULT_BROWSER_DESKTOP})
     if [[ "${DEFAULT_BROWSER}" == *"firefox"* ]]; then
         BROWSER_NAME=Firefox
