@@ -1,0 +1,102 @@
+---
+name: Install Python Dependencies
+description: |
+  Install python dependencies required for StackStorm-Exchange pack tests.
+  Before using this, make sure to run
+  StackStorm-Exchange/ci/gha/checkout and
+  StackStorm-Exchange/ci/gha/apt-dependencies.
+author: StackStorm
+
+inputs:
+  python-version:
+    required: true
+    description: Which python version we should install
+  cache-version:
+    required: false
+    default: "v0"
+
+outputs:
+  pip-version:
+    description: The installed pip version (pulled from st2.git)
+    value: ${{ steps.virtualenv.outputs.pip-version }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: 'Set up Python (${{ input.python-version }})'
+      uses: actions/setup-python@v2
+      with:
+        python-version: '${{ input.python-version }}'
+
+    - name: Cache Python Dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip
+          ~/virtualenv
+        key: ${{ runner.os }}-python-${{ input.python-version }}-${{ input.cache-version }}-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-${{ input.python-version }}-${{ input.cache-version }}-
+
+    - name: Install virtualenv
+      # this should run in the st2 checkout
+      working-directory: st2
+      run: |
+        ./scripts/github/install-virtualenv.sh
+
+    - name: Create ~/virtualenv
+      id: virtualenv
+      # this should run in the st2 checkout
+      working-directory: st2
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+      run: |
+        ./scripts/github/install-virtualenv.sh
+        PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
+        echo "::set-output name=pip-version::${PIP_VERSION}"
+        ${VIRTUALENV_DIR}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
+
+    - name: Install StackStorm requirements
+      # this should run in the st2 checkout
+      working-directory: st2
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+      run: |
+        ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
+
+    - name: Install runners
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+        ACTION_PATH: ${{ github.action_path }}
+        ST2_REPO_PATH: st2
+      # TODO: This Makefile has CircleCI assumptions
+      run: |
+        cp ${ACTION_PATH}/../../.circle/Makefile .
+        make requirements-ci .install-runners
+
+    - name: Install pack requirements
+      working-directory: pack
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+        PACK_REQUIREMENTS_FILE: requirements.txt
+        PACK_TESTS_REQUIREMENTS_FILE: requirements-tests.txt
+      run: |
+        if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
+        echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
+        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
+        fi
+        if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
+        echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
+        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+        fi
+
+    - name: Print versions
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+      run: |
+        set -ex
+        source ${VIRTUALENV_DIR}/activate
+        python3 --version
+        pip --version
+        virtualenv --version

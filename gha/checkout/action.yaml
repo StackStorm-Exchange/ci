@@ -1,0 +1,53 @@
+---
+name: Checkout Pack Repo and CI Repos
+description: |
+  Configures git user and clones repositories
+  required for StackStorm-Exchange pack tests.
+author: StackStorm
+
+inputs:
+  git_user_name:
+    required: false
+    default: "StackStorm Exchange"
+  git_user_email:
+    required: false
+    default: "info@stackstorm.com"
+  st2_branch:
+    required: false
+    default: master
+  lint_configs_branch:
+    required: false
+    default: master
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure git user
+      env:
+        GIT_USER_NAME: "${{ inputs.git_user_name }}"
+        GIT_USER_EMAIL: "${{ inputs.git_user_email }}"
+      run: |
+        git config --global user.name "${GIT_USER_NAME}"
+        git config --global user.email "${GIT_USER_EMAIL}"
+
+    - name: Checkout pack repo
+      uses: actions/checkout@v2
+        path: pack
+        depth: 1
+
+    - name: Checkout st2 repo
+      # so other scripts can reference StackStorm Python code
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm/st2
+        ref: ${{ inputs.st2_branch }}
+        path: st2
+        depth: 1
+
+    - name: Checkout lint-configs repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm/lint-configs
+        ref: ${{ inputs.lint_configs_branch }}
+        path: lint-configs
+        depth: 1

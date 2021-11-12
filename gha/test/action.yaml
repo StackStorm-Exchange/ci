@@ -1,0 +1,59 @@
+---
+name: Run pack tests
+description: |
+  Run StackStorm-Exchange pack tests.
+  Before using this, make sure to run
+  StackStorm-Exchange/ci/gha/checkout,
+  StackStorm-Exchange/ci/gha/apt-dependencies, and
+  StackStorm-Exchange/ci/gha/py-dependencies.
+author: StackStorm
+
+inputs:
+  enable-common-libs:
+    description: |
+      When true, use an st2.conf that sets packs.enable_common_libs=true
+      see: https://docs.stackstorm.com/reference/sharing_code_sensors_actions.html
+    default: false
+    required: false
+outputs:
+  pack-name:
+    description: The pack name pulled from pack.yaml
+    value: ${{ steps.pack-name.outputs.pack-name }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get Pack Name
+      id: pack-name
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
+        if [[ -z "${PACK_NAME}" ]]; then
+        echo "Unable to retrieve pack name."
+        exit 1
+        fi
+        echo "::set-output name=pack-name::${PACK_NAME}"
+
+    - name: 
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+        FORCE_CHECK_ALL_FILES: true if on default branch
+        ROOT_DIR: pack directory
+        CI_DIR: ${{ github.action_path + "/../.." }}
+        ST2_REPO_PATH: st2 directory
+        ENABLE_COMMON_LIBS: ${{ input.enable-common-libs }}
+      # TODO: This Makefile has CircleCI assumptions
+      run: |
+        if [[ "true" == "${ENABLE_COMMON_LIBS}" ]]; then
+        echo "Common libs PATH selected"
+        export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
+        else
+        export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
+        fi
+        cp ${CI_DIR}/.circle/Makefile .
+        make -C "${ROOT_DIR}" all-ci
+
+

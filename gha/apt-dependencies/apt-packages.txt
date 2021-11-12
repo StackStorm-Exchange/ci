@@ -1,0 +1,17 @@
+# pre-installed on GHA
+#jq
+#gh # github cli
+#imagemagick
+
+# for st2 pip build
+libldap2-dev
+libsasl2-dev
+# st2 also installs
+#libssl-dev libyaml-dev ldap-utils
+
+# not sure if we still need this
+#python3-dev
+
+# deploy dependencies (maybe use pre-installed imagemagick instead)
+#gmic
+#optipng

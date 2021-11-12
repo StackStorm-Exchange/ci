@@ -1,0 +1,51 @@
+---
+name: Install APT Dependencies
+description: |
+  Install debian dependencies required for StackStorm-Exchange pack tests.
+author: StackStorm
+
+inputs:
+  cache-version:
+    required: false
+    default: "v0"
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Create a directory for debian packages so we can cache it
+      # this is what we did on CircleCI. Not sure if it'll work on GHA
+      run: >
+        sudo rm -rf /var/cache/apt/archives
+        && sudo ln -s ~/apt_cache /var/cache/apt/archives
+        && mkdir -p ~/apt_cache/partial
+
+    # TODO: install and cache apt-packages defined by packs
+    #       maybe via input?
+
+    - name: Cache APT Dependencies
+      id: cache-apt-deps
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/apt_cache
+        key: ${{ runner.os }}-apt-${{ input.cache-version }}-${{ hashFiles(github.action_path + '/apt-packages.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-${{ input.cache-version }}-
+
+    - name: Install APT Dependencies
+      env:
+        CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
+        APT_PACKAGES_FILE_PATH: ${{github.action_path + '/apt-packages.txt'}}
+      run: |
+        if [[ "$CACHE_HIT" != 'true' ]]; then
+        sudo apt-get -y update
+        fi
+        APT_PACKAGES=$(grep -v '^#' "${APT_PACKAGES_FILE_PATH}" | xargs echo -n)
+        sudo apt-get -y install ${APT_PACKAGES}
+
+    - name: Print versions
+      run: |
+        set -ex
+        jq --version
+        gh --version
