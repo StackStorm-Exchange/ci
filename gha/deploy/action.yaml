@@ -1,0 +1,61 @@
+---
+name: Deploy pack
+description: |
+  Deploy pack to StackStorm-Exchange index.
+author: StackStorm
+
+inputs: {}
+outputs:
+  pack-name:
+    description: The pack name pulled from pack.yaml
+    value: ${{ steps.pack-name.outputs.pack-name }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get Pack Name
+      id: pack-name
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
+        if [[ -z "${PACK_NAME}" ]]; then
+        echo "Unable to retrieve pack name."
+        exit 1
+        fi
+        echo "::set-output name=pack-name::${PACK_NAME}"
+
+    # checkout pack and index repos
+
+    # create version tags
+
+    # webhook that triggers a workflow in index repo to regen
+    #  - rebuild pack index directory
+    #    - convert resource metadata to json
+    #    - convert config schema to json
+    #    - add resource stats to updated pack.yaml
+    #  - rebuild index JSON
+    #  - copy and optimize icon
+
+    - name: 
+      env:
+        VIRTUALENV_DIR: "~/virtualenv"
+        FORCE_CHECK_ALL_FILES: true if on default branch
+        ROOT_DIR: pack directory
+        CI_DIR: ${{ github.action_path + "/../.." }}
+        ST2_REPO_PATH: st2 directory
+        ENABLE_COMMON_LIBS: ${{ input.enable-common-libs }}
+      # TODO: This Makefile has CircleCI assumptions
+      run: |
+        if [[ "true" == "${ENABLE_COMMON_LIBS}" ]]; then
+        echo "Common libs PATH selected"
+        export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
+        else
+        export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
+        fi
+        cp ${CI_DIR}/.circle/Makefile .
+        make -C "${ROOT_DIR}" all-ci
+
+
