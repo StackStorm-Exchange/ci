@@ -12,6 +12,7 @@ s:
   python-version:
     required: true
     description: Which python version we should install
+    default: "3.6"
   cache-version:
     required: false
     default: "v0"
