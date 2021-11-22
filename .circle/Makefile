@@ -1,5 +1,5 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
+NUM_CHANGED_FILES := $(shell $(env.ACTION_PATH)/../../utils/git-changes files | wc -w)
 NUM_CHANGED_PY := $(shell $(CI_DIR)/utils/git-changes py | wc -w)
 NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
 NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
@@ -293,7 +293,7 @@ requirements-ci:
 	@echo "==================== requirements-ci ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
+#	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
 .PHONY: virtualenv
