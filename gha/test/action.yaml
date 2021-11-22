@@ -46,7 +46,7 @@ runs:
         ROOT_DIR: pack directory
         CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
         ST2_REPO_PATH: st2 directory
-        ENABLE_COMMON_LIBS: ${{ input.enable-common-libs }}
+        ENABLE_COMMON_LIBS: ${{ inputs.enable-common-libs }}
       # TODO: This Makefile has CircleCI assumptions
       run: |
         if [[ "true" == "${ENABLE_COMMON_LIBS}" ]]; then
