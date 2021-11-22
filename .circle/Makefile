@@ -1,5 +1,5 @@
 ROOT_DIR ?= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-NUM_CHANGED_FILES := $(shell /home/runner/work/_actions/lm-ydubler/ci/gha/utils/git-changes files | wc -w)
+NUM_CHANGED_FILES := $(shell $(CI_DIR)/utils/git-changes files | wc -w)
 NUM_CHANGED_PY := $(shell $(CI_DIR)/utils/git-changes py | wc -w)
 NUM_CHANGED_YAML := $(shell $(CI_DIR)/utils/git-changes yaml | wc -w)
 NUM_CHANGED_JSON := $(shell $(CI_DIR)/utils/git-changes json | wc -w)
@@ -292,8 +292,8 @@ requirements-ci:
 	@echo
 	@echo "==================== requirements-ci ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==21.3.1"
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r  /home/runner/work/_actions/lm-ydubler/ci/gha/.circle/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
 
 .PHONY: virtualenv
