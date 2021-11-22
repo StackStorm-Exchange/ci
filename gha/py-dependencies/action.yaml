@@ -78,8 +78,8 @@ runs:
         ST2_REPO_PATH: st2
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        mkdir ~/bin/sh/utils
-        cp -R -v ${{env.ACTION_PATH}}/../../utils ~/bin/sh/utils
+#        mkdir ~/bin/sh/utils
+#        cp -R -v ${{env.ACTION_PATH}}/../../utils ~/bin/sh/utils
         cp -v ${{env.ACTION_PATH}}/../../.circle/Makefile .
         make requirements-ci .install-runners
 
