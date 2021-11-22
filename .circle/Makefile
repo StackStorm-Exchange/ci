@@ -298,7 +298,7 @@ requirements-ci:
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r /home/runner/work/_actions/lm-ydubler/ci/gha/.circle/requirements-dev.txt
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r /home/runner/work/_actions/lm-ydubler/ci/gha/.circle/.circle/requirements-pack-tests.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r /home/runner/work/_actions/lm-ydubler/ci/gha/.circle/requirements-pack-tests.txt
 
 .PHONY: virtualenv
 virtualenv: $(VIRTUALENV_DIR)/bin/activate
