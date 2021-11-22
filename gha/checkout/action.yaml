@@ -21,6 +21,7 @@ inputs:
 
 runs:
   using: "composite"
+  shell: bash
   steps:
     - name: Configure git user
       env:
