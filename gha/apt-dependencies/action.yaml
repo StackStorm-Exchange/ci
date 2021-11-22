@@ -35,6 +35,7 @@ runs:
           ${{ runner.os }}-apt-${{ input.cache-version }}-
 
     - name: Install APT Dependencies
+      shell: bash
       env:
         CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
         APT_PACKAGES_FILE_PATH: ${{github.action_path + '/apt-packages.txt'}}
@@ -46,6 +47,7 @@ runs:
         sudo apt-get -y install ${APT_PACKAGES}
 
     - name: Print versions
+      shell: bash
       run: |
         set -ex
         jq --version
