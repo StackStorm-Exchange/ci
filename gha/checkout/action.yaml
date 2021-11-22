@@ -21,9 +21,9 @@ inputs:
 
 runs:
   using: "composite"
-  shell: bash
   steps:
     - name: Configure git user
+      shell: bash
       env:
         GIT_USER_NAME: "${{ inputs.git_user_name }}"
         GIT_USER_EMAIL: "${{ inputs.git_user_email }}"
