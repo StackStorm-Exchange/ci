@@ -32,7 +32,6 @@ runs:
         python-version: '${{ inputs.python-version }}'
 
     - name: Cache Python Dependencies
-      shell: bash
       uses: actions/cache@v2
       with:
         path: |
