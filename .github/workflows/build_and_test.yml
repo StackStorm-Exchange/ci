@@ -14,15 +14,15 @@ jobs:
     steps:
       # eventually replace @gha with @master
       - name: Checkout Pack Repo and CI Repos
-        uses: StackStorm-Exchange/ci/gha/checkout@gha
+        uses: lm-ydubler/ci/gha/checkout@gha
 
       - name: Install APT Dependencies
-        uses: StackStorm-Exchange/ci/gha/apt-dependencies@gha
+        uses: lm-ydubler/ci/gha/apt-dependencies@gha
         with:
           cache-version: v0
 
       - name: Install Python Dependencies
-        uses: StackStorm-Exchange/ci/gha/py-dependencies@gha
+        uses: lm-ydubler/ci/gha/py-dependencies@gha
         with:
           cache-version: v0
           python-version: ${{ matrix.python-version }}
@@ -30,7 +30,7 @@ jobs:
       # vault pack would add one or more custom test setup steps here
 
       - name: Run pack tests
-        uses: StackStorm-Exchange/ci/gha/test@gha
+        uses: lm-ydubler/ci/gha/test@gha
         with:
           # This makes the tests use an alternate config that enables shared libs
           enable-common-libs: true
