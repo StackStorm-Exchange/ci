@@ -59,7 +59,7 @@ runs:
         ./scripts/github/install-virtualenv.sh
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
         echo "::set-output name=pip-version::${PIP_VERSION}"
-        ${VIRTUALENV_DIR}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
 
     - name: Install StackStorm requirements
       # this should run in the st2 checkout
@@ -68,7 +68,7 @@ runs:
       env:
         VIRTUALENV_DIR: "~/virtualenv"
       run: |
-        ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -r requirements.txt
 
     - name: Install runners
       shell: bash
