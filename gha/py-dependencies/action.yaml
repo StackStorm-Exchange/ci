@@ -49,6 +49,7 @@ runs:
         ./scripts/github/install-virtualenv.sh
 
     - name: Create ~/virtualenv
+      shell: bash
       id: virtualenv
       # this should run in the st2 checkout
       working-directory: st2
