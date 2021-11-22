@@ -8,9 +8,6 @@ inputs:
   cache-version:
     required: false
     default: "v0"
-  hashfiles-path:
-    required: false
-    default: ${{ format('{}{}', github.action_path, '/apt-packages.txt') }}
 
 runs:
   using: "composite"
@@ -33,7 +30,7 @@ runs:
       with:
         path: |
           ~/apt_cache
-        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles( ${{inputs.hashfiles-path}} ) }}
+        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles('${{ format('{}{}', github.action_path, '/apt-packages.txt') }}') }}
         restore-keys: |
           ${{ runner.os }}-apt-${{ inputs.cache-version }}-
 
