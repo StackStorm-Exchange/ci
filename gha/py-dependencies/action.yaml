@@ -41,12 +41,12 @@ runs:
         restore-keys: |
           ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-
 
-    - name: Install virtualenv
-      shell: bash
-      # this should run in the st2 checkout
-      working-directory: st2
-      run: |
-        ./scripts/github/install-virtualenv.sh
+#    - name: Install virtualenv
+#      shell: bash
+#      # this should run in the st2 checkout
+#      working-directory: st2
+#      run: |
+#        ./scripts/github/install-virtualenv.sh
 
     - name: Create ~/virtualenv
       shell: bash
