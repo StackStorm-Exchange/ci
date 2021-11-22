@@ -1,0 +1,36 @@
+name: CI
+
+on: push
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    name: 'Build and Test - Python ${{ matrix.python-version-short }}'
+    strategy:
+      matrix:
+        include:
+          - python-version-short: 3.6
+            python-version: 3.6.13
+    steps:
+      # eventually replace @gha with @master
+      - name: Checkout Pack Repo and CI Repos
+        uses: StackStorm-Exchange/ci/gha/checkout@gha
+
+      - name: Install APT Dependencies
+        uses: StackStorm-Exchange/ci/gha/apt-dependencies@gha
+        with:
+          cache-version: v0
+
+      - name: Install Python Dependencies
+        uses: StackStorm-Exchange/ci/gha/py-dependencies@gha
+        with:
+          cache-version: v0
+          python-version: ${{ matrix.python-version }}
+
+      # vault pack would add one or more custom test setup steps here
+
+      - name: Run pack tests
+        uses: StackStorm-Exchange/ci/gha/test@gha
+        with:
+          # This makes the tests use an alternate config that enables shared libs
+          enable-common-libs: true
