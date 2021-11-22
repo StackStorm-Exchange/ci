@@ -91,7 +91,7 @@ runs:
       run: |
         if [[ -f "${{env.PACK_REQUIREMENTS_FILE}}" ]]; then
         echo "Installing pack requirements from ${{env.PACK_REQUIREMENTS_FILE}}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${{env.PACK_REQUIREMENTS_FILE}}"
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -r "${{env.PACK_REQUIREMENTS_FILE}}"
         fi
         if [[ -f "${{env.PACK_TESTS_REQUIREMENTS_FILE}}" ]]; then
         echo "Installing pack tests requirements from ${{env.PACK_TESTS_REQUIREMENTS_FILE}}"
