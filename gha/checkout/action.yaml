@@ -33,7 +33,8 @@ runs:
 
     - name: Checkout pack repo
       uses: actions/checkout@v2
-        path: lm-ydubler/logicmonitor-stackstorm-pack
+      with:
+        path: pack
         depth: 1
 
     - name: Checkout st2 repo
