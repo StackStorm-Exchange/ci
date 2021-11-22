@@ -41,12 +41,14 @@ runs:
           ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-
 
     - name: Install virtualenv
+      shell: bash
       # this should run in the st2 checkout
       working-directory: st2
       run: |
         ./scripts/github/install-virtualenv.sh
 
     - name: Create ~/virtualenv
+      shell: bash
       id: virtualenv
       # this should run in the st2 checkout
       working-directory: st2
@@ -60,6 +62,7 @@ runs:
 
     - name: Install StackStorm requirements
       # this should run in the st2 checkout
+      shell: bash
       working-directory: st2
       env:
         VIRTUALENV_DIR: "~/virtualenv"
@@ -67,6 +70,7 @@ runs:
         ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
 
     - name: Install runners
+      shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
         ACTION_PATH: ${{ github.action_path }}
@@ -77,6 +81,7 @@ runs:
         make requirements-ci .install-runners
 
     - name: Install pack requirements
+      shell: bash
       working-directory: pack
       env:
         VIRTUALENV_DIR: "~/virtualenv"
@@ -93,6 +98,7 @@ runs:
         fi
 
     - name: Print versions
+      shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
       run: |
