@@ -79,6 +79,7 @@ runs:
       # TODO: This Makefile has CircleCI assumptions
       run: |
         cp ${{env.ACTION_PATH}}/../../.circle/Makefile .
+        cp -R ${{env.ACTION_PATH}}/../../utils ./../../utils
         make requirements-ci .install-runners
 
     - name: Install pack requirements
