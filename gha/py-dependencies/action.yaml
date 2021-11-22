@@ -7,7 +7,8 @@ description: |
   StackStorm-Exchange/ci/gha/apt-dependencies.
 author: StackStorm
 
-inputs:
+
+s:
   python-version:
     required: true
     description: Which python version we should install
@@ -24,10 +25,10 @@ runs:
   using: "composite"
   steps:
 
-    - name: 'Set up Python (${{ input.python-version }})'
+    - name: 'Set up Python (${{ inputs.python-version }})'
       uses: actions/setup-python@v2
       with:
-        python-version: '${{ input.python-version }}'
+        python-version: '${{ inputs.python-version }}'
 
     - name: Cache Python Dependencies
       uses: actions/cache@v2
@@ -35,9 +36,9 @@ runs:
         path: |
           ~/.cache/pip
           ~/virtualenv
-        key: ${{ runner.os }}-python-${{ input.python-version }}-${{ input.cache-version }}-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-${{ hashFiles('requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-python-${{ input.python-version }}-${{ input.cache-version }}-
+          ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-
 
     - name: Install virtualenv
       # this should run in the st2 checkout
