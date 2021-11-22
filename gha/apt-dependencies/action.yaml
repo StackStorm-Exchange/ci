@@ -43,7 +43,7 @@ runs:
         if [[ "$CACHE_HIT" != 'true' ]]; then
         sudo apt-get -y update
         fi
-        APT_PACKAGES=$(grep -v '^#' "${APT_PACKAGES_FILE_PATH}" | xargs echo -n)
+        APT_PACKAGES=$(grep -v '^#' "${{env.APT_PACKAGES_FILE_PATH}}" | xargs echo -n)
         sudo apt-get -y install ${APT_PACKAGES}
 
     - name: Print versions
