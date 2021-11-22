@@ -30,7 +30,7 @@ runs:
       with:
         path: |
           ~/apt_cache
-        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles(github.action_path + '/apt-packages.txt') }}
+        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles(join(github.action_path,'/apt-packages.txt')) }}
         restore-keys: |
           ${{ runner.os }}-apt-${{ input.cache-version }}-
 
