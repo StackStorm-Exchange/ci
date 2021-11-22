@@ -26,7 +26,6 @@ runs:
 
     - name: Cache APT Dependencies
       id: cache-apt-deps
-      shell: bash
       uses: actions/cache@v2
       with:
         path: |
