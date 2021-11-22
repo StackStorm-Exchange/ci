@@ -78,7 +78,7 @@ runs:
         ST2_REPO_PATH: st2
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        cp ${ACTION_PATH}/../../.circle/Makefile .
+        cp ${{env.ACTION_PATH}}/../../.circle/Makefile .
         make requirements-ci .install-runners
 
     - name: Install pack requirements
@@ -89,13 +89,13 @@ runs:
         PACK_REQUIREMENTS_FILE: requirements.txt
         PACK_TESTS_REQUIREMENTS_FILE: requirements-tests.txt
       run: |
-        if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
-        echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
+        if [[ -f "${{env.PACK_REQUIREMENTS_FILE}}" ]]; then
+        echo "Installing pack requirements from ${{env.PACK_REQUIREMENTS_FILE}}"
+        ${VIRTUALENV_DIR}/bin/pip install -r "${{env.PACK_REQUIREMENTS_FILE}}"
         fi
-        if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
-        echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+        if [[ -f "${{env.PACK_TESTS_REQUIREMENTS_FILE}}" ]]; then
+        echo "Installing pack tests requirements from ${{env.PACK_TESTS_REQUIREMENTS_FILE}}"
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -r "${{env.PACK_TESTS_REQUIREMENTS_FILE}}"
         fi
 
     - name: Print versions
@@ -104,7 +104,7 @@ runs:
         VIRTUALENV_DIR: "~/virtualenv"
       run: |
         set -ex
-        source ${VIRTUALENV_DIR}/activate
+        source ${{env.VIRTUALENV_DIR}}/activate
         python3 --version
         pip --version
         virtualenv --version
