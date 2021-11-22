@@ -15,6 +15,7 @@ runs:
 
     - name: Create a directory for debian packages so we can cache it
       # this is what we did on CircleCI. Not sure if it'll work on GHA
+      shell: bash
       run: >
         sudo rm -rf /var/cache/apt/archives
         && sudo ln -s ~/apt_cache /var/cache/apt/archives
