@@ -30,7 +30,7 @@ runs:
       with:
         path: |
           ~/apt_cache
-        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles(github.action_path + '/apt-packages.txt') }}
+        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles(format('{0}{1}', github.action_path, '/apt-packages.txt')) }}
         restore-keys: |
           ${{ runner.os }}-apt-${{ inputs.cache-version }}-
 
@@ -38,7 +38,7 @@ runs:
       shell: bash
       env:
         CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
-        APT_PACKAGES_FILE_PATH: ${{github.action_path + '/apt-packages.txt'}}
+        APT_PACKAGES_FILE_PATH:  ${{ format('{0}{1}', github.action_path, '/apt-packages.txt') }}
       run: |
         if [[ "$CACHE_HIT" != 'true' ]]; then
         sudo apt-get -y update
