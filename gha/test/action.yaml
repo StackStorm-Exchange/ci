@@ -46,7 +46,7 @@ runs:
         VIRTUALENV_DIR: "~/virtualenv"
         ACTION_PATH: ${{ github.action_path }}
       run: |
-        export PACK_NAME=$(${{env.VIRTUALENV_DIR}}/bin/python ${ACTION_PATH}/../../.circle/validate.py "lm-ydubler/logicmonitor-stackstorm-pack" "/home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack/pack.yaml")
+        export PACK_NAME=$(${{env.VIRTUALENV_DIR}}/bin/python ${ACTION_PATH}/../../.circle/validate.py "lm-ydubler/logicmonitor-stackstorm-pack" "/home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack/main/pack.yaml")
         if [[ -z "${PACK_NAME}" ]]; then
         echo "Unable to retrieve pack name."
         exit 1
