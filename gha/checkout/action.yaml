@@ -34,7 +34,7 @@ runs:
     - name: Checkout pack repo
       uses: actions/checkout@v2
         path: pack
-        depth: 1
+        fetch-depth: 1
 
     - name: Checkout st2 repo
       # so other scripts can reference StackStorm Python code
@@ -43,7 +43,7 @@ runs:
         repository: StackStorm/st2
         ref: ${{ inputs.st2_branch }}
         path: st2
-        depth: 1
+        fetch-depth: 1
 
     - name: Checkout lint-configs repo
       uses: actions/checkout@v2
@@ -51,4 +51,4 @@ runs:
         repository: StackStorm/lint-configs
         ref: ${{ inputs.lint_configs_branch }}
         path: lint-configs
-        depth: 1
+        fetch-depth: 1
