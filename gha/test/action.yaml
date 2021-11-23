@@ -48,7 +48,7 @@ runs:
       run: |
         echo -e '\n\n/home/runner/work/logicmonitor-stackstorm-pack/ \n\n'
         ls /home/runner/work/logicmonitor-stackstorm-pack/
-        echo -e '\n\n/home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack \n\n'
+        echo -e '\n\n/home/runner/work/lm-ydubler/logicmonitor-stackstorm-pack \n\n'
         ls /home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/
         echo -e '\n\n/home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/pack/ \n\n'
         ls /home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/pack/
@@ -65,7 +65,7 @@ runs:
       env:
         VIRTUALENV_DIR: "~/virtualenv"
         FORCE_CHECK_ALL_FILES: true if on default branch
-        ROOT_DIR: pack directory
+        ROOT_DIR: "/home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/pack/pack.yaml"
         CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
         ST2_REPO_PATH: st2 directory
         ENABLE_COMMON_LIBS: ${{ inputs.enable-common-libs }}
@@ -78,6 +78,6 @@ runs:
         export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
         fi
         cp ${CI_DIR}/.circle/Makefile .
-        make -C "${ROOT_DIR}" all-ci
+        make -C "${{env.ROOT_DIR}}" all-ci
 
 
