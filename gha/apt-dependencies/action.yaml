@@ -40,7 +40,7 @@ runs:
         CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
         APT_PACKAGES_FILE_PATH:  ${{ format('{0}{1}', github.action_path, '/apt-packages.txt') }}
       run: |
-        if [[ "$CACHE_HIT" != 'true' ]]; then
+        if [[ "${{env.CACHE_HIT}}" != 'true' ]]; then
         sudo apt-get -y update
         fi
         APT_PACKAGES=$(grep -v '^#' "${{env.APT_PACKAGES_FILE_PATH}}" | xargs echo -n)
