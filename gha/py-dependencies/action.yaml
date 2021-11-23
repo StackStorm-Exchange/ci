@@ -76,11 +76,10 @@ runs:
       shell: bash
       env:
         VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
-        ACTION_PATH: ${{ github.action_path }}
         ST2_REPO_PATH: st2
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        cp ${ACTION_PATH}/../../.circle/Makefile .
+        cp ${GITHUB_ACTION_PATH}/../../.circle/Makefile .
         make requirements-ci .install-runners
 
     - name: Install pack requirements

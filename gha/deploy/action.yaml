@@ -23,9 +23,8 @@ runs:
       shell: bash
       env:
         VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
-        ACTION_PATH: ${{ github.action_path }}
       run: |
-        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
+        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${GITHUB_ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
         if [[ -z "${PACK_NAME}" ]]; then
         echo "Unable to retrieve pack name."
         exit 1
