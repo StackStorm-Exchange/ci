@@ -8,7 +8,7 @@ description: |
 author: StackStorm
 
 
-s:
+inputs:
   python-version:
     required: true
     description: Which python version we should install
