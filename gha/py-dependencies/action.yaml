@@ -59,7 +59,7 @@ runs:
         ./scripts/github/install-virtualenv.sh
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
         echo "::set-output name=pip-version::${PIP_VERSION}"
-        ${{env.VIRTUALENV_DIR}}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
+        ${VIRTUALENV_DIR}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
 
     - name: Install StackStorm requirements
       # this should run in the st2 checkout
@@ -68,7 +68,7 @@ runs:
       env:
         VIRTUALENV_DIR: "~/virtualenv"
       run: |
-        ${{env.VIRTUALENV_DIR}}/bin/pip install -r requirements.txt
+        ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
 
     - name: Install runners
       shell: bash
@@ -78,7 +78,7 @@ runs:
         ST2_REPO_PATH: st2
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        cp ${{env.ACTION_PATH}}/../../.circle/Makefile .
+        cp ${ACTION_PATH}/../../.circle/Makefile .
         make requirements-ci .install-runners
 
     - name: Install pack requirements
@@ -89,13 +89,13 @@ runs:
         PACK_REQUIREMENTS_FILE: requirements.txt
         PACK_TESTS_REQUIREMENTS_FILE: requirements-tests.txt
       run: |
-        if [[ -f "${{env.PACK_REQUIREMENTS_FILE}}" ]]; then
-        echo "Installing pack requirements from ${{env.PACK_REQUIREMENTS_FILE}}"
-        ${{env.VIRTUALENV_DIR}}/bin/pip install -r "${{env.PACK_REQUIREMENTS_FILE}}"
+        if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
+        echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
+        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
         fi
-        if [[ -f "${{env.PACK_TESTS_REQUIREMENTS_FILE}}" ]]; then
-        echo "Installing pack tests requirements from ${{env.PACK_TESTS_REQUIREMENTS_FILE}}"
-        ${{env.VIRTUALENV_DIR}}/bin/pip install -r "${{env.PACK_TESTS_REQUIREMENTS_FILE}}"
+        if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
+        echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
+        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
         fi
 
     - name: Print versions
