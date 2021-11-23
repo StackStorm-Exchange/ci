@@ -33,6 +33,7 @@ runs:
 
     - name: Checkout pack repo
       uses: actions/checkout@v2
+      with:
         path: pack
         fetch-depth: 1
 
