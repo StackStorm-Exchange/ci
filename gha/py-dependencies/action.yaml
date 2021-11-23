@@ -79,7 +79,7 @@ runs:
         CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        cp ${{env.ACTION_PATH}}/../../.circle/Makefile .
+        cp ${{env.ACTION_PATH}}/../../ci/.circle/Makefile .
         make requirements-ci .install-runners
 
     - name: Install pack requirements
