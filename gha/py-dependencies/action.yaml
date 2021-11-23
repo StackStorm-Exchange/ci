@@ -59,11 +59,7 @@ runs:
         ./scripts/github/install-virtualenv.sh
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
         echo "::set-output name=pip-version::${PIP_VERSION}"
-        echo single1 VIRTUALENV_DIR=${VIRTUALENV_DIR}
-        echo double1 VIRTUALENV_DIR=${{env.VIRTUALENV_DIR}}
-        echo single2 VIRTUALENV_DIR=${VIRTUALENV_DIR}
-        echo double2 VIRTUALENV_DIR=${{env.VIRTUALENV_DIR}}
-        ${VIRTUALENV_DIR}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
 
     - name: Install StackStorm requirements
       # this should run in the st2 checkout
@@ -83,7 +79,10 @@ runs:
         CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        echo CI_DIR = ${CI_DIR}
+        echo CI_DIR1 = ${CI_DIR}
+        echo CI_DIR2 = ${{env.CI_DIR}}
+        echo ACTION_PATH1 = ${ACTION_PATH}
+        echo ACTION_PATH2 = ${{env.ACTION_PATH}}
         cp ${ACTION_PATH}/../../.circle/Makefile .
         make requirements-ci .install-runners
 
@@ -97,11 +96,11 @@ runs:
       run: |
         if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
         echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
         fi
         if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
         echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
         fi
 
     - name: Print versions
