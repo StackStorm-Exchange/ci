@@ -76,8 +76,10 @@ runs:
         VIRTUALENV_DIR: "~/virtualenv"
         ACTION_PATH: ${{ github.action_path }}
         ST2_REPO_PATH: st2
+        CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
       # TODO: This Makefile has CircleCI assumptions
       run: |
+        echo CI_DIR = ${CI_DIR}
         cp ${ACTION_PATH}/../../.circle/Makefile .
         make requirements-ci .install-runners
 
