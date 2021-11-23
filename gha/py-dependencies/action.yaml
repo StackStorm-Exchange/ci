@@ -68,7 +68,7 @@ runs:
       env:
         VIRTUALENV_DIR: "~/virtualenv"
       run: |
-        ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
+        ${{env.VIRTUALENV_DIR}}/bin/pip install -r requirements.txt
 
     - name: Install runners
       shell: bash
