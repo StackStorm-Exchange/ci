@@ -40,11 +40,11 @@ runs:
         CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
         APT_PACKAGES_FILE_PATH:  ${{ format('{0}{1}', github.action_path, '/apt-packages.txt') }}
       run: |
-        echo -e '\n\nAPT_PACKAGES_FILE_PATH=${APT_PACKAGES_FILE_PATH} <--------------------\n\n'
         if [[ "${CACHE_HIT}" != 'true' ]]; then
         sudo apt-get -y update
         fi
         APT_PACKAGES=$(grep -v '^#' "${APT_PACKAGES_FILE_PATH}" | xargs echo -n)
+        echo -e '\n\nAPT_PACKAGES_FILE_PATH=${APT_PACKAGES_FILE_PATH} <--------------------\n\n'
         sudo apt-get -y install ${APT_PACKAGES}
 
     - name: Print versions
