@@ -46,14 +46,14 @@ runs:
         VIRTUALENV_DIR: "~/virtualenv"
         ACTION_PATH: ${{ github.action_path }}
       run: |
-        echo -e '\n\n /home/runner/work/_actions/lm-ydubler/ \n\n'
-        ls /home/runner/work/_actions/lm-ydubler/
-        echo -e '\n\n /home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack \n\n'
-        ls /home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack/
-        echo -e '\n\n /home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack/main/ \n\n'
-        ls /home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack/main/
+        echo -e '\n\n/home/runner/work/logicmonitor-stackstorm-pack/ \n\n'
+        ls /home/runner/work/logicmonitor-stackstorm-pack/
+        echo -e '\n\n/home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack \n\n'
+        ls /home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/
+        echo -e '\n\n/home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/pack/ \n\n'
+        ls /home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/pack/
         echo -e '\n\n'
-        export PACK_NAME=$(${{env.VIRTUALENV_DIR}}/bin/python ${ACTION_PATH}/../../.circle/validate.py "lm-ydubler/logicmonitor-stackstorm-pack" "/home/runner/work/_actions/lm-ydubler/logicmonitor-stackstorm-pack/main/pack.yaml")
+        export PACK_NAME=$(${{env.VIRTUALENV_DIR}}/bin/python ${ACTION_PATH}/../../.circle/validate.py "lm-ydubler/logicmonitor-stackstorm-pack" "/home/runner/work/logicmonitor-stackstorm-pack/logicmonitor-stackstorm-pack/pack/pack.yaml")
         if [[ -z "${PACK_NAME}" ]]; then
         echo "Unable to retrieve pack name."
         exit 1
