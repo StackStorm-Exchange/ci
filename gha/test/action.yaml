@@ -38,7 +38,7 @@ runs:
         fi
         echo "::set-output name=pack-name::${PACK_NAME}"
 
-    - name: 
+    - name: Run tests
       shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
