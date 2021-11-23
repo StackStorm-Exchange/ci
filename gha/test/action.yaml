@@ -24,11 +24,15 @@ runs:
   using: "composite"
   steps:
 
+    - name: add HOME to env context
+      shell: bash
+      run: echo ::set-env name=HOME::$HOME
+
     - name: Get Pack Name
       id: pack-name
       shell: bash
       env:
-        VIRTUALENV_DIR: "~/virtualenv"
+        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
         ACTION_PATH: ${{ github.action_path }}
       run: |
         export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
@@ -41,7 +45,7 @@ runs:
     - name: Run tests
       shell: bash
       env:
-        VIRTUALENV_DIR: "~/virtualenv"
+        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
         FORCE_CHECK_ALL_FILES: true if on default branch
         ROOT_DIR: pack directory
         CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
