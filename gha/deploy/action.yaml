@@ -16,6 +16,7 @@ runs:
 
     - name: Get Pack Name
       id: pack-name
+      shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
         ACTION_PATH: ${{ github.action_path }}
@@ -40,6 +41,7 @@ runs:
     #  - copy and optimize icon
 
     - name: 
+      shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
         FORCE_CHECK_ALL_FILES: true if on default branch

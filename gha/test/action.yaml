@@ -26,6 +26,7 @@ runs:
 
     - name: Get Pack Name
       id: pack-name
+      shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
         ACTION_PATH: ${{ github.action_path }}
@@ -38,6 +39,7 @@ runs:
         echo "::set-output name=pack-name::${PACK_NAME}"
 
     - name: 
+      shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
         FORCE_CHECK_ALL_FILES: true if on default branch
