@@ -59,8 +59,10 @@ runs:
         ./scripts/github/install-virtualenv.sh
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
         echo "::set-output name=pip-version::${PIP_VERSION}"
-        echo single VIRTUALENV_DIR=${VIRTUALENV_DIR}
-        echo double VIRTUALENV_DIR=${{env.VIRTUALENV_DIR}}
+        echo single1 VIRTUALENV_DIR=${VIRTUALENV_DIR}
+        echo double1 VIRTUALENV_DIR=${{env.VIRTUALENV_DIR}}
+        echo single2 VIRTUALENV_DIR=${VIRTUALENV_DIR}
+        echo double2 VIRTUALENV_DIR=${{env.VIRTUALENV_DIR}}
         ${VIRTUALENV_DIR}/bin/pip install -U "pip==${PIP_VERSION}" setuptools
 
     - name: Install StackStorm requirements
