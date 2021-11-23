@@ -39,7 +39,7 @@ runs:
         fi
         echo "::set-output name=pack-name::${PACK_NAME}"
 
-    - name:
+    - name: Unsure
       shell: bash
       env:
         VIRTUALENV_DIR: "~/virtualenv"
