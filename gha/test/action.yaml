@@ -26,7 +26,7 @@ runs:
 
     - name: add HOME to env context
       shell: bash
-      run: echo ::set-env name=HOME::$HOME
+      run: echo "HOME=${HOME}" >> ${GITHUB_ENV}
 
     - name: Get Pack Name
       id: pack-name
