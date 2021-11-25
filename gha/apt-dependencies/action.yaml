@@ -21,8 +21,12 @@ runs:
         && sudo ln -s ~/apt_cache /var/cache/apt/archives
         && mkdir -p ~/apt_cache/partial
 
-    # TODO: install and cache apt-packages defined by packs
-    #       maybe via input?
+    # hashFiles only reads files relative to GITHUB_WORKSPACE
+    - name: Copy apt-packages.txt for caching
+      shell: bash
+      run: |
+        cp ${{ github.action_path }}/apt-packages.txt ${GITHUB_WORKSPACE}/
+      # TODO: append pack-defined .github/apt-packages.txt to ${GITHUB_WORKSPACE}/apt-packages.txt
 
     - name: Cache APT Dependencies
       id: cache-apt-deps
@@ -30,7 +34,7 @@ runs:
       with:
         path: |
           ~/apt_cache
-        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles(format('{0}{1}', github.action_path, '/apt-packages.txt')) }}
+        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles('apt-packages.txt') }}
         restore-keys: |
           ${{ runner.os }}-apt-${{ inputs.cache-version }}-
 
@@ -38,7 +42,7 @@ runs:
       shell: bash
       env:
         CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
-        APT_PACKAGES_FILE_PATH: ${{ format('{0}{1}', github.action_path, '/apt-packages.txt') }}
+        APT_PACKAGES_FILE_PATH: apt-packages.txt
       run: |
         if [[ "${CACHE_HIT}" != 'true' ]]; then
         sudo apt-get -y update
