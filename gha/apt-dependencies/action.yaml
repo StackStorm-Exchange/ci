@@ -33,22 +33,23 @@ runs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/apt_cache
-        key: ${{ runner.os }}-apt-${{ inputs.cache-version }}-${{ hashFiles('apt-packages.txt') }}
+          ~/apt_cache/*.deb
+        key: ${{ inputs.cache-version }}-apt-${{ hashFiles('apt-packages.txt') }}
         restore-keys: |
-          ${{ runner.os }}-apt-${{ inputs.cache-version }}-
+          ${{ inputs.cache-version }}-apt-
 
     - name: Install APT Dependencies
       shell: bash
       env:
         CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
         APT_PACKAGES_FILE_PATH: apt-packages.txt
+        DEBIAN_FRONTEND: noninteractive
       run: |
         if [[ "${CACHE_HIT}" != 'true' ]]; then
-        sudo apt-get -y update
+        sudo apt-get -o=Dpkg::Use-Pty=0 -yq update
         fi
         APT_PACKAGES=$(grep -v '^#' "${APT_PACKAGES_FILE_PATH}" | xargs echo -n)
-        sudo apt-get -y install ${APT_PACKAGES}
+        sudo apt-get -o=Dpkg::Use-Pty=0 -yq install ${APT_PACKAGES}
 
     - name: Print versions
       shell: bash
