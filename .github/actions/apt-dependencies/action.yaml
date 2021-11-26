@@ -2,6 +2,8 @@
 name: Install APT Dependencies
 description: |
   Install debian dependencies required for StackStorm-Exchange pack tests.
+  Before using this, make sure to run
+  StackStorm-Exchange/ci/.github/actions/checkout.
 author: StackStorm
 
 inputs:

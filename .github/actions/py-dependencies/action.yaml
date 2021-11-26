@@ -3,8 +3,8 @@ name: Install Python Dependencies
 description: |
   Install python dependencies required for StackStorm-Exchange pack tests.
   Before using this, make sure to run
-  StackStorm-Exchange/ci/gha/checkout and
-  StackStorm-Exchange/ci/gha/apt-dependencies.
+  StackStorm-Exchange/ci/.github/actions/checkout and
+  StackStorm-Exchange/ci/.github/actions/apt-dependencies.
 author: StackStorm
 
 inputs:

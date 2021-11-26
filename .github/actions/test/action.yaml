@@ -3,9 +3,9 @@ name: Run pack tests
 description: |
   Run StackStorm-Exchange pack tests.
   Before using this, make sure to run
-  StackStorm-Exchange/ci/gha/checkout,
-  StackStorm-Exchange/ci/gha/apt-dependencies, and
-  StackStorm-Exchange/ci/gha/py-dependencies.
+  StackStorm-Exchange/ci/.github/actions/checkout,
+  StackStorm-Exchange/ci/.github/actions/apt-dependencies, and
+  StackStorm-Exchange/ci/.github/actions/py-dependencies.
 author: StackStorm
 
 inputs:
