@@ -106,8 +106,7 @@ runs:
     - name: Print versions
       shell: bash
       run: |
-        set -ex
-        source ${VIRTUALENV_DIR}/activate
+        source ${VIRTUALENV_DIR}/bin/activate
         python3 --version
         pip --version
         virtualenv --version
