@@ -26,7 +26,7 @@ runs:
       shell: bash
       run: |
         cp ${{ github.action_path }}/apt-packages.txt ${GITHUB_WORKSPACE}/
-      # TODO: append pack-defined .github/apt-packages.txt to ${GITHUB_WORKSPACE}/apt-packages.txt
+        [[ -f pack/.github/apt-packages.txt ]] && cat pack/.github/apt-packages.txt >> ${GITHUB_WORKSPACE}/apt-packages.txt
 
     - name: Cache APT Dependencies
       id: cache-apt-deps
