@@ -56,6 +56,6 @@ runs:
         export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
         fi
         cp ${CI_DIR}/.circle/Makefile .
-        make -C "${ROOT_DIR}" all-ci
+        make -C "${ROOT_DIR}" -f "${GITHUB_WORKSPACE}/Makefile" all-ci
 
 
