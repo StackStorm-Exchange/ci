@@ -57,12 +57,12 @@ runs:
       # this should run in the st2 checkout
       working-directory: st2
       run: |
-        echo "==================== virtualenv ===================="
+        printf "\n==================== virtualenv ====================\n\n"
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
         echo "::set-output name=pip-version::${PIP_VERSION}"
         [[ -x "${VIRTUALENV_DIR}/bin/python" ]] || virtualenv --pip "${PIP_VERSION}" ~/virtualenv
         ${VIRTUALENV_DIR}/bin/pip install -q -U "pip==${PIP_VERSION}" setuptools
-        echo "==================== requirements-ci ===================="
+        printf "\n==================== requirements-ci ====================\n\n"
         ${VIRTUALENV_DIR}/bin/pip install -q -r ${CI_DIR}/.circle/requirements-dev.txt
         ${VIRTUALENV_DIR}/bin/pip install -q -r ${CI_DIR}/.circle/requirements-pack-tests.txt
 
@@ -75,10 +75,17 @@ runs:
 
     - name: Install runners
       shell: bash
-      # TODO: This Makefile has CircleCI assumptions
       run: |
-        cp ${CI_DIR}/.circle/Makefile .
-        make .install-runners
+        printf "\n================== install runners ====================\n\n"
+        for runner in ${ST2_REPO_PATH}/contrib/runners/*; do
+        echo "==========================================================="
+        echo "Installing runner:" ${runner##*/}
+        echo "==========================================================="
+        (. ${VIRTUALENV_DIR}/bin/activate; cd $runner; python setup.py develop)
+        done
+        printf "\n================== register metrics drivers ======================\n\n"
+        # Install st2common to register metrics drivers
+        (. ${VIRTUALENV_DIR}/bin/activate; cd ${ST2_REPO_PATH}/st2common; python setup.py develop)
 
     - name: Install pack requirements
       shell: bash
