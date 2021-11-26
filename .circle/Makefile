@@ -10,6 +10,7 @@ ST2_REPO_BRANCH ?= master
 FORCE_CHECK_ALL_FILES ?= false
 FORCE_CHECK_PACK ?= false
 LINT_CONFIGS_PATH ?= $(CI_DIR)/lint-configs
+REQUIREMENTS_DIR ?= $(CI_DIR)/.circle
 
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
@@ -106,7 +107,7 @@ compile:
 		export PYTHONPATH=$(ROOT_DIR)/lib:${PYTHONPATH}; \
 	fi; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_PY} -gt 0 ]; then \
-		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
+		REQUIREMENTS_DIR=$(REQUIREMENTS_DIR)/ \
 		CONFIG_DIR=$(LINT_CONFIGS_PATH)/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
 	else \
@@ -284,8 +285,8 @@ requirements: virtualenv .clone_st2_repo .install-runners
 	@echo "==================== requirements ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-pack-tests.txt
 
 .PHONY: requirements-ci
 requirements-ci:
@@ -293,8 +294,8 @@ requirements-ci:
 	@echo "==================== requirements-ci ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-pack-tests.txt
 
 .PHONY: virtualenv
 virtualenv: $(VIRTUALENV_DIR)/bin/activate

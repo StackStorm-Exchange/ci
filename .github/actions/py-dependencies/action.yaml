@@ -28,6 +28,7 @@ runs:
       shell: bash
       run: |
         echo "VIRTUALENV_DIR=${HOME}/virtualenv" >> ${GITHUB_ENV}
+        echo "REQUIREMENTS_DIR=${GITHUB_ACTION_PATH}" >> ${GITHUB_ENV}
 
     - name: 'Set up Python (${{ inputs.python-version }})'
       uses: actions/setup-python@v2
@@ -70,8 +71,8 @@ runs:
       shell: bash
       run: |
         echo "::group::Install CI Requirements"
-        ${VIRTUALENV_DIR}/bin/pip install -q -r ${CI_DIR}/.circle/requirements-dev.txt
-        ${VIRTUALENV_DIR}/bin/pip install -q -r ${CI_DIR}/.circle/requirements-pack-tests.txt
+        ${VIRTUALENV_DIR}/bin/pip install -q -r ${REQUIREMENTS_DIR}/requirements-dev.txt
+        ${VIRTUALENV_DIR}/bin/pip install -q -r ${REQUIREMENTS_DIR}/requirements-pack-tests.txt
         echo "::endgroup::"
 
     - name: Install StackStorm Requirements
