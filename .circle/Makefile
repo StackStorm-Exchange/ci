@@ -102,7 +102,7 @@ compile:
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "${COMMON_LIBS}" = "true" ]; then \
 		echo "Common libs PATH selected"; \
-		export PYTHONPATH=/home/circleci/repo/lib:${PYTHONPATH}; \
+		export PYTHONPATH=$(ROOT_DIR)/lib:${PYTHONPATH}; \
 	fi; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_PY} -gt 0 ]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
@@ -237,8 +237,8 @@ compile:
 			echo "Missing LICENSE file in $(ROOT_DIR)"; \
 			exit 2;\
 		fi;\
-		if [ "$$(python -c 'import yaml; f = open("/home/circleci/repo/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "napalm_logs" ] || \
-		   [ "$$(python -c 'import yaml; f = open("/home/circleci/repo/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "netbox" ]; then \
+		if [ "$$(python -c 'import yaml; f = open("$(ROOT_DIR)/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "napalm_logs" ] || \
+		   [ "$$(python -c 'import yaml; f = open("$(ROOT_DIR)/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "netbox" ]; then \
 			cat $(ROOT_DIR)/LICENSE | grep -q "MIT License"  || (echo "LICENSE file doesn't contain MIT license text" ; exit 2); \
 			cat $(ROOT_DIR)/LICENSE | grep -q "Copyright (c) 2017 John Anderson"  || (echo "LICENSE file doesn't include John Anderson's name" ; exit 2); \
 			cat $(ROOT_DIR)/LICENSE | grep -q "Permission is hereby granted, free of charge, to any person obtaining a copy"  || (echo "LICENSE file doesn't contain MIT license text" ; exit 2); \
