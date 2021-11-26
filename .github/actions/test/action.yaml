@@ -58,7 +58,8 @@ runs:
 
     - name: Run tests
       shell: bash
-      # TODO: This Makefile has CircleCI assumptions
+      # NB: This Makefile has CircleCI-based defaults which we override with env vars
+      # defined in the various composite actions.
       run: |
         source ${VIRTUALENV_DIR}/bin/activate
         # NB: tests require services (mongo, rabbitmq) which must be defined by the calling workflow
