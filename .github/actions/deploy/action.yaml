@@ -2,6 +2,11 @@
 name: Deploy pack
 description: |
   Deploy pack to StackStorm-Exchange index.
+  Before using this, make sure to run
+  StackStorm-Exchange/ci/.github/actions/checkout,
+  StackStorm-Exchange/ci/.github/actions/apt-dependencies,
+  StackStorm-Exchange/ci/.github/actions/py-dependencies, and
+  StackStorm-Exchange/ci/.github/actions/test.
 author: StackStorm
 
 inputs: {}
@@ -14,22 +19,7 @@ runs:
   using: "composite"
   steps:
 
-    - name: add HOME to env context
-      shell: bash
-      run: echo "HOME=${HOME}" >> ${GITHUB_ENV}
-
-    - name: Get Pack Name
-      id: pack-name
-      shell: bash
-      env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
-      run: |
-        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${GITHUB_ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
-        if [[ -z "${PACK_NAME}" ]]; then
-        echo "Unable to retrieve pack name."
-        exit 1
-        fi
-        echo "::set-output name=pack-name::${PACK_NAME}"
+    # The .github/actions/test action retrieves the PACK_NAME, so it is already present in the env at this point.
 
     # checkout pack and index repos
 
@@ -43,24 +33,11 @@ runs:
     #  - rebuild index JSON
     #  - copy and optimize icon
 
-    - name: 
+    - name: Update exchange.stackstorm.org
       shell: bash
       env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
-        FORCE_CHECK_ALL_FILES: true if on default branch
-        ROOT_DIR: pack directory
-        CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
-        ST2_REPO_PATH: st2 directory
-        ENABLE_COMMON_LIBS: ${{ inputs.enable-common-libs }}
+        GH_TOKEN: ${{ github.token }}
       # TODO: This Makefile has CircleCI assumptions
       run: |
-        if [[ "true" == "${ENABLE_COMMON_LIBS}" ]]; then
-        echo "Common libs PATH selected"
-        export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
-        else
-        export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
-        fi
-        cp ${CI_DIR}/.circle/Makefile .
-        make -C "${ROOT_DIR}" all-ci
-
-
+        source ${VIRTUALENV_DIR}/bin/activate
+        # ???
