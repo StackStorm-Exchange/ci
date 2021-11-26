@@ -28,7 +28,7 @@ runs:
       run: |
         echo "ST2_REPO_PATH=${{ github.workspace }}/st2" >> ${GITHUB_ENV}
         echo "ROOT_DIR=${{ github.workspace }}/pack" >> ${GITHUB_ENV}
-        echo "CI_DIR=$(realpath ${{ github.action_path }}/../..)" >> ${GITHUB_ENV}
+        echo "CI_DIR=$(realpath ${{ github.action_path }}/../../..)" >> ${GITHUB_ENV}
         echo "LINT_CONFIGS_PATH=${{ github.workspace }}/lint-configs" >> ${GITHUB_ENV}
 
     - name: Configure git user

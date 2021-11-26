@@ -26,21 +26,21 @@ jobs:
     steps:
       # eventually replace @gha with @master
       - name: Checkout Pack Repo and CI Repos
-        uses: StackStorm-Exchange/ci/gha/checkout@gha
+        uses: StackStorm-Exchange/ci/.github/actions/checkout@gha
         
       - name: Install APT Dependencies
-        uses: StackStorm-Exchange/ci/gha/apt-dependencies@gha
+        uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@gha
         with:
           cache-version: ${{ inputs.apt-cache-version }}
 
       - name: Install Python Dependencies
-        uses: StackStorm-Exchange/ci/gha/py-dependencies@gha
+        uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
         with:
           cache-version: ${{ inputs.py-cache-version }}
           python-version: ${{ matrix.python-version }}
 
       - name: Run pack tests
-        uses: StackStorm-Exchange/ci/gha/test@gha
+        uses: StackStorm-Exchange/ci/.github/actions/test@gha
         with:
           # This makes the tests use an alternate config that enables shared libs
           enable-common-libs: true
