@@ -46,9 +46,9 @@ runs:
         source ${CI_DIR}/tools/functions.sh
         DEFAULT_BRANCH=$(_gh_default_branch)
         echo "BASE_BRANCH=origin/${DEFAULT_BRANCH}" >> ${GITHUB_ENV}
-        if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
+        #if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
         echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
-        fi
+        #fi
         if [[ "true" == "${{ inputs.enable-common-libs }}" ]]; then
         echo "Common libs PATH selected"
         echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf" >> ${GITHUB_ENV}
