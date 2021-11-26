@@ -22,6 +22,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Add checkout paths to env context
+      shell: bash
+      run: |
+        echo "ST2_REPO_PATH=${{ github.workspace }}/st2" >> ${GITHUB_ENV}
+        echo "ROOT_DIR=${{ github.workspace }}/pack" >> ${GITHUB_ENV}
+        echo "CI_DIR=$(realpath ${{ github.action_path }}/../..)" >> ${GITHUB_ENV}
+
     - name: Configure git user
       shell: bash
       env:

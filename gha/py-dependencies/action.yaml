@@ -24,9 +24,10 @@ runs:
   using: "composite"
   steps:
 
-    - name: add HOME to env context
+    - name: Add VIRTUALENV_DIR to env context
       shell: bash
-      run: echo "HOME=${HOME}" >> ${GITHUB_ENV}
+      run: |
+        echo "VIRTUALENV_DIR=${HOME}/virtualenv" >> ${GITHUB_ENV}
 
     - name: 'Set up Python (${{ inputs.python-version }})'
       uses: actions/setup-python@v2
@@ -55,8 +56,6 @@ runs:
       id: virtualenv
       # this should run in the st2 checkout
       working-directory: st2
-      env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
       run: |
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
         echo "::set-output name=pip-version::${PIP_VERSION}"
@@ -67,16 +66,11 @@ runs:
       # this should run in the st2 checkout
       shell: bash
       working-directory: st2
-      env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
       run: |
         ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
 
     - name: Install runners
       shell: bash
-      env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
-        ST2_REPO_PATH: st2
       # TODO: This Makefile has CircleCI assumptions
       run: |
         cp ${GITHUB_ACTION_PATH}/../../.circle/Makefile .
@@ -86,7 +80,6 @@ runs:
       shell: bash
       working-directory: pack
       env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
         PACK_REQUIREMENTS_FILE: requirements.txt
         PACK_TESTS_REQUIREMENTS_FILE: requirements-tests.txt
       run: |
@@ -101,8 +94,6 @@ runs:
 
     - name: Print versions
       shell: bash
-      env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
       run: |
         set -ex
         source ${VIRTUALENV_DIR}/activate
