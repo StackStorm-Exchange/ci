@@ -39,7 +39,7 @@ runs:
         path: |
           ~/.cache/pip
           ~/virtualenv
-        key: ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-${{ hashFiles('st2/requirements.txt', 'pack/requirements*.txt') }}
         restore-keys: |
           ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-
 
