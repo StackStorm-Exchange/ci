@@ -38,6 +38,8 @@ runs:
 
     - name: Add CI vars to env context
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         # TODO: FORCE_CHECK_ALL_FILES should only be true if on default branch
         echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
