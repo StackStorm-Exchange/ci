@@ -45,15 +45,19 @@ runs:
         APT_PACKAGES_FILE_PATH: apt-packages.txt
         DEBIAN_FRONTEND: noninteractive
       run: |
+        echo "::group::Install APT Dependencies"
         if [[ "${CACHE_HIT}" != 'true' ]]; then
         sudo apt-get -o=Dpkg::Use-Pty=0 -yq update
         fi
         APT_PACKAGES=$(grep -v '^#' "${APT_PACKAGES_FILE_PATH}" | xargs echo -n)
         sudo apt-get -o=Dpkg::Use-Pty=0 -yq install ${APT_PACKAGES}
+        echo "::endgroup::"
 
     - name: Print versions
       shell: bash
       run: |
+        echo "::group::Print Versions"
         set -ex
         jq --version
         gh --version
+        echo "::endgroup::"
