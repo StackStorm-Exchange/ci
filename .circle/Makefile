@@ -9,6 +9,7 @@ ST2_REPO_PATH ?= /tmp/st2
 ST2_REPO_BRANCH ?= master
 FORCE_CHECK_ALL_FILES ?= false
 FORCE_CHECK_PACK ?= false
+LINT_CONFIGS_PATH ?= $(CI_DIR)/lint-configs
 
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
@@ -79,14 +80,14 @@ compile:
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
 		echo "Force flake8 checks on all files"; \
 		find $(ROOT_DIR)/* -name "*.py" | while read py_file; do \
-			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
+			flake8 --config=$(LINT_CONFIGS_PATH)/python/.flake8 $$py_file || exit 1; \
 		done; \
 	elif [ ${NUM_CHANGED_PY} -gt 0 ]; then \
 		echo "Checking ${NUM_CHANGED_PY} Python files"; \
 		$(CI_DIR)/utils/git-changes py >~/.git-changes-py; \
 		while read -r file; do \
 			if [ -n "$$file" ]; then \
-				flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$file || exit 1; \
+				flake8 --config=$(LINT_CONFIGS_PATH)/python/.flake8 $$file || exit 1; \
 			fi; \
 		done < ~/.git-changes-py; \
 		if [ -e ~/.git-changes-py ]; then rm ~/.git-changes-py; fi; \
@@ -106,7 +107,7 @@ compile:
 	fi; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_PY} -gt 0 ]; then \
 		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
-		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
+		CONFIG_DIR=$(LINT_CONFIGS_PATH)/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
