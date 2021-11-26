@@ -24,31 +24,28 @@ runs:
   using: "composite"
   steps:
 
-    - name: add HOME to env context
-      shell: bash
-      run: echo "HOME=${HOME}" >> ${GITHUB_ENV}
-
     - name: Get Pack Name
       id: pack-name
       shell: bash
-      env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
+      working-directory: pack
       run: |
-        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${GITHUB_ACTION_PATH}/../../.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
+        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${CI_DIR}/.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
         if [[ -z "${PACK_NAME}" ]]; then
         echo "Unable to retrieve pack name."
         exit 1
         fi
         echo "::set-output name=pack-name::${PACK_NAME}"
 
+    - name: Add CI vars to env context
+      shell: bash
+      run: |
+        # TODO: FORCE_CHECK_ALL_FILES should only be true if on default branch
+        echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
+        echo "PACK_NAME=${{ steps.pack-name.outputs.pack-name }}" >> ${GITHUB_ENV}
+
     - name: Run tests
       shell: bash
       env:
-        VIRTUALENV_DIR: ${{ env.HOME }}/virtualenv
-        FORCE_CHECK_ALL_FILES: true if on default branch
-        ROOT_DIR: pack directory
-        CI_DIR: ${{ format('{0}{1}', github.action_path, '/../..') }}
-        ST2_REPO_PATH: st2 directory
         ENABLE_COMMON_LIBS: ${{ inputs.enable-common-libs }}
       # TODO: This Makefile has CircleCI assumptions
       run: |
