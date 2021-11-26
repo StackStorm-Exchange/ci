@@ -41,12 +41,14 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        # TODO: FORCE_CHECK_ALL_FILES should only be true if on default branch
-        echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
         echo "PACK_NAME=${{ steps.pack-name.outputs.pack-name }}" >> ${GITHUB_ENV}
         source ${CI_DIR}/tools/functions.sh
         cd pack
-        echo "BASE_BRANCH=origin/$(_gh_default_branch)" >> ${GITHUB_ENV}
+        DEFAULT_BRANCH=$(_gh_default_branch)
+        echo "BASE_BRANCH=origin/${DEFAULT_BRANCH}" >> ${GITHUB_ENV}
+        if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
+        echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
+        fi
 
     - name: Run tests
       shell: bash
