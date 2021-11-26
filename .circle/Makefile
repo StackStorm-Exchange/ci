@@ -13,8 +13,8 @@ FORCE_CHECK_PACK ?= false
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
 # All components are prefixed by st2
-COMPONENTS := $(wildcard /tmp/st2/st2*)
-COMPONENTS_RUNNERS := $(wildcard /tmp/st2/contrib/runners/*)
+COMPONENTS := $(wildcard $(ST2_REPO_PATH)/st2*)
+COMPONENTS_RUNNERS := $(wildcard $(ST2_REPO_PATH)/contrib/runners/*)
 
 .PHONY: all
 all: requirements lint packs-resource-register packs-tests
@@ -252,13 +252,12 @@ compile:
 	fi
 
 .PHONY: .clone_st2_repo
-.clone_st2_repo: /tmp/st2
-/tmp/st2:
+.clone_st2_repo:
 	@echo
 	@echo "==================== cloning st2 repo ===================="
 	@echo
-	@rm -rf /tmp/st2
-	@git clone https://github.com/StackStorm/st2.git --depth 1 --single-branch --branch $(ST2_REPO_BRANCH) /tmp/st2
+	@rm -rf $(ST2_REPO_PATH)
+	@git clone https://github.com/StackStorm/st2.git --depth 1 --single-branch --branch $(ST2_REPO_BRANCH) $(ST2_REPO_PATH)
 
 .PHONY: .install-runners
 .install-runners:
