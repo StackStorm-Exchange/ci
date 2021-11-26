@@ -71,7 +71,7 @@ runs:
       shell: bash
       working-directory: st2
       run: |
-        ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
+        ${VIRTUALENV_DIR}/bin/pip install -q -r requirements.txt
 
     - name: Install runners
       shell: bash
