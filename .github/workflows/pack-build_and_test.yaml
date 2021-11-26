@@ -15,7 +15,9 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    name: 'Build and Test - Python ${{ matrix.python-version-short }}'
+    # When parent workflow is named "Build and Test" this shows up as:
+    #   "Build and Test / Python 3.6"
+    name: 'Python ${{ matrix.python-version-short }}'
     strategy:
       matrix:
         include:
