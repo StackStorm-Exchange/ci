@@ -61,6 +61,7 @@ runs:
       # TODO: This Makefile has CircleCI assumptions
       run: |
         cp ${CI_DIR}/.circle/Makefile .
+        source ${VIRTUALENV_DIR}/bin/activate
         make -C "${ROOT_DIR}" -f "${GITHUB_WORKSPACE}/Makefile" all-ci
 
 
