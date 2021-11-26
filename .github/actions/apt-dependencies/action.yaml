@@ -26,7 +26,9 @@ runs:
       shell: bash
       run: |
         cp ${{ github.action_path }}/apt-packages.txt ${GITHUB_WORKSPACE}/
-        [[ -f pack/.github/apt-packages.txt ]] && cat pack/.github/apt-packages.txt >> ${GITHUB_WORKSPACE}/apt-packages.txt
+        if [[ -f pack/.github/apt-packages.txt ]]; then
+        cat pack/.github/apt-packages.txt >> ${GITHUB_WORKSPACE}/apt-packages.txt
+        fi
 
     - name: Cache APT Dependencies
       id: cache-apt-deps
