@@ -11,6 +11,13 @@ on:
         required: false
         type: string
         default: "v0"
+      enable-common-libs:
+        description: |
+          When true, use an st2.conf that sets packs.enable_common_libs=true
+          see: https://docs.stackstorm.com/reference/sharing_code_sensors_actions.html
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build_and_test:
@@ -42,8 +49,7 @@ jobs:
       - name: Run pack tests
         uses: StackStorm-Exchange/ci/.github/actions/test@gha
         with:
-          # This makes the tests use an alternate config that enables shared libs
-          enable-common-libs: true
+          enable-common-libs: ${{ inputs.enable-common-libs }}
 
     services:
       mongo:
