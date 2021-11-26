@@ -43,7 +43,7 @@ runs:
       uses: actions/checkout@v2
       with:
         path: pack
-        fetch-depth: 1
+        fetch-depth: 0
 
     - name: Checkout st2 repo
       # so other scripts can reference StackStorm Python code
