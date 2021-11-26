@@ -49,19 +49,17 @@ runs:
         if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
         echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
         fi
-
-    - name: Run tests
-      shell: bash
-      env:
-        ENABLE_COMMON_LIBS: ${{ inputs.enable-common-libs }}
-      # TODO: This Makefile has CircleCI assumptions
-      run: |
-        if [[ "true" == "${ENABLE_COMMON_LIBS}" ]]; then
+        if [[ "true" == "${{ inputs.enable-common-libs }}" ]]; then
         echo "Common libs PATH selected"
         export ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf
         else
         export ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf
         fi
+
+    - name: Run tests
+      shell: bash
+      # TODO: This Makefile has CircleCI assumptions
+      run: |
         cp ${CI_DIR}/.circle/Makefile .
         make -C "${ROOT_DIR}" -f "${GITHUB_WORKSPACE}/Makefile" all-ci
 
