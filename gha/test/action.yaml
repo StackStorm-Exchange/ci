@@ -58,22 +58,8 @@ runs:
 
     - name: Run tests
       shell: bash
-      # NB: some tests require mongo and/or rabbitmq (see services: below).
       # TODO: This Makefile has CircleCI assumptions
       run: |
         source ${VIRTUALENV_DIR}/bin/activate
+        # NB: tests require services (mongo, rabbitmq) which must be defined by the calling workflow
         make -C "${ROOT_DIR}" -f "${CI_DIR}/.circle/Makefile" all-ci
-
-  services:
-    mongo:
-      image: mongo:3.4
-      ports:
-        - 27017:27017
-    rabbitmq:
-      image: rabbitmq:3
-      ports:
-        - 5672:5672
-    redis:
-      image: redis
-      ports:
-        - 6379:6379

@@ -1,0 +1,58 @@
+name: CI - Build and Test
+
+on:
+  workflow_call:
+    inputs:
+      apt-cache-version:
+        required: false
+        type: string
+        default: "v0"
+      py-cache-version:
+        required: false
+        type: string
+        default: "v0"
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    name: 'Build and Test - Python ${{ matrix.python-version-short }}'
+    strategy:
+      matrix:
+        include:
+          - python-version-short: 3.6
+            python-version: 3.6.13
+    steps:
+      # eventually replace @gha with @master
+      - name: Checkout Pack Repo and CI Repos
+        uses: StackStorm-Exchange/ci/gha/checkout@gha
+        
+      - name: Install APT Dependencies
+        uses: StackStorm-Exchange/ci/gha/apt-dependencies@gha
+        with:
+          cache-version: ${{ inputs.apt-cache-version }}
+
+      - name: Install Python Dependencies
+        uses: StackStorm-Exchange/ci/gha/py-dependencies@gha
+        with:
+          cache-version: ${{ inputs.py-cache-version }}
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run pack tests
+        uses: StackStorm-Exchange/ci/gha/test@gha
+        with:
+          # This makes the tests use an alternate config that enables shared libs
+          enable-common-libs: true
+
+    services:
+      mongo:
+        image: mongo:3.4
+        ports:
+          - 27017:27017
+      rabbitmq:
+        image: rabbitmq:3
+        ports:
+          - 5672:5672
+      #redis:
+      #  image: redis
+      #  ports:
+      #    - 6379:6379
