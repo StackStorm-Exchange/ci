@@ -5,23 +5,29 @@ on:
     inputs:
       git_user_name:
         required: false
+        type: string
         default: "StackStorm Exchange"
       git_user_email:
         required: false
+        type: string
         default: "info@stackstorm.com"
       ci_branch:
         required: false
+        type: string
         # TODO: switch to master
         default: gha
       exchange_tools_branch:
         required: false
+        type: string
         # TODO: switch to master
         default: add-more-tools
       packs_org:
         required: false
+        type: string
         default: StackStorm-Exchange
       pack_repo_prefix:
         required: false
+        type: string
         default: stackstorm
 
 jobs:
