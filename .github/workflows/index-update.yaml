@@ -96,8 +96,17 @@ jobs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        PACKS_ORG: ${{ github.event.inputs.packs_org }}
+        PACKS_PREFIX: ${{ github.event.inputs.pack_repo_prefix }}
       run: |
-        ${TOOLS_DIR}/clone-all-repos.sh ${PACKS_PATH} ${{ github.event.inputs.packs_org }} ${{ github.event.inputs.pack_repo_prefix }}
+        mkdir -p ${PACKS_PATH}
+        cd ${PACKS_PATH}
+        source ${TOOLS_DIR}/functions.sh
+        for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
+        echo "::group::Clone ${PACKS_ORG}/${repo_name}"
+        gh repo clone "${PACKS_ORG}/${repo_name}"
+        echo "::endgroup::"
+        done
 
     - name: For each pack...
       shell: bash
