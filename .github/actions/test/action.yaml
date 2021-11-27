@@ -55,6 +55,9 @@ runs:
         else
         echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf" >> ${GITHUB_ENV}
         fi
+        # Don't install various StackStorm dependencies which are already
+        # installed by CI again in the various check scripts
+        echo "ST2_INSTALL_DEPS=0" >> ${GITHUB_ENV}
 
     - name: Run tests
       shell: bash
