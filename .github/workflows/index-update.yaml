@@ -1,0 +1,100 @@
+name: Index Update
+
+on:
+  workflow_call:
+    inputs:
+      git_user_name:
+        required: false
+        default: "StackStorm Exchange"
+      git_user_email:
+        required: false
+        default: "info@stackstorm.com"
+      ci_branch:
+        required: false
+        # TODO: switch to master
+        default: gha
+      exchange_tools_branch:
+        required: false
+        # TODO: switch to master
+        default: add-more-tools
+      packs_org:
+        required: false
+        default: StackStorm-Exchange
+      pack_repo_prefix:
+        required: false
+        default: stackstorm
+
+jobs:
+  regenerate_index:
+    runs-on: ubuntu-latest
+    # When parent workflow is named "Update Index" this shows up as:
+    #   "Update Index / Regenerate"
+    name: Regenerate
+    environment:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+
+    - name: Add checkout paths to env context
+      shell: bash
+      run: |
+        echo "CI_DIR=${{ github.workspace }}/ci" >> ${GITHUB_ENV}
+        echo "TOOLS_DIR=${{ github.workspace }}/exchange-tools" >> ${GITHUB_ENV}
+        echo "ST2_REPO_PATH=${{ github.workspace }}/st2" >> ${GITHUB_ENV}
+        echo "INDEX_DIR=${{ github.workspace }}/index" >> ${GITHUB_ENV}
+        echo "PACKS_PATH=${{ github.workspace }}/packs" >> ${GITHUB_ENV}
+
+    - name: Configure git user
+      shell: bash
+      env:
+        GIT_USER_NAME: "${{ github.events.inputs.git_user_name }}"
+        GIT_USER_EMAIL: "${{ github.events.inputs.git_user_email }}"
+      run: |
+        git config --global user.name "${GIT_USER_NAME}"
+        git config --global user.email "${GIT_USER_EMAIL}"
+
+    - name: Checkout index repo
+      uses: actions/checkout@v2
+      with:
+        path: index
+        fetch-depth: 1
+
+    - name: Checkout ci repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm-Exchange/ci
+        ref: ${{ github.events.inputs.ci_branch }}
+        path: ci
+        fetch-depth: 1
+
+    - name: Checkout exchange-tools repo
+      uses: actions/checkout@v2
+      with:
+        # TODO: switch to StackStorm-Exchange once these are merged:
+        # https://github.com/StackStorm-Exchange/exchange-tools/pull/3
+        # https://github.com/StackStorm-Exchange/exchange-tools/pull/2
+        #repository: StackStorm-Exchange/exchange-tools
+        repository: cognifloyd/exchange-tools
+        ref: ${{ github.events.inputs.exchange_tools_branch }}
+        path: exchange-tools
+        fetch-depth: 1
+
+    - name: Checkout st2 repo
+      # so other scripts can reference StackStorm Python code
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm/st2
+        ref: ${{ inputs.st2_branch }}
+        path: st2
+        fetch-depth: 1
+
+    - name: Checkout Pack Repos
+      shell: bash
+      run: |
+        ${TOOLS_DIR}/clone-all-repos.sh ${PACKS_PATH} ${{ github.event.inputs.packs_org }} ${{ github.event.inputs.pack_repo_prefix }}
+
+    - name: For each pack...
+      shell: bash
+      # TODO: add pack_repo_prefix arg to pack-all.sh
+      run: |
+        ${TOOLS_DIR}/pack-all.sh --continue-on-error --verbose 'pwd'
