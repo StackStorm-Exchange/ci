@@ -30,8 +30,6 @@ jobs:
     # When parent workflow is named "Update Index" this shows up as:
     #   "Update Index / Regenerate"
     name: Regenerate
-    environment:
-      GH_TOKEN: ${{ github.token }}
 
     steps:
 
@@ -90,11 +88,15 @@ jobs:
 
     - name: Checkout Pack Repos
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         ${TOOLS_DIR}/clone-all-repos.sh ${PACKS_PATH} ${{ github.event.inputs.packs_org }} ${{ github.event.inputs.pack_repo_prefix }}
 
     - name: For each pack...
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       # TODO: add pack_repo_prefix arg to pack-all.sh
       run: |
         ${TOOLS_DIR}/pack-all.sh --continue-on-error --verbose 'pwd'
