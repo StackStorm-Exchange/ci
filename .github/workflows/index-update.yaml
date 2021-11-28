@@ -106,6 +106,11 @@ jobs:
         echo "::group::Clone ${PACKS_ORG}/${repo_name}"
         gh repo clone "${PACKS_ORG}/${repo_name}"
         echo "::endgroup::"
+        if ! [ -f "${repo_name}/pack.yaml" ] ; then
+        rm -rf ${repo_name}
+        echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+        echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
         done
 
     - name: For each pack...
@@ -115,10 +120,6 @@ jobs:
       working-directory: packs
       run: |
         for pack in *; do
-        if ! [ -f "${pack}/pack.yaml" ] ; then
-        echo "pack repo - ${pack}: SKIPPED - missing pack.yaml"
-        continue
-        fi
         echo "::group::pack repo - ${pack}"
         pushd ${pack} >/dev/null
         ls pack.yaml
