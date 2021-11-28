@@ -29,6 +29,10 @@ on:
         required: false
         type: string
         default: stackstorm
+      apt-cache-version:
+        required: false
+        type: string
+        default: "v0"
       py-cache-version:
         required: false
         type: string
@@ -100,6 +104,18 @@ jobs:
         path: st2
         fetch-depth: 1
 
+    - name: Install APT Dependencies
+      uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@gha
+      with:
+        cache-version: ${{ inputs.apt-cache-version }}
+
+    - name: Install Python Dependencies
+      uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
+      with:
+        mode: index # ie: skip pack-specific deps
+        cache-version: ${{ inputs.py-cache-version }}
+        python-version: ${{ inputs.python-version }}
+
     - name: Checkout Pack Repos
       shell: bash
       env:
@@ -120,13 +136,6 @@ jobs:
         echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
         fi
         done
-
-    - name: Install Python Dependencies
-      uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
-      with:
-        mode: index # ie: skip pack-specific deps
-        cache-version: ${{ inputs.py-cache-version }}
-        python-version: ${{ inputs.python-version }}
 
     - name: Rebuild index/v1/packs and index/v1/icons
       shell: bash
