@@ -113,6 +113,8 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       working-directory: packs
-      # TODO: add pack_repo_prefix arg to pack-all.sh
       run: |
-        ${TOOLS_DIR}/pack-all.sh --continue-on-error --verbose 'pwd'
+        function do_it() {
+        ls pack.yaml
+        }
+        ${TOOLS_DIR}/pack-all.sh --continue-on-error --verbose do_it
