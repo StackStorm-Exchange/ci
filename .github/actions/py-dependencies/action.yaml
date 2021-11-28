@@ -1,7 +1,7 @@
 ---
 name: Install Python Dependencies
 description: |
-  Install python dependencies required for StackStorm-Exchange pack tests.
+  Install python dependencies required for StackStorm-Exchange pack tests or index updates.
   Before using this, make sure to run
   StackStorm-Exchange/ci/.github/actions/checkout and
   StackStorm-Exchange/ci/.github/actions/apt-dependencies.
@@ -14,6 +14,12 @@ inputs:
   cache-version:
     required: false
     default: "v0"
+  mode:
+    required: false
+    default: pack
+    options:
+      - index
+      - pack
 
 outputs:
   pip-version:
@@ -68,6 +74,7 @@ runs:
         echo "::endgroup::"
 
     - name: Install CI Requirements
+      if: inputs.mode == "pack"
       shell: bash
       run: |
         echo "::group::Install CI Requirements"
@@ -85,6 +92,7 @@ runs:
         echo "::endgroup::"
 
     - name: Install Runners
+      if: inputs.mode == "pack"
       shell: bash
       run: |
         for runner in ${ST2_REPO_PATH}/contrib/runners/*; do
@@ -102,6 +110,7 @@ runs:
         echo "::endgroup::"
 
     - name: Install Pack Requirements
+      if: inputs.mode == "pack"
       shell: bash
       working-directory: pack
       env:

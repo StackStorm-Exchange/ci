@@ -29,6 +29,14 @@ on:
         required: false
         type: string
         default: stackstorm
+      py-cache-version:
+        required: false
+        type: string
+        default: "v0"
+      python-version:
+        required: false
+        type: string
+        default: "3.6"
 
 jobs:
   regenerate_index:
@@ -113,7 +121,12 @@ jobs:
         fi
         done
 
-    # TODO: Build virtualenv
+    - name: Install Python Dependencies
+      uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
+      with:
+        mode: index # ie: skip pack-specific deps
+        cache-version: ${{ inputs.py-cache-version }}
+        python-version: ${{ inputs.python-version }}
 
     - name: Rebuild index/v1/packs and index/v1/icons
       shell: bash
@@ -125,7 +138,8 @@ jobs:
         pack=${pack_dir#"$PACKS_PREFIX"-}
         echo "::group::pack - ${pack}"
         pushd ${pack_dir} >/dev/null
-        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${CI_DIR}/.circle/validate.py "${pack_dir}"look pack.yaml)
+        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}"look pack.yaml)
+        # TODO: handle invalid pack metadata
         # Rebuild pack index directory
 ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
         # Check if an icon has been added or changed
@@ -142,8 +156,11 @@ ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --outpu
         echo "::endgroup::"
         done
 
+    # index.py - circleci assumptions, st2common, gh graphql api usage
     - name: Rebuild index/v1/index.json
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         if [[ -n "$(git -C ${INDEX_DIR} status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "1" ]]; then
         if [[ ${FORCE_REBUILD_INDEX} == "1" ]]; then
