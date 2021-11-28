@@ -120,4 +120,5 @@ jobs:
         echo "::endgroup::"
         }
         export -f do_it
-        ${TOOLS_DIR}/pack-all.sh --continue-on-error --verbose do_it
+        ${TOOLS_DIR}/pack-all.sh do_it
+        #${TOOLS_DIR}/pack-all.sh --continue-on-error do_it
