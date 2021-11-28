@@ -117,11 +117,13 @@ jobs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
       working-directory: packs
       run: |
-        for pack in *; do
-        echo "::group::pack repo - ${pack}"
-        pushd ${pack} >/dev/null
+        for pack_dir in *; do
+        pack=${pack_dir#"$PACKS_PREFIX"-}
+        echo "::group::pack - ${pack}"
+        pushd ${pack_dir} >/dev/null
         ls pack.yaml
         popd >/dev/null
         echo "::endgroup::"
