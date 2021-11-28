@@ -115,6 +115,7 @@ jobs:
       working-directory: packs
       run: |
         for pack in *; do
+        if ! [ -f "${pack}/pack.yaml" ] ; then continue; fi
         echo "::group::pack - ${pack}"
         pushd ${pack}
         ls pack.yaml
