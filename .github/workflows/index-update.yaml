@@ -114,12 +114,10 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       working-directory: packs
       run: |
-        function do_it() {
+        for pack in *; do
         echo "::group::pack - ${pack}"
+        pushd ${pack}
         ls pack.yaml
+        popd
         echo "::endgroup::"
-        }
-        export -f do_it
-        ${TOOLS_DIR}/pack-all.sh do_it || echo $?
-        #${TOOLS_DIR}/pack-all.sh --continue-on-error do_it
-        echo $?
+        done
