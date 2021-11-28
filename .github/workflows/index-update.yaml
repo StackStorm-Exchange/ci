@@ -115,6 +115,9 @@ jobs:
       working-directory: packs
       run: |
         function do_it() {
+        echo "::group::pack - ${pack}"
         ls pack.yaml
+        echo "::endgroup::"
         }
+        export -f do_it
         ${TOOLS_DIR}/pack-all.sh --continue-on-error --verbose do_it
