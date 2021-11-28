@@ -141,7 +141,7 @@ jobs:
         PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}"look pack.yaml)
         # TODO: handle invalid pack metadata
         # Rebuild pack index directory
-${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
+        ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
         # Check if an icon has been added or changed
         ICON_TARGET="${INDEX_DIR}/v1/icons/${PACK_NAME}.png"
         if [[ -f icon.png ]] && { [[ ! -f ${ICON_TARGET} ]] || ! cmp -s icon.png ${ICON_TARGET}; }; then
