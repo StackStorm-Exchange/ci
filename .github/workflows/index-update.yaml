@@ -115,10 +115,13 @@ jobs:
       working-directory: packs
       run: |
         for pack in *; do
-        if ! [ -f "${pack}/pack.yaml" ] ; then continue; fi
-        echo "::group::pack - ${pack}"
-        pushd ${pack}
+        if ! [ -f "${pack}/pack.yaml" ] ; then
+        echo "pack repo - ${pack}: SKIPPED - missing pack.yaml"
+        continue
+        fi
+        echo "::group::pack repo - ${pack}"
+        pushd ${pack} >/dev/null
         ls pack.yaml
-        popd
+        popd >/dev/null
         echo "::endgroup::"
         done
