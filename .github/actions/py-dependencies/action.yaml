@@ -74,7 +74,7 @@ runs:
         echo "::endgroup::"
 
     - name: Install CI Requirements
-      if: inputs.mode == "pack"
+      if: inputs.mode == 'pack'
       shell: bash
       run: |
         echo "::group::Install CI Requirements"
@@ -92,7 +92,7 @@ runs:
         echo "::endgroup::"
 
     - name: Install Runners
-      if: inputs.mode == "pack"
+      if: inputs.mode == 'pack'
       shell: bash
       run: |
         for runner in ${ST2_REPO_PATH}/contrib/runners/*; do
@@ -110,7 +110,7 @@ runs:
         echo "::endgroup::"
 
     - name: Install Pack Requirements
-      if: inputs.mode == "pack"
+      if: inputs.mode == 'pack'
       shell: bash
       working-directory: pack
       env:
