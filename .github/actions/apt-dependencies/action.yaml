@@ -10,6 +10,9 @@ inputs:
   cache-version:
     required: false
     default: "v0"
+  extra-apt-packages-file:
+    required: false
+    default: pack/.github/apt-packages.txt
 
 runs:
   using: "composite"
@@ -28,8 +31,8 @@ runs:
       shell: bash
       run: |
         cp ${{ github.action_path }}/apt-packages.txt ${GITHUB_WORKSPACE}/
-        if [[ -f pack/.github/apt-packages.txt ]]; then
-        cat pack/.github/apt-packages.txt >> ${GITHUB_WORKSPACE}/apt-packages.txt
+        if [[ -f ${{ inputs.extra-apt-packages-file }} ]]; then
+        cat ${{ inputs.extra-apt-packages-file }} >> ${GITHUB_WORKSPACE}/apt-packages.txt
         fi
 
     - name: Cache APT Dependencies

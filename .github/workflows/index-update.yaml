@@ -108,6 +108,8 @@ jobs:
       uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@gha
       with:
         cache-version: ${{ inputs.apt-cache-version }}
+        # this has dependencies for icon optimization
+        extra-apt-packages-file: ci/.github/actions/apt-dependencies/index-apt-packages.txt
 
     - name: Install Python Dependencies
       uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
