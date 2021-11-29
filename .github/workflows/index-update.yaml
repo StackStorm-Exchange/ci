@@ -3,6 +3,10 @@ name: Index Update
 on:
   workflow_call:
     inputs:
+      force-rebuild-index:
+        required: false
+        type: boolean
+        default: false
       git_user_name:
         required: false
         type: string
@@ -139,6 +143,9 @@ jobs:
         fi
         done
 
+    # validate.py hard codes the pack repo prefix
+    # pack_content.py makes no CI assumptions
+    # TODO: maybe use imagemagick instead of gmic+optipng
     - name: Rebuild index/v1/packs and index/v1/icons
       shell: bash
       env:
@@ -149,7 +156,7 @@ jobs:
         pack=${pack_dir#"$PACKS_PREFIX"-}
         echo "::group::pack - ${pack}"
         pushd ${pack_dir} >/dev/null
-        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}"look pack.yaml)
+        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
         # TODO: handle invalid pack metadata
         # Rebuild pack index directory
         ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
@@ -167,14 +174,24 @@ jobs:
         echo "::endgroup::"
         done
 
-    # index.py - circleci assumptions, st2common, gh graphql api usage
+    # index.py has some bad assumptions:
+    # - error messages explain old CircleCI + GitHub PAT process.
+    # - error message assumes we're only updating one pack and
+    #   uses PACK_NAME env var to enhance the error message.
+    # - uses MACHINE_USER/MACHINE_PASSWORD env vars to determine
+    #   github api credentials. These were CircleCI secrets.
+    #   However, the GITHUB_TOKEN generated for GitHub actions
+    #   requires Bearer auth instead of basic auth.
+    #   Note: gh graphql credentials already do the right thing.
+    # - EXCHANGE ORG and pack repo prefix are hard coded.
     - name: Rebuild index/v1/index.json
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        FORCE_REBUILD_INDEX: ${{ inputs.force-rebuild-index }}
       run: |
-        if [[ -n "$(git -C ${INDEX_DIR} status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "1" ]]; then
-        if [[ ${FORCE_REBUILD_INDEX} == "1" ]]; then
+        if [[ -n "$(git -C ${INDEX_DIR} status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
+        if [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
         echo "Forcing index rebuild..."
         fi
         ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/index.py" --glob "${INDEX_DIR}/v1/packs/*/pack.yaml" --output "${INDEX_DIR}/v1/"
@@ -182,4 +199,10 @@ jobs:
         echo "No changes in metadata, skipping the index rebuild."
         fi
 
-    # TODO: update index git repo if needed
+    - name: Git Auto Commit and Push Index
+      id: git-commit
+      uses: stefanzweifel/git-auto-commit-action@v4.12.0
+      with:
+        repository: index
+        # TODO: list changed packs in commit message
+        commit_message: Update Index (GHA)
