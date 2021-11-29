@@ -135,7 +135,11 @@ jobs:
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
         echo "::group::Clone ${PACKS_ORG}/${repo_name}"
         gh repo clone "${PACKS_ORG}/${repo_name}"
+        # !TODO: checkout the latest tag.
         echo "::endgroup::"
+        # !TODO: exclude packs without tags
+        # !TODO: add index exclusion list to exclude utility packs like
+        #        test, test_content_version
         if ! [ -f "${repo_name}/pack.yaml" ] ; then
         rm -rf ${repo_name}
         echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
@@ -157,7 +161,7 @@ jobs:
         echo "::group::pack - ${pack}"
         pushd ${pack_dir} >/dev/null
         PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
-        # TODO: handle invalid pack metadata
+        # !TODO: handle invalid pack metadata
         # Rebuild pack index directory
         ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
         # Check if an icon has been added or changed
