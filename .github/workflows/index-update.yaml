@@ -139,11 +139,11 @@ jobs:
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
           # !TODO: checkout the latest tag.
-          echo "pwd:`pwd`" #DEBUG
-          echo -e "ls:\n`ls`" #DEBUG
+          echo "pwd:`pwd`\n" #DEBUG
+          echo -e "ls:\n`ls`\n" #DEBUG
           echo "cd ${repo_name}:" #DEBUG
           cd ${repo_name}
-          echo "pwd:`pwd`" #DEBUG
+          echo "pwd:`pwd`\n" #DEBUG
           echo -e "ls:\n`ls`\n" #DEBUG
           echo "Retrieving the latest GIT Tag ..." #DEBUG
           ############################################################################
