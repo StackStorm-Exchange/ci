@@ -137,9 +137,13 @@ jobs:
         gh repo clone "${PACKS_ORG}/${repo_name}"
         # !TODO: checkout the latest tag.
         # TODO-1 START
+        echo -e "\npwd:\n"
+        pwd
         echo -e "\nls:\n`ls`\n"
         echo -e "cd ${repo_name}:\n"
         cd ${repo_name}
+        echo -e "\npwd:\n"
+        pwd
         echo -e "\nls:\n`ls`\n"
         echo -e "\ngit fetch -t\n"
         git fetch -t
@@ -163,6 +167,13 @@ jobs:
         echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
         echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
         fi
+        echo -e "\npwd:\n"
+        pwd
+        echo -e "\ncd..\n"
+        cd ..
+        echo -e "\npwd:\n"
+        pwd
+        echo -e "\nls:\n`ls`\n"
         done
 
     # validate.py hard codes the pack repo prefix
