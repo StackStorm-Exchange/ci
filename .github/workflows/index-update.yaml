@@ -137,13 +137,14 @@ jobs:
         gh repo clone "${PACKS_ORG}/${repo_name}"
         # !TODO: checkout the latest tag.
         # TODO-1 START
-        echo "ls:\n`ls`"
-        cd ${repo_name}
-        echo "ls:\n`ls`"
-        echo ${PACKS_ORG}/${repo_name} :Checking out the latest tag
-        echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n`latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)`"
+        echo -e "\nls:\n`ls`\n"
+        echo -e "cd ${repo_name}:\n`cd ${repo_name}`\n"
+        echo -e "\nls:\n`ls`\n"
+        echo ${repo_name} : Checking out the latest tag
+        echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n`latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)`\n"
         echo latestTag=$latestTag
-        echo -e "git checkout $tag -b latestTagBranch:\n`git checkout $tag -b latestTagBranch`"
+        if [ -z "$latestTag" ]; then echo -e "\nlatestTag = NULL\n"; else echo -e "\nlatestTag = NOT NULL\n"; fi
+        echo -e "git checkout $tag -b latestTagBranch:\n`git checkout $tag -b latestTagBranch`\n"
         # TODO-1 END
         echo "::endgroup::"
         # !TODO: exclude packs without tags
