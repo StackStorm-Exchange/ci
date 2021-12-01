@@ -148,7 +148,12 @@ jobs:
         echo -e "\ngit fetch -t\n"
         git fetch -t
         echo ${repo_name} : Checking out the latest tag
-        latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
+        echo -e "COMMAND SUCCEDED : TAGS EXIST\n"
+        else
+        echo -e "COMMAND FAILED : TAGS DO NOT EXIST\n"
+        fi
         echo latestTag = $latestTag
         if [ -z "$latestTag" ]; then
         echo -e "\nlatestTag = NULL\n";
