@@ -162,7 +162,7 @@ jobs:
           #################################
           if ! [ -z "$latestTag" ]; then
             echo -e "latestTag = NOT NULL -> Continuing process ..."; #DEBUG
-            echo -e "git checkout $latestTag -b latestTagBranch:\n" #DEBUG
+            echo -e "git checkout $latestTag -b latestTagBranch:" #DEBUG
             git checkout $latestTag -b latestTagBranch
           else
             echo -e "latestTag=NULL -> Skipping repository."; #DEBUG
