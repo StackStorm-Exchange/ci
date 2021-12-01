@@ -147,7 +147,7 @@ jobs:
         echo latestTag = $latestTag
         if [ -z "$latestTag" ]; then echo -e "\nlatestTag = NULL\n"; else echo -e "\nlatestTag = NOT NULL\n"; fi
         echo -e "git checkout $tag -b latestTagBranch:\n"
-        git checkout $tag -b latestTagBranch
+        git checkout $latestTag -b latestTagBranch
         # TODO-1 END
         echo "::endgroup::"
         # !TODO: exclude packs without tags
