@@ -145,12 +145,18 @@ jobs:
           echo -e "ls:\n`ls`\n" #DEBUG
           echo "Retrieving the latest GIT Tag ..." #DEBUG
           # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) #TEMP SAVE OF LINE
+          #####################
+          # CHECK IF TAGS EXIST
+          #####################
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo -e "TAGS EXIST! -> Continuing process ..." #DEBUG
             echo latestTag = $latestTag #DEBUG
           else
             echo -e "TAGS DO NOT EXIST -> Skipping repository." #DEBUG
           fi
+          #################################
+          # CHECK IF LATEST TAG IS NOT NULL
+          #################################
           if [ -z "$latestTag" ]; then
             echo -e "latestTag=NULL -> Skipping repository."; #DEBUG
           else
@@ -164,6 +170,9 @@ jobs:
           # !TODO: add index exclusion list to exclude utility packs like
           #        test, test_content_version
           # if ! [ -f "${repo_name}/pack.yaml" ] ; then
+          ####################################
+          # CHECK IF PACK HAS A PACK.YAML FILE
+          ####################################
           if ! [ -f "./pack.yaml" ] ; then
             cd ..
             rm -rf ${repo_name}
