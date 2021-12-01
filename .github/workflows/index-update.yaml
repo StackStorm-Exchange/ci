@@ -142,8 +142,9 @@ jobs:
         cd ${repo_name}
         echo -e "\nls:\n`ls`\n"
         echo ${repo_name} : Checking out the latest tag
-        echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n`latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)`\n"
-        echo latestTag=$latestTag
+        echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n"
+        latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        echo "latestTag = `$latestTag`"
         if [ -z "$latestTag" ]; then echo -e "\nlatestTag = NULL\n"; else echo -e "\nlatestTag = NOT NULL\n"; fi
         echo -e "git checkout $tag -b latestTagBranch:\n`git checkout $tag -b latestTagBranch`\n"
         # TODO-1 END
