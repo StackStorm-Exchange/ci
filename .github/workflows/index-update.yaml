@@ -149,7 +149,8 @@ jobs:
           echo "Retrieving the latest GIT Tag ..." #DEBUG
           # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) #TEMP SAVE OF LINE
           ############################################################################
-          # MAKE SURE TAGS EXIST - NO TAGS RESULT IN AN ERROR THAT WILL BREAK WORFKLOW
+          # MAKE SURE TAGS EXIST - THIS IF STATEMENT CATCHES/FIXES AN ERROR THAT WILL
+          # BREAK THE WORKFLOW IF "TAGS DO NOT EXIST"
           ############################################################################
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo -e "TAGS EXIST! -> Continuing process ..." #DEBUG
