@@ -141,8 +141,9 @@ jobs:
         echo -e "cd ${repo_name}:\n"
         cd ${repo_name}
         echo -e "\nls:\n`ls`\n"
+        echo -e "\ngit fetch -t\n"
+        git fetch -t
         echo ${repo_name} : Checking out the latest tag
-        echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n"
         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
         echo latestTag = $latestTag
         if [ -z "$latestTag" ]; then
