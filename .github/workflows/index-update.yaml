@@ -137,22 +137,25 @@ jobs:
           gh repo clone "${PACKS_ORG}/${repo_name}"
           # !TODO: checkout the latest tag.
           # TODO-1 START
-          echo -e "\npwd:\n" #DEBUG
-          pwd #DEBUG
-          echo -e "\nls:\n`ls`\n" #DEBUG
-          echo -e "cd ${repo_name}:\n" #DEBUG
+          echo "pwd:`pwd`" #DEBUG
+          echo -e "ls:\n`ls`" #DEBUG
+          echo "cd ${repo_name}:" #DEBUG
           cd ${repo_name}
-          echo -e "\npwd:\n" #DEBUG
-          pwd #DEBUG
-          echo -e "\nls:\n`ls`\n" #DEBUG
-          echo ${repo_name} : Checking out the latest tag #DEBUG
+          echo "pwd:`pwd`" #DEBUG
+          echo -e "ls:\n`ls`\n" #DEBUG
+          echo "Retrieving the latest GIT Tag ..." #DEBUG
           # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) #TEMP SAVE OF LINE
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo -e "TAGS EXIST! -> Continuing process ..."
+            echo latestTag = $latestTag #DEBUG
           else
             echo -e "TAGS DO NOT EXIST -> Skipping repository."
+            cd ..
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+            done
           fi
-          echo latestTag = $latestTag #DEBUG
           if [ -z "$latestTag" ]; then
             echo -e "latestTag=NULL -> Skipping repository.";
           else
