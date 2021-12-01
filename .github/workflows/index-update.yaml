@@ -168,10 +168,11 @@ jobs:
         # !TODO: add index exclusion list to exclude utility packs like
         #        test, test_content_version
         if ! [ -f "${repo_name}/pack.yaml" ] ; then
+        cd ..
         rm -rf ${repo_name}
         echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
         echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-        fi
+        else
         echo -e "\npwd:\n"
         pwd
         echo -e "\ncd..\n"
@@ -179,6 +180,7 @@ jobs:
         echo -e "\npwd:\n"
         pwd
         echo -e "\nls:\n`ls`\n"
+        fi
         done
 
     # validate.py hard codes the pack repo prefix
