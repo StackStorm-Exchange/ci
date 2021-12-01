@@ -133,55 +133,53 @@ jobs:
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
-        echo "::group::Clone ${PACKS_ORG}/${repo_name}"
-        gh repo clone "${PACKS_ORG}/${repo_name}"
-        # !TODO: checkout the latest tag.
-        # TODO-1 START
-        echo -e "\npwd:\n"
-        pwd
-        echo -e "\nls:\n`ls`\n"
-        echo -e "cd ${repo_name}:\n"
-        cd ${repo_name}
-        echo -e "\npwd:\n"
-        pwd
-        echo -e "\nls:\n`ls`\n"
-        echo -e "\ngit fetch -t\n"
-        git fetch -t
-        echo ${repo_name} : Checking out the latest tag
-        # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-        if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
-        echo -e "COMMAND SUCCEDED : TAGS EXIST\n"
-        else
-        echo -e "COMMAND FAILED : TAGS DO NOT EXIST\n"
-        fi
-        echo latestTag = $latestTag
-        if [ -z "$latestTag" ]; then
-        echo -e "\nlatestTag = NULL\n";
-        else
-        echo -e "\nlatestTag = NOT NULL\n";
-        echo -e "git checkout $latestTag -b latestTagBranch:\n"
-        git checkout $latestTag -b latestTagBranch
-        fi
-        # TODO-1 END
-        echo "::endgroup::"
-        # !TODO: exclude packs without tags
-        # !TODO: add index exclusion list to exclude utility packs like
-        #        test, test_content_version
-        # if ! [ -f "${repo_name}/pack.yaml" ] ; then
-        if ! [ -f "./pack.yaml" ] ; then
-        cd ..
-        rm -rf ${repo_name}
-        echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
-        echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-        else
-        echo -e "\npwd:\n"
-        pwd
-        echo -e "\ncd..\n"
-        cd ..
-        echo -e "\npwd:\n"
-        pwd
-        echo -e "\nls:\n`ls`\n"
-        fi
+          echo "::group::Clone ${PACKS_ORG}/${repo_name}"
+          gh repo clone "${PACKS_ORG}/${repo_name}"
+          # !TODO: checkout the latest tag.
+          # TODO-1 START
+          echo -e "\npwd:\n" #DEBUG
+          pwd #DEBUG
+          echo -e "\nls:\n`ls`\n" #DEBUG
+          echo -e "cd ${repo_name}:\n" #DEBUG
+          cd ${repo_name}
+          echo -e "\npwd:\n" #DEBUG
+          pwd #DEBUG
+          echo -e "\nls:\n`ls`\n" #DEBUG
+          echo ${repo_name} : Checking out the latest tag #DEBUG
+          # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) #TEMP SAVE OF LINE
+          if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
+            echo -e "TAGS EXIST! -> Continuing process ..."
+          else
+            echo -e "TAGS DO NOT EXIST -> Skipping repository."
+          fi
+          echo latestTag = $latestTag #DEBUG
+          if [ -z "$latestTag" ]; then
+            echo -e "latestTag=NULL -> Skipping repository.";
+          else
+            echo -e "latestTag = NOT NULL -> Continuing process ...";
+            echo -e "git checkout $latestTag -b latestTagBranch:\n" #DEBUG
+            git checkout $latestTag -b latestTagBranch
+          fi
+          # TODO-1 END
+          echo "::endgroup::"
+          # !TODO: exclude packs without tags
+          # !TODO: add index exclusion list to exclude utility packs like
+          #        test, test_content_version
+          # if ! [ -f "${repo_name}/pack.yaml" ] ; then
+          if ! [ -f "./pack.yaml" ] ; then
+            cd ..
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          else
+            echo -e "\npwd:\n" #DEBUG
+            pwd
+            echo -e "\ncd..\n" #DEBUG
+            cd ..
+            echo -e "\npwd:\n" #DEBUG
+            pwd
+            echo -e "\nls:\n`ls`\n" #DEBUG
+          fi
         done
 
     # validate.py hard codes the pack repo prefix
