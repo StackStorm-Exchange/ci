@@ -146,20 +146,15 @@ jobs:
           echo "Retrieving the latest GIT Tag ..." #DEBUG
           # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) #TEMP SAVE OF LINE
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
-            echo -e "TAGS EXIST! -> Continuing process ..."
+            echo -e "TAGS EXIST! -> Continuing process ..." #DEBUG
             echo latestTag = $latestTag #DEBUG
           else
-            echo -e "TAGS DO NOT EXIST -> Skipping repository."
-            cd ..
-            rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-            done
+            echo -e "TAGS DO NOT EXIST -> Skipping repository." #DEBUG
           fi
           if [ -z "$latestTag" ]; then
-            echo -e "latestTag=NULL -> Skipping repository.";
+            echo -e "latestTag=NULL -> Skipping repository."; #DEBUG
           else
-            echo -e "latestTag = NOT NULL -> Continuing process ...";
+            echo -e "latestTag = NOT NULL -> Continuing process ..."; #DEBUG
             echo -e "git checkout $latestTag -b latestTagBranch:\n" #DEBUG
             git checkout $latestTag -b latestTagBranch
           fi
