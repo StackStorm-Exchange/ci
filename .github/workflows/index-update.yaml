@@ -139,7 +139,6 @@ jobs:
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
           # !TODO: checkout the latest tag.
-          # TODO-1 START
           echo "pwd:`pwd`" #DEBUG
           echo -e "ls:\n`ls`" #DEBUG
           echo "cd ${repo_name}:" #DEBUG
@@ -147,7 +146,6 @@ jobs:
           echo "pwd:`pwd`" #DEBUG
           echo -e "ls:\n`ls`\n" #DEBUG
           echo "Retrieving the latest GIT Tag ..." #DEBUG
-          # latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) #TEMP SAVE OF LINE
           ############################################################################
           # MAKE SURE TAGS EXIST - THIS IF STATEMENT CATCHES/FIXES AN ERROR THAT WILL
           # BREAK THE WORKFLOW IF "TAGS DO NOT EXIST"
@@ -168,7 +166,6 @@ jobs:
           else
             echo -e "latestTag=NULL -> Skipping repository."; #DEBUG
           fi
-          # TODO-1 END
           echo "::endgroup::"
           # !TODO: exclude packs without tags
           # !TODO: add index exclusion list to exclude utility packs like
