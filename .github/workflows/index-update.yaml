@@ -145,9 +145,13 @@ jobs:
         echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n"
         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
         echo latestTag = $latestTag
-        if [ -z "$latestTag" ]; then echo -e "\nlatestTag = NULL\n"; else echo -e "\nlatestTag = NOT NULL\n"; fi
+        if [ -z "$latestTag" ]; then
+        echo -e "\nlatestTag = NULL\n";
+        else
+        echo -e "\nlatestTag = NOT NULL\n";
         echo -e "git checkout $latestTag -b latestTagBranch:\n"
         git checkout $latestTag -b latestTagBranch
+        fi
         # TODO-1 END
         echo "::endgroup::"
         # !TODO: exclude packs without tags
