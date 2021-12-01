@@ -167,7 +167,8 @@ jobs:
         # !TODO: exclude packs without tags
         # !TODO: add index exclusion list to exclude utility packs like
         #        test, test_content_version
-        if ! [ -f "${repo_name}/pack.yaml" ] ; then
+        # if ! [ -f "${repo_name}/pack.yaml" ] ; then
+        if ! [ -f "./pack.yaml" ] ; then
         cd ..
         rm -rf ${repo_name}
         echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
