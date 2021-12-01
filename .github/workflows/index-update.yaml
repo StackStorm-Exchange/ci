@@ -132,6 +132,9 @@ jobs:
         mkdir -p ${PACKS_PATH}
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
+        #####################
+        # LOOP THROUGH ALL PACKS
+        #####################
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
