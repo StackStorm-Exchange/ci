@@ -137,6 +137,9 @@ jobs:
         gh repo clone "${PACKS_ORG}/${repo_name}"
         # !TODO: checkout the latest tag.
         # TODO-1 START
+        echo "ls:\n`ls`"
+        cd ${repo_name}
+        echo "ls:\n`ls`"
         echo ${PACKS_ORG}/${repo_name} :Checking out the latest tag
         echo -e "latestTag=$(git describe --tags `git rev-list --tags --max-count=1`):\n`latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)`"
         echo latestTag=$latestTag
