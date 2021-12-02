@@ -174,7 +174,7 @@ jobs:
           ####################################
           # CHECK IF PACK HAS A PACK.YAML FILE
           ####################################
-          if ! [ -f "./pack.yaml" ] ; then
+          if ![ -f "./pack.yaml"] || ["${repo_name}"==["test"||"test_content_version"]] ; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
