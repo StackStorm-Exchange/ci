@@ -75,8 +75,7 @@ jobs:
         
     - name: Update YUM
       shell: bash
-      run: |
-        yum update
+      run: yum update
 
     - name: Checkout index repo
       uses: actions/checkout@v2
