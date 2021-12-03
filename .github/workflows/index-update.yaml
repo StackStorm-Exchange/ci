@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v14"
+        default: "v13"
       py-cache-version:
         required: false
         type: string
@@ -144,8 +144,6 @@ jobs:
             echo latestTag = $latestTag
             git checkout $latestTag -b latestTagBranch
           fi
-          echo repo_name=${repo_name}
-          echo repo_name=$repo_name
           if [[ -z "$latestTag" ]]; then
             cd ..
             rm -rf ${repo_name}
