@@ -178,8 +178,7 @@ jobs:
           #if ! [ -f "./pack.yaml"] ; then
           echo "lsing in directory"
           ls
-          cd ..
-          FILE=./$repo_name/pack.yaml
+          FILE=./pack.yaml
           if ! [ -f "$FILE" ] || ["${repo_name}" == "test"] || ["${repo_name}" != "test_content_version"]; then
             # DELETE PACK
             rm -rf ${repo_name}
@@ -188,6 +187,7 @@ jobs:
           else
             # PACK STAYS
             echo ${repo_name} IS VALID!
+            cd ..
           fi
         done
 
