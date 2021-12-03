@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v18"
+        default: "v19"
       py-cache-version:
         required: false
         type: string
@@ -139,6 +139,8 @@ jobs:
           # !TODO: exclude packs without tags
           # !TODO: add index exclusion list to exclude utility packs like
           #        test, test_content_version
+          reponame = ${repo_name}
+          echo reponame = $reponame
           cd ${repo_name}
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
@@ -154,12 +156,12 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "$repo_name" == "test" ]]; then
+          elif [[ $reponame == "test" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "$repo_name" == "test_content_version" ]]; then
+          elif [[ ${repo_name} == "test_content_version" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
