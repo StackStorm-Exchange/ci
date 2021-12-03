@@ -180,13 +180,11 @@ jobs:
           ls
           FILE=./pack.yaml
           if ! [ -f "$FILE" ] || ["${repo_name}" == "test"] || ["${repo_name}" != "test_content_version"]; then
-            # DELETE PACK
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml OR pack is named 'test' or 'test_content_version'"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
-            # PACK STAYS
             echo ${repo_name} IS VALID!
             cd ..
           fi
