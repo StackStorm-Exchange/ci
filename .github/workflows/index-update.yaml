@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v9"
+        default: "v10"
       py-cache-version:
         required: false
         type: string
@@ -147,10 +147,15 @@ jobs:
           # !TODO: exclude packs without tags
           # !TODO: add index exclusion list to exclude utility packs like
           #        test, test_content_version
-          if [[ ! -f "./pack.yaml" || "${repo_name}" == "test" || "${repo_name}" == "test_content_version" ]]; then
+          if [[ ! -f "./pack.yaml" ]]; then
             cd ..
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml OR pack is named 'test' or 'test_content_version'"
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ "${repo_name}" == "test" || "${repo_name}" == "test_content_version" ]]; then
+            cd ..
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: Pack is a utility pack named 'test' or 'test_content_version'. Utility packs are excluded from the index."
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             echo ${repo_name} is a valid pack.
