@@ -146,14 +146,15 @@ jobs:
           # !TODO: exclude packs without tags
           # !TODO: add index exclusion list to exclude utility packs like
           #        test, test_content_version
-          cd ..
-          FILE=./${repo_name}/pack.yaml
-          if ! [ -f "$FILE" ] || ["${repo_name}" == "test"] || ["${repo_name}" != "test_content_version"]; then
+          FILE=./pack.yaml
+          if [ ! -f "FILE" ] || ["${repo_name}" == "test"] || ["${repo_name}" != "test_content_version"]; then
+            cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml OR pack is named 'test' or 'test_content_version'"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             echo ${repo_name} is a valid pack.
+            cd ..
           fi
         done
 
