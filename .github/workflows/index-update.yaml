@@ -174,11 +174,6 @@ jobs:
           ####################################
           # CHECK IF PACK HAS A PACK.YAML FILE
           ####################################
-
-            echo "$FILE exists."
-          else 
-            echo "$FILE does not exist."
-          fi
           #if ! [ -f "./pack.yaml"] || ["${repo_name}"==["test"||"test_content_version"]] ; then
           #if ! [ -f "./pack.yaml"] ; then
           echo "lsing in directory"
