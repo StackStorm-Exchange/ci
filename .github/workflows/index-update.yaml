@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v17"
+        default: "v18"
       py-cache-version:
         required: false
         type: string
@@ -154,12 +154,12 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${repo_name}" == "test" ]]; then
+          elif [[ "$repo_name" == "test" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${repo_name}" == "test_content_version" ]]; then
+          elif [[ "$repo_name" == "test_content_version" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
