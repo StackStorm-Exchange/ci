@@ -179,7 +179,7 @@ jobs:
           echo "lsing in directory"
           ls
           FILE=./pack.yaml
-          if [ -f "$FILE" ]; then
+          if [ -f "$FILE" ] && ["${repo_name}"!="test"] && ["${repo_name}"=="test_content_version"]; then
             pwd
             echo -e "\ncd..\n" #DEBUG
             cd ..
