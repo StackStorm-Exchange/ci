@@ -139,6 +139,7 @@ jobs:
           cd ${repo_name}
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
+            git checkout $latestTag -b latestTagBranch
           else
             echo latestTag = NULL
           fi
