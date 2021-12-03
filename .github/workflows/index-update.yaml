@@ -72,6 +72,11 @@ jobs:
       run: |
         git config --global user.name "${GIT_USER_NAME}"
         git config --global user.email "${GIT_USER_EMAIL}"
+        
+    - name: Update YUM
+      shell: bash
+      run: |
+        yum update
 
     - name: Checkout index repo
       uses: actions/checkout@v2
