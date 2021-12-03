@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v21"
+        default: "v22"
       py-cache-version:
         required: false
         type: string
@@ -139,8 +139,6 @@ jobs:
           # !TODO: exclude packs without tags
           # !TODO: add index exclusion list to exclude utility packs like
           #        test, test_content_version
-          reponame = "${repo_name}"
-          echo reponame=$reponame
           cd ${repo_name}
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
