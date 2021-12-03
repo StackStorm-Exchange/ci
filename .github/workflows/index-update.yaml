@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v11"
+        default: "v12"
       py-cache-version:
         required: false
         type: string
@@ -144,7 +144,7 @@ jobs:
             echo latestTag = $latestTag
             git checkout $latestTag -b latestTagBranch
           fi
-          if ! latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
+          if [[ -z "$latestTag" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack's git repository has no tags"
@@ -154,7 +154,7 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${repo_name}" == "test" || "${repo_name}" == "test_content_version" ]]; then
+          elif [[ "${repo_name}" == "test" ]] || [[ "${repo_name}" == "test_content_version" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack named 'test' or 'test_content_version'. Utility packs are excluded from the index."
