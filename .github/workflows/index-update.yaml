@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v13"
+        default: "v14"
       py-cache-version:
         required: false
         type: string
