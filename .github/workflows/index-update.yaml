@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v13"
+        default: "v14"
       py-cache-version:
         required: false
         type: string
@@ -144,6 +144,8 @@ jobs:
             echo latestTag = $latestTag
             git checkout $latestTag -b latestTagBranch
           fi
+          echo repo_name=${repo_name}
+          echo repo_name=$repo_name
           if [[ -z "$latestTag" ]]; then
             cd ..
             rm -rf ${repo_name}
@@ -154,10 +156,15 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${repo_name}" == "test" || "${repo_name}" == "test_content_version" ]]; then
+          elif [[ "$repo_name" == "test" ]]; then
             cd ..
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack named 'test' or 'test_content_version'. Utility packs are excluded from the index."
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ "$repo_name" == "test_content_version"]]; then
+            cd ..
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             echo ${repo_name} is a valid pack.
