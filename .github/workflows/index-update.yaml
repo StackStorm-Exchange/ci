@@ -174,7 +174,8 @@ jobs:
         pushd ${pack_dir} >/dev/null
         echo "CI_DIR = ${CI_DIR}"
         # PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
-        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "/home/runner/work/index/index/ci/.circle/validate.py" "${PACKS_PATH}" "${pack_dir}")
+        # PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "/home/runner/work/index/index/ci/.circle/validate.py" "${PACKS_PATH}" "${pack_dir}")
+        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${PACKS_PATH}" "${pack_dir}")
         echo "validate.py ran successfully!"
         # !TODO: handle invalid pack metadata
         # Rebuild pack index directory
