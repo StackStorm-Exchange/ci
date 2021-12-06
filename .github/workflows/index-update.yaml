@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v39"
+        default: "v40"
       py-cache-version:
         required: false
         type: string
@@ -133,6 +133,7 @@ jobs:
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
         EXCLUDE_PACKS=$(grep -v '^#' "${INDEX_DIR}/v1/exclude_packs.txt" | xargs echo -n)
+        echo -e "\nEXCLUDE_PACKS=$EXCLUDE_PACKS\n"
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
