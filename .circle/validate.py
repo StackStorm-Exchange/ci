@@ -59,9 +59,12 @@ if __name__ == '__main__':
     print("---> validate.py START")#debug
     print("sys.argv[1]="+sys.argv[1])#debug
     print("sys.argv[2]="+sys.argv[2])#debug
-    repo_name = sys.argv[1]
+    pack_path = sys.argv[1]
+    repo_name = sys.argv[2]
+    pack_yaml_path = pack_path + repo_name + sys.argv[3]
     print("repo_name="+repo_name)#debug
-    pack_meta = load_yaml_file(sys.argv[2])
+    # pack_meta = load_yaml_file(sys.argv[2])
+    pack_meta = load_yaml_file(pack_yaml_path)
     print("---> pack_meta = load_yaml_file(sys.argv[2]) END")#debug
     print("pack_meta="+pack_meta)#debug
 
