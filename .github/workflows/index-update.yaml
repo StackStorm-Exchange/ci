@@ -172,27 +172,9 @@ jobs:
         pack=${pack_dir#"$PACKS_PREFIX"-}
         echo "::group::pack - ${pack}"
         pushd ${pack_dir} >/dev/null
-        echo pack_dir=${pack_dir}
-        echo "cd home/runner/work/index"
-        cd /home/runner/work/index
-        echo ls
-        ls
-        echo "cd /home/runner/work/index/index"
-        cd /home/runner/work/index/index
-        echo ls
-        ls
-        echo "cd /home/runner/work/index/index/ci"
-        cd /home/runner/work/index/index/ci
-        echo ls
-        ls
-        echo "cd /home/runner/work/index/index/ci/.circle"
-        cd /home/runner/work/index/index/ci/.circle
-        echo ls
-        ls
-        echo PACKS_PATH/pack_dir = "${PACKS_PATH}/${pack_dir}"
-        echo PACKS_PATH/pack_dir/pack.yaml = "${PACKS_PATH}/${pack_dir}/pack.yaml"
         # PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
-        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "/home/runner/work/index/index/ci/.circle/validate.py" "${PACKS_PATH}" "${pack_dir}" "pack.yaml")
+        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "/home/runner/work/index/index/ci/.circle/validate.py" "${PACKS_PATH}" "${pack_dir}")
+        echo "validate.py ran successfully!"
         # !TODO: handle invalid pack metadata
         # Rebuild pack index directory
         ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
