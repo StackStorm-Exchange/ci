@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print("pack_meta="+pack_meta)#debug
 
     # TODO: Figure out why this wasn't previously executed, and execute it
-    # validate_repo_name(pack_meta, repo_name)
+    validate_repo_name(pack_meta, repo_name)
     valreturn = validate_schema(pack_meta, PACK_SCHEMA)
     print("---> valreturn = validate_schema(pack_meta, PACK_SCHEMA) END")#debug
     print("valreturn=" + valreturn)#debug
