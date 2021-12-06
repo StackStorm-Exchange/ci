@@ -172,6 +172,18 @@ jobs:
         pack=${pack_dir#"$PACKS_PREFIX"-}
         echo "::group::pack - ${pack}"
         pushd ${pack_dir} >/dev/null
+        echo "cd home/runner/work/index"
+        cd home/runner/work/index
+        echo ls
+        ls
+        echo "cd home/runner/work/index/index"
+        cd home/runner/work/index/index
+        echo ls
+        ls
+        echo "cd home/runner/work/index/index/ci"
+        cd home/runner/work/index/index/ci
+        echo ls
+        ls
         # PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
         PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "home/runner/work/index/index/ci/.circle/validate.py" "${pack_dir}" pack.yaml)
         # !TODO: handle invalid pack metadata
