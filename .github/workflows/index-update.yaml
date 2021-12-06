@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v25"
+        default: "v27"
       py-cache-version:
         required: false
         type: string
@@ -133,7 +133,6 @@ jobs:
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
-          echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
           # !TODO: checkout the latest tag.
           # !TODO: exclude packs without tags
@@ -147,20 +146,33 @@ jobs:
           cd ..
           if [[ -z "$latestTag" ]]; then
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack's git repository has no tags"
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+            outcome = "DELETED clone of ${PACKS_ORG}/${repo_name}: pack's git repository has no tags"
+            result = "FAILURE"
+            reason = "- missing git tags"
           elif [[ ! -f "./pack.yaml" ]]; then
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+            result = "FAILURE"
+            reason = "- missing pack.yaml file"
+            outcome = "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
           elif [[ "${repo_name}" == "stackstorm-test" || "${repo_name}" == "stackstorm-test-content-version" ]]; then
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+            result = "FAILURE"
+            reason = "- pack is an excluded utility pack"
+            outcome = "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
           else
-            echo ${repo_name} is a valid pack.
+            outcome = ${repo_name} is a valid pack.
+            result = "SUCCESS"
           fi
-          echo "::endgroup::"
+        
+        
+        if [[ "$result" == "SUCCESS" ]]; then
+          echo "::group::Clone ${PACKS_ORG}/${repo_name} : ${result}"
+        else
+          echo "::group::Clone ${PACKS_ORG}/${repo_name} : ${result} ${reason}"
+          echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
+        echo $outcome
+        echo "::endgroup::"
         done
 
     # validate.py hard codes the pack repo prefix
