@@ -133,12 +133,9 @@ jobs:
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
         EXCLUDE_PACKS=$(grep -v '^#' "${INDEX_DIR}/v1/exclude_packs.txt" | xargs echo -n)
-        echo -e "\nEXCLUDE_PACKS=$EXCLUDE_PACKS\n"
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
-          echo repo_name#stackstorm- = ${repo_name#stackstorm-}
-          echo EXCLUDE_PACKS w/ spaces= ${EXCLUDE_PACKS} "
           if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
             git -C ${repo_name} checkout $latestTag -b latestTagBranch
