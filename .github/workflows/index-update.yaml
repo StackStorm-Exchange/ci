@@ -153,7 +153,7 @@ jobs:
           #  echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
           #  echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           # else
-          elif [[ "${repo_name#stackstorm-}" =~ "${EXCLUDE_PACKS}" ]]; then
+          elif [[ " ${repo_name#stackstorm-} " =~ " ${EXCLUDE_PACKS} " ]]; then
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack exists in the exclude_packs.txt file"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
