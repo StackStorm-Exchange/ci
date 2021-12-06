@@ -54,12 +54,10 @@ if __name__ == '__main__':
     pack_path = sys.argv[1]
     repo_name = sys.argv[2]
     pack_yaml_path = pack_path + "/" + repo_name + "/" + "pack.yaml"
-    # pack_meta = load_yaml_file(sys.argv[2])
+   
     pack_meta = load_yaml_file(pack_yaml_path)
-
-    # TODO: Figure out why this wasn't previously executed, and execute it
     validate_repo_name(pack_meta, repo_name)
-    valreturn = validate_schema(pack_meta, PACK_SCHEMA)
+    validate_schema(pack_meta, PACK_SCHEMA)
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
     
     print(pack_ref)
