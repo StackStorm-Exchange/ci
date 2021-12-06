@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v33"
+        default: "v34"
       py-cache-version:
         required: false
         type: string
@@ -137,7 +137,7 @@ jobs:
           gh repo clone "${PACKS_ORG}/${repo_name}"
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
-            git -C ${repo_name} checkout $latestTag -b latestTagBranch
+            git -C "${repo_name}" checkout $latestTag -b latestTagBranch
           fi
           if [[ -z "$latestTag" ]]; then
             rm -rf ${repo_name}
