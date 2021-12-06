@@ -172,6 +172,7 @@ jobs:
         pack=${pack_dir#"$PACKS_PREFIX"-}
         echo "::group::pack - ${pack}"
         pushd ${pack_dir} >/dev/null
+        echo pack_dir=${pack_dir}
         echo "cd home/runner/work/index"
         cd /home/runner/work/index
         echo ls
