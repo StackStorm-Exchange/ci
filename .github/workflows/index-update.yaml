@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v31"
+        default: "v32"
       py-cache-version:
         required: false
         type: string
@@ -136,24 +136,24 @@ jobs:
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
           # !TODO: checkout the latest tag.
-          # !TODO: exclude packs without tags
-          # !TODO: add index exclusion list to exclude utility packs like
-          #        test, test_content_version
           cd ${repo_name}
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
             git checkout $latestTag -b latestTagBranch
           fi
+          # !TODO: exclude packs without tags
           if [[ -z "$latestTag" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          # Exclude packs that don't have a pack.yaml file
           elif [[ ! -f "./pack.yaml" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          # !TODO: add index exclusion list to exclude utility packs like: test, test-content-version
           elif [[ "${reponame}" == "test" || "${repo_name}" == "test_content_version" ]]; then
             cd ..
             rm -rf ${repo_name}
