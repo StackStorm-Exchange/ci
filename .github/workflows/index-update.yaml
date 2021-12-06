@@ -82,7 +82,7 @@ jobs:
     - name: Checkout ci repo
       uses: actions/checkout@v2
       with:
-        repository: StackStorm-Exchange/ci
+        repository: lm-ydubler/ci
         ref: ${{ inputs.ci_branch }}
         path: ci
         fetch-depth: 1
