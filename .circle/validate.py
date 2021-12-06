@@ -36,7 +36,7 @@ def load_yaml_file(path):
 
 
 def validate_schema(instance, schema):
-    print("---> load_yaml_file(sys.argv[2]) START")
+    print("---> validate_schema(instance, schema): START")
     return util_schema.validate(instance=instance, schema=schema,
                                 cls=util_schema.CustomValidator,
                                 use_default=True,
@@ -44,18 +44,19 @@ def validate_schema(instance, schema):
 
 
 def validate_pack_contains_valid_ref_or_name(pack_meta):
-    print("---> alidate_pack_contains_valid_ref_or_name(pack_meta) START")
+    print("---> validate_pack_contains_valid_ref_or_name(pack_meta) START")
     ref = get_pack_ref_from_metadata(metadata=pack_meta)
     return ref
 
 
 def validate_repo_name(instance, repo_name):
+    print("---> validate_repo_name(instance, repo_name) START")
     if '%s-%s' % (PREFIX, instance['name']) != repo_name:
         raise ValueError('Pack name is different from repository name.')
 
 
 if __name__ == '__main__':
-    print("---> validate.py start")#debug
+    print("---> validate.py START")#debug
     print("sys.argv[1]="+sys.argv[1])#debug
     print("sys.argv[2]="+sys.argv[2])#debug
     repo_name = sys.argv[1]
@@ -73,4 +74,4 @@ if __name__ == '__main__':
     print("---> pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta) END")
 
     print(pack_ref)
-    print("---> validate.py start")
+    print("---> validate.py END")
