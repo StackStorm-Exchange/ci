@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v35"
+        default: "v36"
       py-cache-version:
         required: false
         type: string
@@ -135,23 +135,28 @@ jobs:
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
+          cd ${repo_name}
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
-            git -C "${PACKS_ORG}/${repo_name}" checkout $latestTag -b latestTagBranch
+            git checkout $latestTag -b latestTagBranch
           fi
           if [[ -z "$latestTag" ]]; then
+            cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           elif [[ ! -f "./pack.yaml" ]]; then
+            cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           elif [[ "${repo_name}" == "stackstorm-test" || "${repo_name}" == "stackstorm-test-content-version" ]]; then
+            cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
+            cd ..
             echo ${repo_name} is a valid pack.
           fi
           echo "::endgroup::"
