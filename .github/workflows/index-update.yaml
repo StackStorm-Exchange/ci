@@ -147,19 +147,14 @@ jobs:
           if [[ -z "$latestTag" ]]; then
             cd ..
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack's git repository has no tags"
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           elif [[ ! -f "./pack.yaml" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${reponame}" == "test" ]]; then
-            cd ..
-            rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${repo_name}" == "test_content_version" ]]; then
+          elif [[ "${reponame}" == "test" || "${repo_name}" == "test_content_version" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
