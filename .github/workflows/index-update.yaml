@@ -154,7 +154,7 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${reponame}" == "stackstorm-test" || "${reponame}" == "stackstorm-test_content_version" ]]; then
+          elif [[ "${repo_name}" == "stackstorm-test" || "${repo_name}" == "stackstorm-test-content-version" ]]; then
             cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
