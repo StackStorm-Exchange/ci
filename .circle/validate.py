@@ -57,7 +57,13 @@ if __name__ == '__main__':
    
     pack_meta = load_yaml_file(pack_yaml_path)
     validate_repo_name(pack_meta, repo_name)
-    validate_schema(pack_meta, PACK_SCHEMA)
+    schema = validate_schema(pack_meta, PACK_SCHEMA)
+    
+    if schema == True:
+        raise ValueError('schema is Valid/True')
+    else:
+        raise ValueError('schema is Invalid/False')
+    
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
     
     print(pack_ref)
