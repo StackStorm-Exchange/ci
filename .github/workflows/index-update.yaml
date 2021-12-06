@@ -156,6 +156,7 @@ jobs:
             echo ${repo_name} is a valid pack.
           fi
           echo "::endgroup::"
+          break
         done
 
     # validate.py hard codes the pack repo prefix
