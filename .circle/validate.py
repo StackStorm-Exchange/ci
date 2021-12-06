@@ -57,6 +57,8 @@ if __name__ == '__main__':
     pack_yaml_path = "/" + pack_path + "/" + repo_name + "/" + pack_yaml
     # pack_meta = load_yaml_file(sys.argv[2])
     pack_meta = load_yaml_file(pack_yaml_path)
+    
+    print("\nLOL<-------------------------------\n")
 
     # TODO: Figure out why this wasn't previously executed, and execute it
     validate_repo_name(pack_meta, repo_name)
