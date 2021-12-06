@@ -144,7 +144,7 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ ! -f "./pack.yaml" ]]; then
+          elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
