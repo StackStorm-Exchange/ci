@@ -51,15 +51,11 @@ def validate_repo_name(instance, repo_name):
 
 
 if __name__ == '__main__':
-    print("HELLO FROM PYTHON")
     pack_path = sys.argv[1]
     repo_name = sys.argv[2]
-    pack_yaml = sys.argv[3]
-    pack_yaml_path = "/" + pack_path + "/" + repo_name + "/" + pack_yaml
+    pack_yaml_path = pack_path + "/" + repo_name + "/" + "pack.yaml"
     # pack_meta = load_yaml_file(sys.argv[2])
     pack_meta = load_yaml_file(pack_yaml_path)
-    
-    print("\nLOL<-------------------------------\n")
 
     # TODO: Figure out why this wasn't previously executed, and execute it
     validate_repo_name(pack_meta, repo_name)
