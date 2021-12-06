@@ -27,16 +27,13 @@ PACK_SCHEMA = PackAPI.schema
 
 
 def load_yaml_file(path):
-    print("---> load_yaml_file(sys.argv[2]) START")#debug
     with open(path, 'r') as stream:
         text = yaml.safe_load(stream)
     
-    print("text="+text)
     return text
 
 
 def validate_schema(instance, schema):
-    print("---> validate_schema(instance, schema): START")
     return util_schema.validate(instance=instance, schema=schema,
                                 cls=util_schema.CustomValidator,
                                 use_default=True,
@@ -44,37 +41,25 @@ def validate_schema(instance, schema):
 
 
 def validate_pack_contains_valid_ref_or_name(pack_meta):
-    print("---> validate_pack_contains_valid_ref_or_name(pack_meta) START")
     ref = get_pack_ref_from_metadata(metadata=pack_meta)
     return ref
 
 
 def validate_repo_name(instance, repo_name):
-    print("---> validate_repo_name(instance, repo_name) START")
     if '%s-%s' % (PREFIX, instance['name']) != repo_name:
         raise ValueError('Pack name is different from repository name.')
 
 
 if __name__ == '__main__':
-    print("---> validate.py START")#debug
-    print("sys.argv[1]="+sys.argv[1])#debug
-    print("sys.argv[2]="+sys.argv[2])#debug
     pack_path = sys.argv[1]
     repo_name = sys.argv[2]
     pack_yaml_path = pack_path + repo_name + sys.argv[3]
-    print("repo_name="+repo_name)#debug
     # pack_meta = load_yaml_file(sys.argv[2])
     pack_meta = load_yaml_file(pack_yaml_path)
-    print("---> pack_meta = load_yaml_file(sys.argv[2]) END")#debug
-    print("pack_meta="+pack_meta)#debug
 
     # TODO: Figure out why this wasn't previously executed, and execute it
     validate_repo_name(pack_meta, repo_name)
     valreturn = validate_schema(pack_meta, PACK_SCHEMA)
-    print("---> valreturn = validate_schema(pack_meta, PACK_SCHEMA) END")#debug
-    print("valreturn=" + valreturn)#debug
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
-    print("---> pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta) END")
-
+    
     print(pack_ref)
-    print("---> validate.py END")
