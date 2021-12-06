@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v41"
+        default: "v42"
       py-cache-version:
         required: false
         type: string
@@ -138,6 +138,7 @@ jobs:
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
           echo repo_name#stackstorm- = ${repo_name#stackstorm-}
+          echo EXCLUDE_PACKS w/ spaces= ${EXCLUDE_PACKS} "
           if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
             git -C ${repo_name} checkout $latestTag -b latestTagBranch
@@ -150,7 +151,7 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ " ${repo_name#stackstorm-} " =~ " ${EXCLUDE_PACKS} " ]]; then
+          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#stackstorm-} " ]]; then
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack has been manually excluded"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
