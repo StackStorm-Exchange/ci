@@ -51,6 +51,7 @@ def validate_repo_name(instance, repo_name):
 
 
 if __name__ == '__main__':
+    print("HELLO FROM PYTHON")
     pack_path = sys.argv[1]
     repo_name = sys.argv[2]
     pack_yaml = sys.argv[3]
