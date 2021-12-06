@@ -184,6 +184,10 @@ jobs:
         cd /home/runner/work/index/index/ci
         echo ls
         ls
+        echo "cd /home/runner/work/index/index/ci/.circle"
+        cd /home/runner/work/index/index/ci/.circle
+        echo ls
+        ls
         # PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
         PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "home/runner/work/index/index/ci/.circle/validate.py" "${pack_dir}" pack.yaml)
         # !TODO: handle invalid pack metadata
