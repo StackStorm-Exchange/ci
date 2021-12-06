@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v43"
+        default: "v0"
       py-cache-version:
         required: false
         type: string
@@ -144,13 +144,13 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ ! -f "${repo_name}/pack.yaml" ]]; then
+          elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#stackstorm-} " ]]; then
+          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#${PACKS_PREFIX}-} " ]]; then
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack has been manually excluded"
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack excluded via index.git/v1/exclude_packs.txt"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             echo ${repo_name} is a valid pack.
