@@ -59,11 +59,12 @@ if __name__ == '__main__':
     validate_repo_name(pack_meta, repo_name)
     
     schema = validate_schema(pack_meta, PACK_SCHEMA)
+    raise ValueError(schema)
     
     if schema == True:
-        raise ValueError('schema='+schema+' --->    Valid/True')
+        raise ValueError(schema)
     else:
-        raise ValueError('schema='+schema+' --->    Invalid/False')
+        raise ValueError(schema)
     
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
     
