@@ -137,7 +137,7 @@ jobs:
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
-          echo pack_name#stackstorm- = ${pack_name#stackstorm-}
+          echo repo_name#stackstorm- = ${repo_name#stackstorm-}
           if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
             git -C ${repo_name} checkout $latestTag -b latestTagBranch
