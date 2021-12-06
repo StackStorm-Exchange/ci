@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v29"
+        default: "v30"
       py-cache-version:
         required: false
         type: string
@@ -144,20 +144,23 @@ jobs:
             echo latestTag = $latestTag
             git checkout $latestTag -b latestTagBranch
           fi
-          cd ..
           if [[ -z "$latestTag" ]]; then
+            cd .. 
             rm -rf ${repo_name}
             outcome="DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
+          elif [[ ! -f "./pack.yaml" ]]; then
+            cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           elif [[ "${repo_name}" == "stackstorm-test" || "${repo_name}" == "stackstorm-test-content-version" ]]; then
+            cd ..
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
+            cd ..
             echo "SUCCESS : ${repo_name} is a valid pack!
           fi
           echo "::endgroup::"
