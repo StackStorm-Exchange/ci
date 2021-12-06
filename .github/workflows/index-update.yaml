@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v37"
+        default: "v38"
       py-cache-version:
         required: false
         type: string
@@ -136,7 +136,7 @@ jobs:
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
-          if latestTag=$(git -C ${repo_name} describe --tags `git rev-list --tags --max-count=1`); then
+          if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
             git -C ${repo_name} checkout $latestTag -b latestTagBranch
           fi
@@ -148,14 +148,14 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ "${repo_name}" == "stackstorm-test" || "${repo_name}" == "stackstorm-test-content-version" ]]; then
+          # elif [[ "${repo_name#stackstorm-}" == "test" || "${repo_name#stackstorm-}" == "test-content-version" ]]; then
+          #  rm -rf ${repo_name}
+          #  echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
+          #  echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          # else
+          elif [[ "${repo_name#stackstorm-}" =~ "${EXCLUDE_PACKS}" ]]; then
             rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          else
-          elif [[ "${repo_name}" =~ " ${EXCLUDE_PACKS} " ]]; then
-            rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index."
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack exists in the exclude_packs.txt file"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             echo ${repo_name} is a valid pack.
