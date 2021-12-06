@@ -189,7 +189,7 @@ jobs:
         echo ls
         ls
         # PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
-        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "/home/runner/work/index/index/ci/.circle/validate.py" "${pack_dir}" pack.yaml)
+        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "/home/runner/work/index/index/ci/.circle/validate.py" "${pack_dir}/pack.yaml")
         # !TODO: handle invalid pack metadata
         # Rebuild pack index directory
         ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
