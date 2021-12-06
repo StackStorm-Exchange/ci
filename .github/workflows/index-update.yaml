@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v0"
+        default: "v42"
       py-cache-version:
         required: false
         type: string
@@ -132,19 +132,30 @@ jobs:
         mkdir -p ${PACKS_PATH}
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
+        EXCLUDE_PACKS=$(grep -v '^#' "${INDEX_DIR}/v1/exclude_packs.txt" | xargs echo -n)
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
-        echo "::group::Clone ${PACKS_ORG}/${repo_name}"
-        gh repo clone "${PACKS_ORG}/${repo_name}"
-        # !TODO: checkout the latest tag.
-        echo "::endgroup::"
-        # !TODO: exclude packs without tags
-        # !TODO: add index exclusion list to exclude utility packs like
-        #        test, test_content_version
-        if ! [ -f "${repo_name}/pack.yaml" ] ; then
-        rm -rf ${repo_name}
-        echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
-        echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-        fi
+          echo "::group::Clone ${PACKS_ORG}/${repo_name}"
+          gh repo clone "${PACKS_ORG}/${repo_name}"
+          if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
+            echo latestTag = $latestTag
+            git -C ${repo_name} checkout $latestTag -b latestTagBranch
+          fi
+          if [[ -z "$latestTag" ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#stackstorm-} " ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack has been manually excluded"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          else
+            echo ${repo_name} is a valid pack.
+          fi
+          echo "::endgroup::"
         done
 
     # validate.py hard codes the pack repo prefix
