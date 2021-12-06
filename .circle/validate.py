@@ -54,7 +54,7 @@ if __name__ == '__main__':
     pack_path = sys.argv[1]
     repo_name = sys.argv[2]
     pack_yaml = sys.argv[3]
-    pack_yaml_path = pack_path + repo_name + pack_yaml
+    pack_yaml_path = "/" + pack_path + "/" + repo_name + "/" + pack_yaml
     # pack_meta = load_yaml_file(sys.argv[2])
     pack_meta = load_yaml_file(pack_yaml_path)
 
