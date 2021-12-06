@@ -36,7 +36,7 @@ on:
       apt-cache-version:
         required: false
         type: string
-        default: "v28"
+        default: "v29"
       py-cache-version:
         required: false
         type: string
@@ -158,8 +158,7 @@ jobs:
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack is a utility pack and excluded from the index"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
-            result = "SUCCESS"
-            outcome= ${repo_name} is a valid pack!
+            echo "SUCCESS : ${repo_name} is a valid pack!
           fi
           echo "::endgroup::"
         done
