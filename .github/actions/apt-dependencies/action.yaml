@@ -22,9 +22,10 @@ runs:
       # this is what we did on CircleCI. Not sure if it'll work on GHA
       shell: bash
       run: >
-        sudo rm -rf /var/cache/apt/archives
-        && sudo ln -s ~/apt_cache /var/cache/apt/archives
-        && mkdir -p ~/apt_cache/partial
+        sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
+        && sudo ln -s ~/apt_cache/archives /var/cache/apt/archives
+        && sudo ln -s ~/apt_cache/lists /var/lib/apt/lists
+        && mkdir -p ~/apt_cache/archives/partial ~/apt_cache/lists
 
     # hashFiles only reads files relative to GITHUB_WORKSPACE
     - name: Copy apt-packages.txt for caching
@@ -41,9 +42,9 @@ runs:
       with:
         path: |
           ~/apt_cache/*.deb
-        key: ${{ inputs.cache-version }}-apt-${{ hashFiles('apt-packages.txt') }}
+        key: ${{ inputs.cache-version }}-apt-archives-and-lists-${{ hashFiles('apt-packages.txt') }}
         restore-keys: |
-          ${{ inputs.cache-version }}-apt-
+          ${{ inputs.cache-version }}-apt-archives-and-lists-
 
     - name: Install APT Dependencies
       shell: bash
