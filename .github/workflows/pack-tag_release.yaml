@@ -39,7 +39,7 @@ jobs:
             #####################
             echo Getting latest tag ...
             if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
-              echo ... latestTag = $latestTag
+              echo ... latestTag=$latestTag
             else
               echo ... latestTag NOT found!
             fi
