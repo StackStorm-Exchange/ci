@@ -18,17 +18,18 @@ runs:
   using: "composite"
   steps:
 
-    - name: Create a directory for debian packages so we can cache it
-      # this is what we did on CircleCI. Not sure if it'll work on GHA
-      shell: bash
-      run: >
-        sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
-        && sudo ln -s ~/apt_cache/archives /var/cache/apt/archives
-        && sudo ln -s ~/apt_cache/lists /var/lib/apt/lists
-        && mkdir -p ~/apt_cache/archives/partial ~/apt_cache/lists
+    # TODO: not working on GHA. Need to revisit caching.
+    #- name: Create a directory for debian packages so we can cache it
+    #  # this is what we did on CircleCI. Not sure if it'll work on GHA
+    #  shell: bash
+    #  run: >
+    #    sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
+    #    && sudo ln -s ~/apt_cache/archives /var/cache/apt/archives
+    #    && sudo ln -s ~/apt_cache/lists /var/lib/apt/lists
+    #    && mkdir -p ~/apt_cache/archives/partial ~/apt_cache/lists
 
     # hashFiles only reads files relative to GITHUB_WORKSPACE
-    - name: Copy apt-packages.txt for caching
+    - name: Construct apt-packages.txt
       shell: bash
       run: |
         cp ${{ github.action_path }}/apt-packages.txt ${GITHUB_WORKSPACE}/
@@ -36,20 +37,21 @@ runs:
           cat ${{ inputs.extra-apt-packages-file }} >> ${GITHUB_WORKSPACE}/apt-packages.txt
         fi
 
-    - name: Cache APT Dependencies
-      id: cache-apt-deps
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/apt_cache/*.deb
-        key: ${{ inputs.cache-version }}-apt-archives-and-lists-${{ hashFiles('apt-packages.txt') }}
-        restore-keys: |
-          ${{ inputs.cache-version }}-apt-archives-and-lists-
+    #- name: Cache APT Dependencies
+    #  id: cache-apt-deps
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: |
+    #      ~/apt_cache/*.deb
+    #    key: ${{ inputs.cache-version }}-apt-archives-and-lists-${{ hashFiles('apt-packages.txt') }}
+    #    restore-keys: |
+    #      ${{ inputs.cache-version }}-apt-archives-and-lists-
 
     - name: Install APT Dependencies
       shell: bash
       env:
-        CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
+    #    CACHE_HIT: ${{steps.cache-apt-deps.outputs.cache-hit}}
+        CACHE_HIT: "false"
         APT_PACKAGES_FILE_PATH: apt-packages.txt
         DEBIAN_FRONTEND: noninteractive
       run: |
