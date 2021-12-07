@@ -44,10 +44,16 @@ jobs:
               echo ... latestTag NOT found!
             fi
             echo
+            ###################################################
+            # Compare latest tag to version found in pack.yaml
+            ###################################################
             echo Comparing latestTag to version from pack.yaml... $latestTag =?= $version
             if [[ "$latestTag" == "v$version" ]]; then
               echo latestTag is the same as version!
             else
+              ###################################################
+              # Create new tag on most recent commit
+              ###################################################
               echo latestTag is NOT the same as version!
               echo "... creating new tag with version on most recent commit (HEAD) ..."
               git tag "v${version}" HEAD
