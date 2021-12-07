@@ -153,8 +153,6 @@ jobs:
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack excluded via index.git/v1/exclude_packs.txt"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          else
-            echo ${repo_name} is a valid pack.
           fi
         done
 
