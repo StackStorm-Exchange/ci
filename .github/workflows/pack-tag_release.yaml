@@ -14,6 +14,7 @@ jobs:
         with:
           repository: lm-ydubler/logicmonitor-stackstorm-pack
           fetch-depth: 0
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Tag Scripting
         shell: bash
@@ -21,6 +22,7 @@ jobs:
           pwd
           ls
           git status
+          echo secrets token =  ${{ secrets.GITHUB_TOKEN }}
           #############################
           # Get version from pack.yaml
           #############################
@@ -67,5 +69,6 @@ jobs:
               git add .
               git commit -m "added tag to most recent commit"
               git push
+              
             fi
           fi
