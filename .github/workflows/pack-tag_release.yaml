@@ -31,7 +31,11 @@ jobs:
             echo "latestTag is NOT NULL"
           fi
           version=$(grep 'version:' pack.yaml)
+          version2="${$(grep 'version:' pack.yaml)#version:}"
+          version3="$(echo -e "${"${$(grep 'version:' pack.yaml)#version:}"}" | tr -d '[:space:]')"
           echo version in pack.yaml=$version
+          echo version2=$version2
+          echo version3=$version3
           version="${version#version:}"
           echo version stripped=$version
           version_no_spaces="$(echo -e "${version}" | tr -d '[:space:]')"
