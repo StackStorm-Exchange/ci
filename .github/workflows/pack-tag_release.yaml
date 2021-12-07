@@ -25,7 +25,7 @@ jobs:
           # Get version from pack.yaml
           #############################
           echo Getting version from pack.yaml...
-          version=$(grep 'version:' pack.yaml)
+          version="$(grep 'version:' pack.yaml)"
           version="${version#version:}"
           version="$(echo -e "${version}" | tr -d '[:space:]')"
           if [[ -z "$version" ]]; then
