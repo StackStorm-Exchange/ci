@@ -27,4 +27,8 @@ jobs:
           fi
           if [[ -z "$latestTag" ]]; then
             echo "latestTag is NULL"
+          else
+            echo "latestTag is NOT NULL"
           fi
+          version=$(grep -A3 'version:' pack.yaml | tail -n1)
+          echo version in pack.yaml=$version
