@@ -63,6 +63,7 @@ if __name__ == '__main__':
 
     # TODO: Figure out why this wasn't previously executed, and execute it
     #       stackstorm-test-content-version repo is test_content_version pack
+    #       stackstorm-test2 repo is test pack
     # validate_repo_name(pack_meta, repo_name)
 
     # raises ValidationError if pack_meta doesn't validate against PACK_SCHEMA

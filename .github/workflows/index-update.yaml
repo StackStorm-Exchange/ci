@@ -161,6 +161,13 @@ jobs:
           cat ${GITHUB_WORKSPACE}/bad_pack_repos
         fi
 
+    - name: Display Index Changes (git)
+      shell: bash
+      working-directory: index
+      run: |
+        git status
+        git diff
+
     # validate.py hard codes the pack repo prefix
     # pack_content.py makes no CI assumptions
     # TODO: maybe use imagemagick instead of gmic+optipng
