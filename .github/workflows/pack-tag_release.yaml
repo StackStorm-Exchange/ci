@@ -61,10 +61,5 @@ jobs:
               git tag
               echo Review most recent commit (this should show the tag we just created):
               git log --pretty='%h %d' --max-count=1
-              # UNSURE HOW TO PUSH TO REPOSITORY USING GHA - RESEARCHING
-              echo adding, commiting, and pushing
-              git add .
-              git commit -m "Added tag to most recent commit"
-              git push
             fi
           fi
