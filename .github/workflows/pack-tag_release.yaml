@@ -55,11 +55,13 @@ jobs:
               # Create new tag on most recent commit
               ###################################################
               echo latestTag is NOT the same as version!
+              git log
               echo "... creating new tag with version on most recent commit (HEAD) ..."
               git tag "v${version}" HEAD
               echo Listing tags...
               git tag
               echo Review most recent commit...
               git log --max-count=1
+              git log
             fi
           fi
