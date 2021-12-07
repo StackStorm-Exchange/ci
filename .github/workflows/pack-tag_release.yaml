@@ -34,5 +34,5 @@ jobs:
           echo version in pack.yaml=$version
           version="${version#version:}"
           echo version stripped=$version
-          version="$version" | xargs
-          echo version stripped x 2=$version
+          version_no_spaces="$(echo -e "${version}" | tr -d '[:space:]')"
+          echo version_no_spaces=$version_no_spaces
