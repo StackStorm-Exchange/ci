@@ -33,4 +33,6 @@ jobs:
           version=$(grep 'version:' pack.yaml)
           echo version in pack.yaml=$version
           version="${version#version:}"
-          echo version stripped in pack.yaml=$version
+          echo version stripped=$version
+          version="$version" | xargs
+          echo version stripped x 2=$version
