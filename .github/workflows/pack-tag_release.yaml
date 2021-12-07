@@ -62,6 +62,6 @@ jobs:
               git tag
             fi
           else
-            echo "Tag or version is invalid!
+            echo Tag or Version is invalid!
           fi
           
