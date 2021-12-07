@@ -39,7 +39,9 @@ jobs:
           version="$(echo -e "${version}" | tr -d '[:space:]')"
           echo "... version found from pack.yaml!"
           echo version=$version
-          echo latestTag=$latestTag
+          
+          echo comparing latestTag=$latestTag to pack.yaml's version=$version...
+          echo ( $latestTag =?= v$version )
           if [[ "$latestTag" == "v$version" ]]; then
             echo "latestTag is the same as version!"
           else
