@@ -140,6 +140,7 @@ jobs:
             echo latestTag = $latestTag
             git -C ${repo_name} checkout $latestTag -b latestTagBranch
           fi
+          echo
           echo "::endgroup::" # DELETED notices will not be folded to simplify scanning action output
           if [[ -z "$latestTag" ]]; then
             rm -rf ${repo_name}
@@ -155,6 +156,7 @@ jobs:
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           fi
         done
+        cat ${GITHUB_WORKSPACE}/bad_pack_repos || true
 
     # validate.py hard codes the pack repo prefix
     # pack_content.py makes no CI assumptions
@@ -162,6 +164,7 @@ jobs:
     - name: Rebuild index/v1/packs and index/v1/icons
       shell: bash
       env:
+        PACKS_ORG: ${{ inputs.packs_org }}
         PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
       working-directory: packs
       run: |
@@ -170,6 +173,8 @@ jobs:
           echo "::group::pack - ${pack}"
           pushd ${pack_dir} >/dev/null
           if ! PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml); then
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+            echo
             echo "::endgroup::" # ensure SKIPPING notice is visible outside of the folded group
             echo SKIPPING rebuild for ${pack_dir} because pack.yaml is not valid
             continue
@@ -187,8 +192,10 @@ jobs:
             echo "Icon copied and optimized."
           fi
           popd >/dev/null
+          echo
           echo "::endgroup::"
         done
+        cat ${GITHUB_WORKSPACE}/bad_pack_repos || true
 
     - name: Display Index Changes (git)
       shell: bash
