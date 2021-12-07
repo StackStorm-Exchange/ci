@@ -168,25 +168,25 @@ jobs:
       working-directory: packs
       run: |
         for pack_dir in *; do
-        pack=${pack_dir#"$PACKS_PREFIX"-}
-        echo "::group::pack - ${pack}"
-        pushd ${pack_dir} >/dev/null
-        PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
-        # !TODO: handle invalid pack metadata
-        # Rebuild pack index directory
-        ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
-        # Check if an icon has been added or changed
-        ICON_TARGET="${INDEX_DIR}/v1/icons/${PACK_NAME}.png"
-        if [[ -f icon.png ]] && { [[ ! -f ${ICON_TARGET} ]] || ! cmp -s icon.png ${ICON_TARGET}; }; then
-        echo "Copying and optimizing the pack icon..."
-        mkdir -p ${INDEX_DIR}/v1/icons/
-        cp icon.png ${ICON_TARGET}
-        gmic ${ICON_TARGET} -resize 64,64 -output ${ICON_TARGET}
-        optipng -o5 ${ICON_TARGET}
-        echo "Icon copied and optimized."
-        fi
-        popd >/dev/null
-        echo "::endgroup::"
+          pack=${pack_dir#"$PACKS_PREFIX"-}
+          echo "::group::pack - ${pack}"
+          pushd ${pack_dir} >/dev/null
+          PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
+          # !TODO: handle invalid pack metadata
+          # Rebuild pack index directory
+          ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
+          # Check if an icon has been added or changed
+          ICON_TARGET="${INDEX_DIR}/v1/icons/${PACK_NAME}.png"
+          if [[ -f icon.png ]] && { [[ ! -f ${ICON_TARGET} ]] || ! cmp -s icon.png ${ICON_TARGET}; }; then
+            echo "Copying and optimizing the pack icon..."
+            mkdir -p ${INDEX_DIR}/v1/icons/
+            cp icon.png ${ICON_TARGET}
+            gmic ${ICON_TARGET} -resize 64,64 -output ${ICON_TARGET}
+            optipng -o5 ${ICON_TARGET}
+            echo "Icon copied and optimized."
+          fi
+          popd >/dev/null
+          echo "::endgroup::"
         done
 
     - name: Display Index Changes (git)
@@ -213,12 +213,12 @@ jobs:
         FORCE_REBUILD_INDEX: ${{ inputs.force-rebuild-index }}
       run: |
         if [[ -n "$(git -C ${INDEX_DIR} status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
-        if [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
-        echo "Forcing index rebuild..."
-        fi
-        ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/index.py" --glob "${INDEX_DIR}/v1/packs/*/pack.yaml" --output "${INDEX_DIR}/v1/"
+          if [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
+            echo "Forcing index rebuild..."
+          fi
+          ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/index.py" --glob "${INDEX_DIR}/v1/packs/*/pack.yaml" --output "${INDEX_DIR}/v1/"
         else
-        echo "No changes in metadata, skipping the index rebuild."
+          echo "No changes in metadata, skipping the index rebuild."
         fi
 
     - name: Display Index Changes (git)

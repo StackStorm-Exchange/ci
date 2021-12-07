@@ -33,7 +33,7 @@ runs:
       run: |
         cp ${{ github.action_path }}/apt-packages.txt ${GITHUB_WORKSPACE}/
         if [[ -f ${{ inputs.extra-apt-packages-file }} ]]; then
-        cat ${{ inputs.extra-apt-packages-file }} >> ${GITHUB_WORKSPACE}/apt-packages.txt
+          cat ${{ inputs.extra-apt-packages-file }} >> ${GITHUB_WORKSPACE}/apt-packages.txt
         fi
 
     - name: Cache APT Dependencies
@@ -55,7 +55,7 @@ runs:
       run: |
         echo "::group::Install APT Dependencies"
         if [[ "${CACHE_HIT}" != 'true' ]]; then
-        sudo apt-get -o=Dpkg::Use-Pty=0 -yq update
+          sudo apt-get -o=Dpkg::Use-Pty=0 -yq update
         fi
         APT_PACKAGES=$(grep -v '^#' "${APT_PACKAGES_FILE_PATH}" | xargs echo -n)
         sudo apt-get -o=Dpkg::Use-Pty=0 -yq install ${APT_PACKAGES}

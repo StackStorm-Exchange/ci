@@ -31,8 +31,8 @@ runs:
       run: |
         export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${CI_DIR}/.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
         if [[ -z "${PACK_NAME}" ]]; then
-        echo "Unable to retrieve pack name."
-        exit 1
+          echo "Unable to retrieve pack name."
+          exit 1
         fi
         echo "::set-output name=pack-name::${PACK_NAME}"
 
@@ -47,13 +47,13 @@ runs:
         DEFAULT_BRANCH=$(_gh_default_branch)
         echo "BASE_BRANCH=origin/${DEFAULT_BRANCH}" >> ${GITHUB_ENV}
         if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
-        echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
+          echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
         fi
         if [[ "true" == "${{ inputs.enable-common-libs }}" ]]; then
-        echo "Common libs PATH selected"
-        echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf" >> ${GITHUB_ENV}
+          echo "Common libs PATH selected"
+          echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf" >> ${GITHUB_ENV}
         else
-        echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf" >> ${GITHUB_ENV}
+          echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf" >> ${GITHUB_ENV}
         fi
         # Don't install various StackStorm dependencies which are already
         # installed by CI again in the various check scripts

@@ -96,9 +96,9 @@ runs:
       shell: bash
       run: |
         for runner in ${ST2_REPO_PATH}/contrib/runners/*; do
-        echo "::group::Install Runner: ${runner##*/}"
-        (. ${VIRTUALENV_DIR}/bin/activate; cd $runner; python setup.py develop)
-        echo "::endgroup::"
+          echo "::group::Install Runner: ${runner##*/}"
+          (. ${VIRTUALENV_DIR}/bin/activate; cd $runner; python setup.py develop)
+          echo "::endgroup::"
         done
 
     - name: Register Metrics Drivers
@@ -119,12 +119,12 @@ runs:
       run: |
         echo "::group::Install Pack Requirements"
         if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
-        echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
+          echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
+          ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
         fi
         if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
-        echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
-        ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+          echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
+          ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
         fi
         echo "::endgroup::"
 
