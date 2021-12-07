@@ -20,10 +20,11 @@ jobs:
         run: |
           pwd
           ls
-          cd ..
-          pwd
-          ls
-          cd ..
-          pwd
-          ls 
           echo "sup"
+          if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
+            echo latestTag = $latestTag
+            # git checkout $latestTag -b latestTagBranch
+          fi
+          if [[ -z "$latestTag" ]]; then
+            echo "latestTag is NULL"
+          fi
