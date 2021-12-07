@@ -68,7 +68,7 @@ jobs:
               git status
               git add .
               git commit -m "added tag to most recent commit"
-              git push
+              git push origin main
               
             fi
           fi
