@@ -21,34 +21,31 @@ jobs:
           pwd
           ls
           git status
-          #############################
-          # Get version from pack.yaml
-          #############################
+          echo Getting version from pack.yaml...
           version=$(grep 'version:' pack.yaml)
           version="${version#version:}"
           version="$(echo -e "${version}" | tr -d '[:space:]')"
           if [[ -z "$version" ]]; then
-            echo pack.yaml version is EMPTY/NULL!
+            echo pack.yaml version is EMPTY/NULL
             echo ABORTING!
           else
-            echo version from pack.yaml=$version
+            echo ... version from pack.yaml=$version
             echo
-            #####################
-            # Get latest git tag
-            #####################
+            echo Getting latest git tag ...
             if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
-              echo latestTag = $latestTag
+              echo ... latestTag = $latestTag
             else
-              echo "latestTag NOT found!"
+              echo ... latestTag NOT found
             fi
+            echo
             echo Comparing latestTag ($latestTag) to version from pack.yaml ($version) ...
             if [[ "$latestTag" == "v$version" ]]; then
               echo latestTag is the same as version!
             else
-              echo "latestTag is NOT the same as version!"
-              echo "... creating new tag with version on most recent commit (HEAD) ..."
+              echo "... latestTag is NOT the same as version!"
+              echo "... creating new tag with version on most recent commit (HEAD)"
               git tag "v${version}" HEAD
-              echo Listing tags...
+              echo "Listing Tags:"
               git tag
             fi
           fi
