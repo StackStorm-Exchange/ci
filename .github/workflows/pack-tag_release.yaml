@@ -59,7 +59,7 @@ jobs:
               git tag "v${version}" HEAD
               echo Listing tags...
               git tag
-              echo Review most recent commit...
+              echo Review most recent commit (this should show the tag we just created):
               git log --pretty='%h %d' --max-count=1
             fi
           fi
