@@ -171,8 +171,10 @@ jobs:
           pack=${pack_dir#"$PACKS_PREFIX"-}
           echo "::group::pack - ${pack}"
           pushd ${pack_dir} >/dev/null
-          PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml)
-          # !TODO: handle invalid pack metadata
+          if ! PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml); then
+            echo SKIPPING rebuild for ${pack_dir} because pack.yaml is not valid
+            continue
+          fi
           # Rebuild pack index directory
           ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
           # Check if an icon has been added or changed
