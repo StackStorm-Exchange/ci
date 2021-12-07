@@ -140,6 +140,7 @@ jobs:
             echo latestTag = $latestTag
             git -C ${repo_name} checkout $latestTag -b latestTagBranch
           fi
+          echo "::endgroup::" # DELETED notices will not be folded to simplify scanning action output
           if [[ -z "$latestTag" ]]; then
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
@@ -155,7 +156,6 @@ jobs:
           else
             echo ${repo_name} is a valid pack.
           fi
-          echo "::endgroup::"
         done
 
     # validate.py hard codes the pack repo prefix
@@ -172,6 +172,7 @@ jobs:
           echo "::group::pack - ${pack}"
           pushd ${pack_dir} >/dev/null
           if ! PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml); then
+            echo "::endgroup::" # ensure SKIPPING notice is visible outside of the folded group
             echo SKIPPING rebuild for ${pack_dir} because pack.yaml is not valid
             continue
           fi
