@@ -58,7 +58,7 @@ jobs:
             else
               echo "latestTag is NOT the same as version!"
               echo "... creating new tag with version on most recent commit ..."
-              git tag "${version}" HEAD
+              git tag "v${version}" HEAD
               echo Listing tags...
               git tag
             fi
