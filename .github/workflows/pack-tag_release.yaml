@@ -49,15 +49,13 @@ jobs:
             echo "pack.yaml version=$version"
           fi
           if [[ "$tagIsValid" == "true" && "$versionIsValid" == "true" ]]; then
-            #############################################
-            # Comparing latest tag to pack.yaml's version
-            #############################################
-            echo comparing $latestTag to $version ...
+          #############################################
+          # Comparing latest tag to pack.yaml's version
+          #############################################
+            echo "comparing $latestTag to $version ...
             if [[ "$latestTag" == "v$version" ]]; then
-              ### Tag = Version - Do nothing ###
               echo "latestTag is the same as version!"
             else
-              ### Tag != Version - Create new tag with version on most recent commit ###
               echo "latestTag is NOT the same as version!"
               echo "... creating new tag with version on most recent commit ..."
               git tag "$version" HEAD
