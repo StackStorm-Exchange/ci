@@ -21,7 +21,9 @@ jobs:
           pwd
           ls
           git status
-          echo "Getting latest tag..."
+          #####################
+          # Get latest git tag
+          #####################
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo "...latest tag found!"
             echo latestTag = $latestTag
@@ -33,12 +35,16 @@ jobs:
           else
             echo "latestTag is NOT NULL"
           fi
-          echo "Getting version from pack.yaml file..."
+          #############################
+          # Get version from pack.yaml
+          #############################
           version=$(grep 'version:' pack.yaml)
           version="${version#version:}"
           version="$(echo -e "${version}" | tr -d '[:space:]')"
-          echo "... version found from pack.yaml!"
-          echo version=$version
+          echo pack.yaml version=$version
+          #############################################
+          # Coparing latest tag to pack.yaml's version
+          #############################################
           echo comparing $latestTag to $version ...
           if [[ "$latestTag" == "v$version" ]]; then
             echo "latestTag is the same as version!"
