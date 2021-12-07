@@ -52,7 +52,7 @@ jobs:
           #############################################
           # Comparing latest tag to pack.yaml's version
           #############################################
-            echo "comparing $latestTag to $version ...
+            echo comparing $latestTag to $version ...
             if [[ "$latestTag" == "v$version" ]]; then
               echo "latestTag is the same as version!"
             else
