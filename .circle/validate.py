@@ -34,6 +34,9 @@ def load_yaml_file(path):
 
 
 def validate_schema(instance, schema):
+    # validate() returns a cleaned instance with default values assigned.
+    # and it calls jsonschema.validate(instance, schema) so this will
+    # raise ValidationError if instance is not valid according to schema
     return util_schema.validate(instance=instance, schema=schema,
                                 cls=util_schema.CustomValidator,
                                 use_default=True,
@@ -51,12 +54,21 @@ def validate_repo_name(instance, repo_name):
 
 
 if __name__ == '__main__':
+    # If an exception is raised, python basically does sys.exit(1)
+    # Without an exception, the return code is 0.
+
     repo_name = sys.argv[1]
+    # raises if yaml is invalid
     pack_meta = load_yaml_file(sys.argv[2])
 
     # TODO: Figure out why this wasn't previously executed, and execute it
+    #       stackstorm-test-content-version repo is test_content_version pack
     # validate_repo_name(pack_meta, repo_name)
-    validate_schema(pack_meta, PACK_SCHEMA)
+
+    # raises ValidationError if pack_meta doesn't validate against PACK_SCHEMA
+    cleaned_pack_meta = validate_schema(pack_meta, PACK_SCHEMA)
+
+    # raises ValueError if pack ref not defined and pack name is not a valid ref
     pack_ref = validate_pack_contains_valid_ref_or_name(pack_meta)
 
     print(pack_ref)
