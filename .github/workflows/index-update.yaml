@@ -156,7 +156,10 @@ jobs:
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           fi
         done
-        cat ${GITHUB_WORKSPACE}/bad_pack_repos || true
+        if [[ -f ${GITHUB_WORKSPACE}/bad_pack_repos ]]; then
+          echo "These repos were DELETED. See above for why."
+          cat ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
 
     # validate.py hard codes the pack repo prefix
     # pack_content.py makes no CI assumptions
@@ -195,7 +198,10 @@ jobs:
           echo
           echo "::endgroup::"
         done
-        cat ${GITHUB_WORKSPACE}/bad_pack_repos || true
+        if [[ -f ${GITHUB_WORKSPACE}/bad_pack_repos ]]; then
+          echo "These repos were SKIPPED or DELETED. See above or in checkout step logs for why."
+          cat ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
 
     - name: Display Index Changes (git)
       shell: bash
