@@ -23,6 +23,7 @@ jobs:
           ls
           git status
           echo secrets token =  ${{ secrets.GITHUB_TOKEN }}
+          git remote -v
           #############################
           # Get version from pack.yaml
           #############################
