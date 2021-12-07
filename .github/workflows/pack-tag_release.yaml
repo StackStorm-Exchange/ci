@@ -21,6 +21,7 @@ jobs:
           pwd
           ls
           echo "sup"
+          git status
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
             # git checkout $latestTag -b latestTagBranch
