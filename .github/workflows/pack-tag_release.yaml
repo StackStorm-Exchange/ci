@@ -21,8 +21,6 @@ jobs:
           pwd
           ls
           git status
-          tagIsValid="true"
-          versionIsValid="true"
           #####################
           # Get latest git tag
           #####################
@@ -30,11 +28,6 @@ jobs:
             echo latestTag = $latestTag
           else
             echo "latestTag NOT found!"
-            tagIsValid="false"
-          fi
-          if [[ -z "$latestTag" ]]; then
-            echo "latestTag is EMPTY/NULL!"
-            tagIsValid="false"
           fi
           #############################
           # Get version from pack.yaml
@@ -43,26 +36,19 @@ jobs:
           version="${version#version:}"
           version="$(echo -e "${version}" | tr -d '[:space:]')"
           if [[ -z "$version" ]]; then
-            echo "pack.yaml version is EMPTY/NULL!"
-            versionIsValid="false"
+            echo pack.yaml version is EMPTY/NULL!
+            echo ABORTING!
           else
-            echo "pack.yaml version=$version"
-          fi
-          if [[ "$tagIsValid" == "true" && "$versionIsValid" == "true" ]]; then
-          #############################################
-          # Comparing latest tag to pack.yaml's version
-          #############################################
-            echo comparing $latestTag to $version ...
+            echo version from pack.yaml=$version
+            echo
+            echo Comparing latestTag ($latestTag) to version from pack.yaml ($version) ...
             if [[ "$latestTag" == "v$version" ]]; then
-              echo "latestTag is the same as version!"
+              echo latestTag is the same as version!
             else
               echo "latestTag is NOT the same as version!"
-              echo "... creating new tag with version on most recent commit ..."
+              echo "... creating new tag with version on most recent commit (HEAD) ..."
               git tag "v${version}" HEAD
               echo Listing tags...
               git tag
             fi
-          else
-            echo Tag or Version is invalid!
           fi
-          
