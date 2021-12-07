@@ -10,6 +10,15 @@ jobs:
     name: 'Tag Release'
     steps:
       - name: Checkout Pack Repo
+        uses: actions/checkout@v2
+        with:
+          repository: lm-ydubler/logicmonitor-stackstorm-pack
+          fetch-depth: 1
+          path: logicmonitor
         
-      - name: 
+      - name: Tag Scripting
+        shell: bash
         run: |
+          pwd
+          ls
+          echo "sup"
