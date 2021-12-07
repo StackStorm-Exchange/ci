@@ -22,7 +22,7 @@ from st2common.models.api.pack import PackAPI
 from st2common.util import schema as util_schema
 from st2common.util.pack import get_pack_ref_from_metadata
 
-PREFIX = 'stackstorm'
+PREFIX = os.environ.get("PACKS_PREFIX", "stackstorm")
 PACK_SCHEMA = PackAPI.schema
 
 

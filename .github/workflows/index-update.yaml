@@ -168,8 +168,8 @@ jobs:
         git status
         git diff
 
-    # validate.py hard codes the pack repo prefix
-    # pack_content.py makes no CI assumptions
+    # validate.py and pack_content.py make no CI assumptions
+    # TODO: once we drop CircleCI move validate.py out of the .circle directory.
     # TODO: maybe use imagemagick instead of gmic+optipng
     - name: Rebuild index/v1/packs and index/v1/icons
       shell: bash
@@ -217,20 +217,14 @@ jobs:
         git status
         git diff
 
-    # index.py has some bad assumptions:
-    # - error messages explain old CircleCI + GitHub PAT process.
-    # - error message assumes we're only updating one pack and
-    #   uses PACK_NAME env var to enhance the error message.
-    # - uses MACHINE_USER/MACHINE_PASSWORD env vars to determine
-    #   github api credentials. These were CircleCI secrets.
-    #   However, the GITHUB_TOKEN generated for GitHub actions
-    #   requires Bearer auth instead of basic auth.
-    #   Note: gh graphql credentials already do the right thing.
-    # - EXCHANGE ORG and pack repo prefix are hard coded.
+    # TODO: once we drop CircleCI, update index.py to remove CircleCI-specific bits
+    #       and move out of the .circle directory.
     - name: Rebuild index/v1/index.json
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        PACKS_ORG: ${{ inputs.packs_org }}
+        PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
         FORCE_REBUILD_INDEX: ${{ inputs.force-rebuild-index }}
       run: |
         if [[ -n "$(git -C ${INDEX_DIR} status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then

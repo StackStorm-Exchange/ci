@@ -17,11 +17,22 @@ import six
 
 from st2common.util.pack import get_pack_ref_from_metadata
 
-EXCHANGE_NAME = "StackStorm-Exchange"
-EXCHANGE_PREFIX = "stackstorm"
+EXCHANGE_NAME = os.environ.get("PACKS_ORG", "StackStorm-Exchange")
+EXCHANGE_PREFIX = os.environ.get("PACKS_PREFIX", "stackstorm")
 
+if os.environ.get("CIRCLECI"):
+    CI = "CircleCI"
+elif os.environ.get("GITHUB_ACTIONS"):
+    CI = "GHA"
+else:
+    CI = "unknown"
+
+
+# TODO: drop GITHUB_USERNAME once we drop support for CircleCI
 GITHUB_USERNAME = os.environ.get('MACHINE_USER')
+# TODO: drop MACHINE_PASSWORD once we drop support for CircleCI. Keep GH_TOKEN.
 GITHUB_PASSWORD = os.environ.get("MACHINE_PASSWORD", os.environ.get("GH_TOKEN"))
+# TODO: drop ACTIVE_PACK_NAME once we drop support for CircleCI. Only used for CircleCI-specific error message.
 ACTIVE_PACK_NAME = os.environ.get('PACK_NAME', "unknown")
 
 SESSION = requests.Session()
@@ -107,7 +118,8 @@ def build_index(path_glob, output_path):
                   separators=(',', ': '))
 
     failed_message = ''
-    if failed_count > 0:
+    # TODO: drop CircleCI error message once we drop support for CircleCI
+    if failed_count > 0 and CI == "CircleCI":
         failed_message = (
             ', {failed_count} packs failed to update.\n'
             'The GitHub Personal Access Tokens for CircleCI for the pack may '
@@ -119,6 +131,14 @@ def build_index(path_glob, output_path):
             'If you do not have the necessary GitHub and CircleCI credentials, you\n'
             'will need to ask a member of the StackStorm TSC to update the Personal\n'
             'Access Token on your behalf.'
+        ).format(failed_count=failed_count, exchange_name=EXCHANGE_NAME)
+    elif failed_count > 0:
+        # If an issue is reported on GitHub Actions, update this error message
+        # to explain common causes and how to fix them.
+        failed_message = (
+            ', {failed_count} packs failed to update.\n'
+            'Please investigate why this failed and report an issue on:\n'
+            '  https://github.com/{exchange_name}/ci\n'
         ).format(failed_count=failed_count, exchange_name=EXCHANGE_NAME)
 
     print('')
@@ -152,12 +172,19 @@ def get_available_versions():
         proc.kill()
         outs, _ = proc.communicate()
     result = outs.decode().strip()
-    if proc.returncode != 0:
+    # TODO: drop CircleCI error message once we drop support for CircleCI
+    if proc.returncode != 0 and CI == "CircleCI":
         sys.exit(
             "Error retrieving data with github graphql API.\n"
             "The GitHub PAT might need to be regenerated:\n"
             "https://github.com/settings/tokens/new?scopes=public_repo"
             "&description=CircleCI%3A%20stackstorm-" + ACTIVE_PACK_NAME
+        )
+    elif proc.returncode != 0:
+        # If an issue is reported on GitHub Actions, update this error message
+        # to explain common causes and how to fix them.
+        sys.exit(
+            "Error retrieving data with github graphql API.\n"
         )
 
     # https://stackoverflow.com/a/43807246/1134951
@@ -194,7 +221,12 @@ def get_available_versions_for_pack(pack_ref):
 
     NOTE: This function uses Github API.
     """
+    # TODO: remove this if block once we discontinue CircleCI support. Keep the else block.
     if pack_ref not in PACK_VERSIONS:
+        # This will fail in GitHub Actions because the GITHUB_TOKEN there must be
+        # provided as bearer auth instead of basic auth. But using graphql is better
+        # anyway, so this is only needed as a backup on CircleCI if graphql doesn't work.
+        # graphql should always work on GHA.
         url = ('https://api.github.com/repos/%s/%s-%s/tags' %
                (EXCHANGE_NAME, EXCHANGE_PREFIX, pack_ref))
         resp = SESSION.get(url)
