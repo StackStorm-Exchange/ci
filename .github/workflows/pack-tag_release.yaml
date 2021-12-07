@@ -41,7 +41,7 @@ jobs:
           else
             echo version from pack.yaml=$version
             echo
-            echo Comparing latestTag ($latestTag) to version from pack.yaml ($version) ...
+            echo Comparing latestTag $latestTag to version from pack.yaml $version ...
             if [[ "$latestTag" == "v$version" ]]; then
               echo latestTag is the same as version!
             else
