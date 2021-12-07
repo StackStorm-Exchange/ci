@@ -14,14 +14,10 @@ jobs:
         with:
           repository: lm-ydubler/logicmonitor-stackstorm-pack
           fetch-depth: 1
-          path: logicmonitor
         
       - name: Tag Scripting
         shell: bash
         run: |
-          pwd
-          ls
-          cd logicmonitor
           pwd
           ls
           echo "sup"
