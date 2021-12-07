@@ -61,5 +61,9 @@ jobs:
               git tag
               echo Review most recent commit - this should show the tag we just created:
               git log --pretty='%h %d' --max-count=1
+              git status
+              git add .
+              git commit -m "added tag to most recent commit"
+              git push
             fi
           fi
