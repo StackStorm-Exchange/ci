@@ -20,7 +20,6 @@ jobs:
         run: |
           pwd
           ls
-          echo "sup"
           git status
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo latestTag = $latestTag
@@ -31,19 +30,11 @@ jobs:
             echo "latestTag is NOT NULL"
           fi
           version=$(grep 'version:' pack.yaml)
-          version2="${(grep 'version:' pack.yaml)#version:}"
-          version3="$(echo -e "{"${(grep 'version:' pack.yaml)#version:}"}" | tr -d '[:space:]')"
-          echo version in pack.yaml=$version
-          echo version2=$version2
-          echo version3=$version3
           version="${version#version:}"
-          echo version stripped=$version
-          version_no_spaces="$(echo -e "${version}" | tr -d '[:space:]')"
-          echo version_no_spaces=$version_no_spaces
-          echo -e "\n"
+          version="$(echo -e "${version}" | tr -d '[:space:]')"
+          echo version=$version
           echo latestTag=$latestTag
-          echo version=$version_no_spaces
-          if [[ "$latestTag" == "$version_no_spaces" ]]; then
+          if [[ "$latestTag" == "$version" ]]; then
             echo "latestTag is the same as version!"
           else
             echo "latestTag is NOT the same as version!"
