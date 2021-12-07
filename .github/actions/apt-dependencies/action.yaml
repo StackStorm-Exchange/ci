@@ -67,7 +67,6 @@ runs:
       shell: bash
       run: |
         echo "::group::Print Versions"
-        set -ex
         jq --version
         gh --version
         echo "::endgroup::"
