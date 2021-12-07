@@ -64,9 +64,7 @@ jobs:
               git tag
               echo Review most recent commit - this should show the tag we just created:
               git log --pretty='%h %d' --max-count=1
-              #git config user.email "gha-automated-script@stackstorm.com"
-              #git config user.name "GHA Automated Script"
-              git status
+              echo Pushing new tag to origin...
               git push origin "v${version}"
             fi
           fi
