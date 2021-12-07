@@ -21,19 +21,20 @@ jobs:
           pwd
           ls
           git status
+          tagIsValid="true"
+          versionIsValid="true"
           #####################
           # Get latest git tag
           #####################
           if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
-            echo "...latest tag found!"
             echo latestTag = $latestTag
           else
-            echo "...latest tag NOT found!"
+            echo "latestTag NOT found!"
+            tagIsValid="false"
           fi
           if [[ -z "$latestTag" ]]; then
-            echo "latestTag is NULL"
-          else
-            echo "latestTag is NOT NULL"
+            echo "latestTag is EMPTY/NULL!"
+            tagIsValid="false"
           fi
           #############################
           # Get version from pack.yaml
@@ -41,13 +42,28 @@ jobs:
           version=$(grep 'version:' pack.yaml)
           version="${version#version:}"
           version="$(echo -e "${version}" | tr -d '[:space:]')"
-          echo pack.yaml version=$version
-          #############################################
-          # Coparing latest tag to pack.yaml's version
-          #############################################
-          echo comparing $latestTag to $version ...
-          if [[ "$latestTag" == "v$version" ]]; then
-            echo "latestTag is the same as version!"
+          if [[ -z "$version" ]]; then
+            echo "pack.yaml version is EMPTY/NULL!"
+            versionIsValid="false"
           else
-            echo "latestTag is NOT the same as version!"
+            echo "pack.yaml version=$version"
           fi
+          if [[ "$tagIsValid" == "true" && "$versionIsValid" == "true" ]]; then
+            #############################################
+            # Comparing latest tag to pack.yaml's version
+            #############################################
+            echo comparing $latestTag to $version ...
+            if [[ "$latestTag" == "v$version" ]]; then
+              ### Tag = Version - Do nothing ###
+              echo "latestTag is the same as version!"
+            else
+              ### Tag != Version - Create new tag with version on most recent commit ###
+              echo "latestTag is NOT the same as version!"
+              echo "... creating new tag with version on most recent commit ..."
+              git tag "$version" HEAD
+              git tag
+            fi
+          else
+            echo "Tag or version is invalid!
+          fi
+          
