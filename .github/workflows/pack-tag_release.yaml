@@ -59,5 +59,7 @@ jobs:
               git tag "v${version}" HEAD
               echo Listing tags...
               git tag
+              echo Review most recent commit...
+              git log --max-count=1
             fi
           fi
