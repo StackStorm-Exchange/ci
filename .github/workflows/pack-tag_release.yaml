@@ -36,3 +36,11 @@ jobs:
           echo version stripped=$version
           version_no_spaces="$(echo -e "${version}" | tr -d '[:space:]')"
           echo version_no_spaces=$version_no_spaces
+          echo -e "\n"
+          echo latestTag=$latestTag
+          echo version=$version_no_spaces
+          if [[ "$latestTag" == "$version_no_spaces" ]]; then
+            echo "latestTag is the same as version!"
+          else
+            echo "latestTag is NOT the same as version!"
+          fi
