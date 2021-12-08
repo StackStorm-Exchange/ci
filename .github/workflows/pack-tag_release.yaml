@@ -14,7 +14,7 @@ jobs:
         with:
           repository: lm-ydubler/logicmonitor-stackstorm-pack
           fetch-depth: 0
-          #repo-token: ${{ secrets.GITHUB_TOKEN }}
+          #repo-token: ${{ secrets.GITHUB_TOKEN }} # <------- NOT REQUIRED
 
       - name: Get version from pack.yaml
         shell: bash
@@ -57,10 +57,8 @@ jobs:
 
       - name: Add Tag If Required
         if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.RESULT) && steps.pack-version.outputs.RESULT != '' }}
-        #if: ${{  steps.latest-tag.outputs.LATEST_TAG != format('v{0}', steps.pack-version.outputs.RESULT) && steps.pack-version.outputs.RESULT != '' }}
         env:
           PACK_VERSION: ${{steps.pack-version.outputs.RESULT}}
-          #ENV_LATEST_TAG: ${{steps.latest-tag.outputs.LATEST_TAG}}
         shell: bash
         run: |
           ###################################################
@@ -69,14 +67,14 @@ jobs:
           echo LATEST_TAG=${{env.LATEST_TAG}}
           echo PACK_VERSION=v${PACK_VERSION}
           echo LATEST_TAG != PACK_VERSION!
-          echo "... creating new tag with version on most recent commit aka HEAD ..."
+          echo Creating tag named 'v${PACK_VERSION}' on most recent commit aka HEAD ..."
           git tag "v${PACK_VERSION}" HEAD
           ##############################################################
           # Verify tag was created and exists on the most recent commit
           ##############################################################
-          echo Listing tags... -for debug-
+          echo Look at the list of tags to make sure it exists:
           git tag
-          echo Review most recent commit - this should show the tag we just created -for debug- :
+          echo Review most recent commit to make ensure the tag is associated with it:
           git log --pretty='%h %d' --max-count=1
           ##########################################
           # Push tag to origin repository (success!)
