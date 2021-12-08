@@ -29,7 +29,7 @@ jobs:
           sudo apt install yq -y
           version="$(yq eval '.version' pack.yaml)"
           echo pack-version=$version
-          echo "::set-output name=result::$(version)"
+          echo ::set-output name=result::$version
 
       - name: Get latest git tag
         shell: bash
