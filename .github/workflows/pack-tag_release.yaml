@@ -35,35 +35,37 @@ jobs:
           ###################################
           # MAKE VERSION AN OUTPUT PARAMETER
           ###################################
-          echo ::set-output name=result::$(yq eval '.version' pack.yaml)
+          echo ::set-output name=RESULT::$(yq eval '.version' pack.yaml)
 
       - name: Get latest git tag
         shell: bash
+        id: latest-tag
         run: |
           ################################
           # GET LATEST TAG FROM PACK REPO
           ################################
           if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENVIRONMENT}
+            echo ::set-output name=LATEST_TAG::$LATEST_TAG
           else
             echo 'LATEST_TAG=""' >> ${GITHUB_ENVIRONMENT}
             echo There are no tags yet.
           fi
 
       - name: Add Tag If Required
-        if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
+        #if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
+        if: ${{  steps.latest-tag.outputs.LATEST_TAG != format('v{0}', steps.pack-version.outputs.RESULT) && steps.pack-version.outputs.RESULT != '' }}
         env:
-          PACK_VERSION: ${{steps.pack-version.outputs.result}}
+          PACK_VERSION: ${{steps.pack-version.outputs.RESULT}}
+          LATEST_TAG: ${{steps.latest-tag.outputs.LATEST_TAG}}
         shell: bash
         run: |
           ###################################################
           # Create new tag on most recent commit
           ###################################################
-          echo LATEST_TAG=$LATEST_TAG
-          echo env.LATEST_TAG=$env.LATEST_TAG
           echo LATEST_TAG=${LATEST_TAG}
-          echo env.LATEST_TAG=${env.LATEST_TAG}
-          echo LATEST_TAG does not match PACK_VERSION.      
+          echo PACK_VERSION=v${PACK_VERSION}
+          echo LATEST_TAG != PACK_VERSION!
           echo "... creating new tag with version on most recent commit aka HEAD ..."
           git tag "v${PACK_VERSION}" HEAD
           ##############################################################
