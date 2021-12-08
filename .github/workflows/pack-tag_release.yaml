@@ -20,7 +20,7 @@ jobs:
         id: pack-version
         uses: mikefarah/yq@master
         with:
-          cmd: version=yq eval '.version' 'pack.yaml';echo "::set-output name=result::$version"
+          cmd: version=yq eval 'version' 'pack.yaml';echo "::set-output name=result::$version"
 
       - name: Get latest git tag
         shell: bash
