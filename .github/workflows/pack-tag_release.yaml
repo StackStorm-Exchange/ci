@@ -45,7 +45,7 @@ jobs:
         if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
         shell: bash
         env:
-          PACK_VERSION: {{steps.pack-version.outputs.result}}
+          PACK_VERSION: ${{steps.pack-version.outputs.result}}
         run: |
           ###################################################
           # Create new tag on most recent commit
