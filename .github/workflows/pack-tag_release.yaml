@@ -40,12 +40,15 @@ jobs:
       - name: Get latest git tag
         shell: bash
         run: |
-            if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
-              echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENVIRONMENT}
-            else
-              echo 'LATEST_TAG=""' >> ${GITHUB_ENVIRONMENT}
-              echo There are no tags yet.
-            fi
+          ################################
+          # GET LATEST TAG FROM PACK REPO
+          ################################
+          if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
+            echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENVIRONMENT}
+          else
+            echo 'LATEST_TAG=""' >> ${GITHUB_ENVIRONMENT}
+            echo There are no tags yet.
+          fi
 
       - name: Add Tag If Required
         if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
