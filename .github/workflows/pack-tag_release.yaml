@@ -46,7 +46,7 @@ jobs:
           ################################
           if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
             # echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENVIRONMENT} # doesn't work
-            echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> $GITHUB_ENV
+            echo "LATEST_TAG=(${LATEST_TAG}" | tee -a) >> $GITHUB_ENV
             #echo ::set-output name=LATEST_TAG::$LATEST_TAG
           else
             # echo 'LATEST_TAG=""' >> ${GITHUB_ENVIRONMENT} # doesn't work
@@ -59,7 +59,7 @@ jobs:
         #if: ${{  steps.latest-tag.outputs.LATEST_TAG != format('v{0}', steps.pack-version.outputs.RESULT) && steps.pack-version.outputs.RESULT != '' }}
         env:
           PACK_VERSION: ${{steps.pack-version.outputs.RESULT}}
-          LATEST_TAG: ${{steps.latest-tag.outputs.LATEST_TAG}}
+          #ENV_LATEST_TAG: ${{steps.latest-tag.outputs.LATEST_TAG}}
         shell: bash
         run: |
           ###################################################
