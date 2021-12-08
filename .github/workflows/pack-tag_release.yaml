@@ -33,7 +33,7 @@ jobs:
             fi
 
       - name: Add Tag If Required
-        if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) and steps.pack-version.outputs.result != '' }}
+        if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
         env: 
           PACK_VERSION: ${{ steps.pack-version.outputs.result }}
         shell: bash
