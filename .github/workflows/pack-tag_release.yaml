@@ -17,10 +17,19 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version from pack.yaml
+        shell: bash
         id: pack-version
-        uses: mikefarah/yq@master
-        with:
-          cmd: pwd;ls;version=$(yq eval 'version' 'pack.yaml');echo pack-version=$version;echo "::set-output name=result::$(version)"
+        #uses: mikefarah/yq@master
+        run: |
+          pwd
+          ls
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update
+          sudo apt install yq -y
+          version=$(yq eval 'version' 'pack.yaml')
+          echo pack-version=$version
+          echo "::set-output name=result::$(version)"
 
       - name: Get latest git tag
         shell: bash
