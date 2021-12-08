@@ -21,7 +21,7 @@ jobs:
         id: pack-version
         uses: mikefarah/yq@master
         with:
-          cmd: echo "::set-output name=result::$(yq eval '.version' pack.yaml)"
+          cmd: ::echo::on;echo "::set-output name=result::$(yq eval '.version' pack.yaml)"
         #run: |
          # pwd
           #ls
