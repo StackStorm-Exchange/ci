@@ -57,4 +57,4 @@ jobs:
           # Push tag to origin repository (success!)
           ##########################################
           echo Pushing new tag to origin...
-          # git push origin "${{PACK_VERSION}}"
+          # git push origin "v${{steps.pack-version.outputs.result}}"
