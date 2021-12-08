@@ -15,7 +15,23 @@ jobs:
           repository: lm-ydubler/logicmonitor-stackstorm-pack
           fetch-depth: 0
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-        
+
+      - name: Get version from pack.yaml
+        id: pack-version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval '.version' 'pack.yaml'
+
+      - name: Get latest git tag
+        shell: bash
+        run: |
+            if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
+              echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENVIRONMENT}
+            else
+              echo 'LATEST_TAG=""' >> ${GITHUB_ENVIRONMENT}
+              echo There are no tags yet.
+            fi
+
       - name: Add Tag If Required
         shell: bash
         run: |
