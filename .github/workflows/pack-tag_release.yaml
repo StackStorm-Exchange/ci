@@ -62,9 +62,9 @@ jobs:
           ##############################################################
           # Verify tag was created and exists on the most recent commit
           ##############################################################
-          echo Listing tags...
+          echo Listing tags... (for debug)
           git tag
-          echo Review most recent commit - this should show the tag we just created:
+          echo Review most recent commit - this should show the tag we just created (for debug) :
           git log --pretty='%h %d' --max-count=1
           ##########################################
           # Push tag to origin repository (success!)
