@@ -67,7 +67,7 @@ jobs:
           echo LATEST_TAG=${{env.LATEST_TAG}}
           echo PACK_VERSION=v${PACK_VERSION}
           echo LATEST_TAG != PACK_VERSION!
-          echo Creating tag named 'v${PACK_VERSION}' on most recent commit aka HEAD ..."
+          echo Creating tag named 'v${PACK_VERSION}' on most recent commit aka HEAD ...
           git tag "v${PACK_VERSION}" HEAD
           ##############################################################
           # Verify tag was created and exists on the most recent commit
