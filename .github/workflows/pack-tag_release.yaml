@@ -34,13 +34,14 @@ jobs:
 
       - name: Add Tag If Required
         if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) and steps.pack-version.outputs.result != '' }}
-        env:
+        env: 
           PACK_VERSION: ${{ steps.pack-version.outputs.result }}
         shell: bash
         run: |
           pwd
           ls
           git status
+          echo "pack-version is ${pack-version} or ${{pack-version}}"
           #############################
           # Get version from pack.yaml
           #############################
@@ -88,6 +89,6 @@ jobs:
               # Push tag to origin repository (success!)
               ##########################################
               echo Pushing new tag to origin...
-              git push origin "v${version}"
+              # git push origin "v${version}"
             fi
           fi
