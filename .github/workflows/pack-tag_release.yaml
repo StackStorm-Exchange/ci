@@ -14,7 +14,6 @@ jobs:
         with:
           repository: lm-ydubler/logicmonitor-stackstorm-pack
           fetch-depth: 0
-          #repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version from pack.yaml
         shell: bash
