@@ -38,57 +38,26 @@ jobs:
           PACK_VERSION: ${{ steps.pack-version.outputs.result }}
         shell: bash
         run: |
-          pwd
-          ls
-          git status
-          echo "pack-version is ${pack-version} or ${{pack-version}}"
-          #############################
-          # Get version from pack.yaml
-          #############################
-          echo Getting version from pack.yaml...
-          version="$(grep 'version:' pack.yaml)"
-          version="${version#version:}"
-          version="$(echo -e "${version}" | tr -d '[:space:]')"
-          if [[ -z "$version" ]]; then
-            echo ... version from pack.yaml is EMPTY/NULL!
-            echo ABORTING!
-          else
-            echo ... version from pack.yaml=$version
-            echo
-            #####################
-            # Get latest git tag
-            #####################
-            echo Getting latest tag ...
-            if latestTag=$(git describe --tags `git rev-list --tags --max-count=1`); then
-              echo ... latestTag=$latestTag
-            else
-              echo ... latestTag NOT found!
-            fi
-            echo
-            ###################################################
-            # Compare latest tag to version found in pack.yaml
-            ###################################################
-            echo Comparing latestTag to version from pack.yaml... $latestTag =?= $version
-            if [[ "$latestTag" == "v$version" ]]; then
-              echo latestTag is the same as version!
-            else
-              ###################################################
-              # Create new tag on most recent commit
-              ###################################################
-              echo latestTag is NOT the same as version!
-              echo "... creating new tag with version on most recent commit aka HEAD ..."
-              git tag "v${version}" HEAD
-              ##############################################################
-              # Verify tag was created and exists on the most recent commit
-              ##############################################################
-              echo Listing tags...
-              git tag
-              echo Review most recent commit - this should show the tag we just created:
-              git log --pretty='%h %d' --max-count=1
-              ##########################################
-              # Push tag to origin repository (success!)
-              ##########################################
-              echo Pushing new tag to origin...
-              # git push origin "v${version}"
-            fi
-          fi
+          ###################################################
+          # Create new tag on most recent commit
+          ###################################################
+          echo LATEST_TAG does not match PACK_VERSION.       
+          echo PACK_VERSION1 = ${PACK_VERSION}
+          echo PACK_VERSION2 = ${{PACK_VERSION}}
+          echo "PACK_VERSION1 = v${PACK_VERSION}"
+          echo "PACK_VERSION2 = v${{PACK_VERSION}}"
+          echo "... creating new tag with version on most recent commit aka HEAD ..."
+          # git tag "${{PACK_VERSION}}" HEAD
+          ##############################################################
+          # Verify tag was created and exists on the most recent commit
+          ##############################################################
+          echo Listing tags...
+          git tag
+          echo Review most recent commit - this should show the tag we just created:
+          git log --pretty='%h %d' --max-count=1
+          ##########################################
+          # Push tag to origin repository (success!)
+          ##########################################
+          echo Pushing new tag to origin...
+          
+          # git push origin "${{PACK_VERSION}}"
