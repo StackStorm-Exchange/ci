@@ -14,7 +14,7 @@ jobs:
         with:
           repository: lm-ydubler/logicmonitor-stackstorm-pack
           fetch-depth: 0
-          #repo-token: ${{ secrets.GITHUB_TOKEN }} # not required
+          #repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version from pack.yaml
         shell: bash
@@ -59,6 +59,10 @@ jobs:
           ###################################################
           # Create new tag on most recent commit
           ###################################################
+          echo LATEST_TAG=$LATEST_TAG
+          echo env.LATEST_TAG=$env.LATEST_TAG
+          echo LATEST_TAG=${LATEST_TAG}
+          echo env.LATEST_TAG=${env.LATEST_TAG}
           echo LATEST_TAG does not match PACK_VERSION.      
           echo "... creating new tag with version on most recent commit aka HEAD ..."
           git tag "v${PACK_VERSION}" HEAD
