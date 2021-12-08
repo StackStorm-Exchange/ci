@@ -57,9 +57,8 @@ jobs:
           # Create new tag on most recent commit
           ###################################################
           echo LATEST_TAG does not match PACK_VERSION.      
-          echo PACK_VERSION=$PACK_VERSION
           echo "... creating new tag with version on most recent commit aka HEAD ..."
-          git tag "v${{steps.pack-version.outputs.result}}" HEAD
+          git tag "v${PACK_VERSION}" HEAD
           ##############################################################
           # Verify tag was created and exists on the most recent commit
           ##############################################################
@@ -71,4 +70,4 @@ jobs:
           # Push tag to origin repository (success!)
           ##########################################
           echo Pushing new tag to origin...
-          git push origin "v${{steps.pack-version.outputs.result}}"
+          git push origin "v${PACK_VERSION}"
