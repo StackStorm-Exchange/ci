@@ -35,19 +35,17 @@ jobs:
       - name: Add Tag If Required
         if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
         env:
-          PACK_VERSION: ${steps.pack-version.outputs.result}
+          PACK_VERSION: ${{steps.pack-version.outputs.result}}
         shell: bash
         run: |
           ###################################################
           # Create new tag on most recent commit
           ###################################################
           echo LATEST_TAG does not match PACK_VERSION.       
-          echo PACK_VERSION1 = ${PACK_VERSION}
-          echo PACK_VERSION2 = ${{PACK_VERSION}}
-          echo "PACK_VERSION1 = v${PACK_VERSION}"
-          echo "PACK_VERSION2 = v${{PACK_VERSION}}"
+          echo PACK_VERSION1 = ${{steps.pack-version.outputs.result}}"
+          echo "PACK_VERSION2 = v$${{steps.pack-version.outputs.result}}"
           echo "... creating new tag with version on most recent commit aka HEAD ..."
-          # git tag "${{PACK_VERSION}}" HEAD
+          # git tag "v${{steps.pack-version.outputs.result}}" HEAD
           ##############################################################
           # Verify tag was created and exists on the most recent commit
           ##############################################################
@@ -59,5 +57,4 @@ jobs:
           # Push tag to origin repository (success!)
           ##########################################
           echo Pushing new tag to origin...
-          
           # git push origin "${{PACK_VERSION}}"
