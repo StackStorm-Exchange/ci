@@ -27,7 +27,7 @@ jobs:
           sudo add-apt-repository ppa:rmescandon/yq
           sudo apt update
           sudo apt install yq -y
-          version=yq eval .version pack.yaml
+          version=yq eval '.version' pack.yaml
           echo pack-version=$version
           echo "::set-output name=result::$(version)"
 
