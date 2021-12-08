@@ -20,7 +20,7 @@ jobs:
         id: pack-version
         uses: mikefarah/yq@master
         with:
-          cmd: version=yq eval 'version' 'pack.yaml';echo pack-version=$version;echo "::set-output name=result::$version"
+          cmd: version=yq eval 'version' 'pack.yaml';echo pack-version=$version;echo "::set-output name=result::$(version)"
 
       - name: Get latest git tag
         shell: bash
@@ -34,16 +34,18 @@ jobs:
 
       - name: Add Tag If Required
         if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.result) && steps.pack-version.outputs.result != '' }}
-        #env:
-        #  PACK_VERSION: ${{steps.pack-version.outputs.result}}
+        env:
+          PACK_VERSION: ${steps.pack-version.outputs.result}
         shell: bash
         run: |
           ###################################################
           # Create new tag on most recent commit
           ###################################################
           echo LATEST_TAG does not match PACK_VERSION.       
-          echo "PACK_VERSION1 = ${{steps.pack-version.outputs.result}}"
-          echo "PACK_VERSION2 = v$${{steps.pack-version.outputs.result}}"
+          echo PACK_VERSION1 = ${{steps.pack-version.outputs.result}}
+          echo PACK_VERSION2 = v$${{steps.pack-version.outputs.result}}
+          echo PACK_VERSION1 = ${steps.pack-version.outputs.result}}
+          echo PACK_VERSION2 = v$${steps.pack-version.outputs.result}}
           echo "... creating new tag with version on most recent commit aka HEAD ..."
           # git tag "v${{steps.pack-version.outputs.result}}" HEAD
           ##############################################################
