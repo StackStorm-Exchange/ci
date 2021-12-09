@@ -26,7 +26,10 @@ runs:
       run: |
         echo "CI_DIR=$(realpath ${{ github.action_path }}/../../..)" >> ${GITHUB_ENV}
 
-    # semver.py only uses stdlib deps, so no virtualenv required.
+    - name: Install semver.py deps
+      shell: bash
+      run: |
+        pip install --user pyyaml
 
     - name: Get version from pack.yaml
       shell: bash
