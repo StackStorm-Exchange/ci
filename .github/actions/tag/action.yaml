@@ -15,7 +15,8 @@ outputs:
     value: ${{ env.LATEST_TAG }}
   created_tag:
     description: true if a new tag was pushed to the pack repo
-    value: ${{ steps.git-tag.conclusion == 'skipped' }}
+    # skipped if task did not run
+    value: ${{ steps.git-tag.conclusion == 'success' }}
 
 runs:
   using: "composite"
