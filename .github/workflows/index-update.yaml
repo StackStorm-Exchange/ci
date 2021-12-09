@@ -18,13 +18,11 @@ on:
       ci_branch:
         required: false
         type: string
-        # TODO: switch to master
-        default: gha
+        default: master
       exchange_tools_branch:
         required: false
         type: string
-        # TODO: switch to master
-        default: add-more-tools
+        default: master
       packs_org:
         required: false
         type: string
