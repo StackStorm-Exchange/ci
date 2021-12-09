@@ -14,6 +14,11 @@ runs:
   using: "composite"
   steps:
 
+    - name: Add checkout path to env context
+      shell: bash
+      run: |
+        echo "CI_DIR=$(realpath ${{ github.action_path }}/../../..)" >> ${GITHUB_ENV}
+
     - name: Checkout Pack Repo
       uses: actions/checkout@v2
       with:
@@ -21,14 +26,18 @@ runs:
         # Alternatively, we could use the github API to get a list of tags.
         fetch-depth: 0
 
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        # use whatever github has in its local cache to speed this up
+        python-version: 3.8
+
+    # semver.py only uses stdlib deps, so no virtualenv required.
+
     - name: Get version from pack.yaml
       shell: bash
       run: |
-        echo "::group::install yq to query pack.yaml"
-        wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O ~/yq
-        chmod +x ~/yq
-        echo "::endgroup::"
-        PACK_VERSION=$(~/yq eval '.version' pack.yaml)
+        PACK_VERSION=$(python ${CI_DIR}/.circle/semver.py pack.yaml)
         echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> ${GITHUB_ENV}
 
     - name: Get latest git tag
