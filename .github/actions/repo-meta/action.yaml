@@ -16,6 +16,9 @@ outputs:
   pack_description:
     description: The current pack description according to pack.yaml
     value: ${{ env.PACK_DESCRIPTION }}
+  repo_homepage:
+    description: The resulting repo homepage
+    value: ${{ inputs.homepage }}
   original_description:
     description: The original description before running this workflow
     value: ${{ env.ORIGINAL_DESCRIPTION }}

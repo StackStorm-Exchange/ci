@@ -1,0 +1,48 @@
+name: Repo Metadata
+
+on:
+  workflow_call:
+    outputs:
+      pack_description:
+        description: The current pack description according to pack.yaml
+        value: ${{ jobs.repo_meta.outputs.pack_description }}
+      repo_homepage:
+        description: The resulting repo homepage
+        value: ${{ jobs.repo_meta.outputs.repo_homepage }}
+      original_description:
+        description: The original description before running this workflow
+        value: ${{ jobs.repo_meta.outputs.original_description }}
+      original_homepage:
+        description: The original homepage before running this workflow
+        value: ${{ jobs.repo_meta.outputs.original_homepage }}
+      updated:
+        description: true if metadata was updated on the pack repo
+        value: ${{ jobs.repo_meta.outputs.updated }}
+
+jobs:
+  repo_meta:
+    runs-on: ubuntu-latest
+    name: 'Repo Metadata'
+
+    outputs:
+      pack_description: ${{ steps.repo-meta.outputs.pack_description }}
+      original_description: ${{ steps.repo-meta.outputs.original_description }}
+      repo_homepage: ${{ steps.repo-meta.outputs.repo_homepage }}
+      original_homepage: ${{ steps.repo-meta.outputs.original_homepage }}
+      updated_metadata: ${{ steps.repo-meta.outputs.updated }}
+
+    steps:
+      - name: Checkout Pack Repo
+        uses: actions/checkout@v2
+        # only the latest commit is needed
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          # use whatever github has in its local cache to speed this up
+          python-version: 3.8
+
+      # eventually replace @gha with @master
+      - name: Update repo metadata
+        id: repo-meta
+        uses: StackStorm-Exchange/ci/.github/actions/repo-meta@gha
