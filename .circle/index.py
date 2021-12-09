@@ -137,10 +137,10 @@ def build_index(path_glob, output_path):
         # If an issue is reported on GitHub Actions, update this error message
         # to explain common causes and how to fix them.
         failed_message = (
-            ', {failed_count} packs failed to update.\n'
+            f', {failed_count} packs failed to update.\n'
             'Please investigate why this failed and report an issue on:\n'
-            '  https://github.com/{exchange_name}/ci\n'
-        ).format(failed_count=failed_count, exchange_name=EXCHANGE_NAME)
+            f'  https://github.com/{EXCHANGE_NAME}/ci\n'
+        )
 
     print('')
     print('Processed %s packs%s.' % (counter, failed_message))
