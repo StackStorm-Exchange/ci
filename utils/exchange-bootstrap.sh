@@ -39,7 +39,6 @@ then
 fi
 
 EXCHANGE_ORG="${EXCHANGE_ORG:-StackStorm-Exchange}"
-EXCHANGE_TEAM="${EXCHANGE_TEAM:-tsc}"
 EXCHANGE_PREFIX="${EXCHANGE_PREFIX:-stackstorm}"
 PACK="${1/${EXCHANGE_PREFIX}-/}"  # Ensure that PACK is just the bare pack name
 REPO_ALIAS=${PACK}
@@ -169,13 +168,6 @@ then
        "https://api.github.com/repos/${EXCHANGE_ORG}/${REPO_NAME}/hooks"
 fi
 
-echo "GitHub: Allow ${EXCHANGE_TEAM} team to 'maintain' ${EXCHANGE_ORG}/${REPO_NAME}"
-curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PUT \
-     --header "Content-Type: application/json" \
-     --header "Accept: application/vnd.github.v3+json" \
-     -d '{"permission": "maintain"}' \
-     "https://api.github.com/orgs/${EXCHANGE_ORG}/teams/${EXCHANGE_TEAM}/repos/${EXCHANGE_ORG}/${REPO_NAME}"
-
 # This will open a private tab in the user's browser to the PAT page, with the
 # name field already filled in and the scope fields already checked, and direct
 # the user to click the "Generate Token" button, then copy and paste the
@@ -185,12 +177,12 @@ curl -sS --fail -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -X PUT \
 # PAT
 ${CI_REPO_ROOT}/tools/reset_github_user_token_and_update_circleci.sh --set-user $PACK
 
-# XXX: this API request was failing, but it is working now. Not sure why.
-# CircleCI: follow the project (we need this, or CircleCI won't watch the repo)
-echo "CircleCI: Following the project (enables CircleCI builds)"
-curl -v -sS --fail -X POST \
-    --header "Circle-Token: ${CIRCLECI_TOKEN}" \
-    "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow"
+# NO longer needed, this API request fails everytime we call it
+# # CircleCI: follow the project
+# echo "CircleCI: Following the project"
+# curl -v -sS --fail -X POST \
+#      --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+#      "https://circleci.com/api/v1.1/project/github/${EXCHANGE_ORG}/${REPO_NAME}/follow"
 
 
 # CircleCI: upload the read-write key
