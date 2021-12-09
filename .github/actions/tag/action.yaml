@@ -35,13 +35,13 @@ runs:
       shell: bash
       run: |
         PACK_VERSION=$(python ${CI_DIR}/.circle/semver.py pack.yaml)
-        echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> ${GITHUB_ENV}
+        echo "PACK_VERSION=${PACK_VERSION}" | tee -a ${GITHUB_ENV}
 
     - name: Get latest git tag
       shell: bash
       run: |
         if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
-          echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> ${GITHUB_ENV}
+          echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENV}
         else
           echo 'LATEST_TAG=""' >> ${GITHUB_ENV}
           echo There are no tags yet.
