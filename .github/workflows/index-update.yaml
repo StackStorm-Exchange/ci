@@ -90,11 +90,7 @@ jobs:
     - name: Checkout exchange-tools repo
       uses: actions/checkout@v2
       with:
-        # TODO: switch to StackStorm-Exchange once these are merged:
-        # https://github.com/StackStorm-Exchange/exchange-tools/pull/3
-        # https://github.com/StackStorm-Exchange/exchange-tools/pull/2
-        #repository: StackStorm-Exchange/exchange-tools
-        repository: cognifloyd/exchange-tools
+        repository: StackStorm-Exchange/exchange-tools
         ref: ${{ inputs.exchange_tools_branch }}
         path: exchange-tools
         fetch-depth: 1
