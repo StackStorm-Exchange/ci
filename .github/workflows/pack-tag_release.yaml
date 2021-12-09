@@ -2,12 +2,27 @@ name: Tag Release
 
 on:
   workflow_call:
-#    inputs:
+    outputs:
+      pack_version:
+        description: The current pack version according to pack.yaml
+        value: ${{ jobs.tag_release.outputs.pack_version }}
+      previous_tag:
+        description: The latest tag before running this workflow
+        value: ${{ jobs.tag_release.outputs.previous_tag }}
+      created_tag:
+        description: true if a new tag was pushed to the pack repo
+        value: ${{ jobs.tag_release.outputs.created_tag }}
 
 jobs:
   tag_release:
     runs-on: ubuntu-latest
     name: 'Tag Release'
+
+    outputs:
+      pack_version: ${{ env.PACK_VERSION }}
+      previous_tag: ${{ env.LATEST_TAG }}
+      created_tag: ${{ steps.git-tag.conclusion == 'skipped' }}
+
     steps:
       - name: Checkout Pack Repo
         uses: actions/checkout@v2
@@ -28,7 +43,6 @@ jobs:
 
       - name: Get latest git tag
         shell: bash
-        id: latest-tag
         run: |
           if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
             echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> ${GITHUB_ENV}
@@ -38,6 +52,7 @@ jobs:
           fi
 
       - name: Tag HEAD commit if pack.yaml version has changed
+        id: git-tag
         if:  ${{ env.LATEST_TAG != format('v{0}', env.PACK_VERSION) && env.PACK_VERSION != '' }}
         shell: bash
         run: |
