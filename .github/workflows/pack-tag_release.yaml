@@ -15,23 +15,21 @@ jobs:
       - name: Get version from pack.yaml
         shell: bash
         run: |
+          echo "::group::install yq to query pack.yaml"
           wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O ~/yq
           chmod +x ~/yq
+          echo "::endgroup::"
           PACK_VERSION=$(~/yq eval '.version' pack.yaml)
-          echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> $GITHUB_ENV
+          echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> ${GITHUB_ENV}
 
       - name: Get latest git tag
         shell: bash
         id: latest-tag
         run: |
           if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
-            # echo "LATEST_TAG=${LATEST_TAG}" | tee -a ${GITHUB_ENVIRONMENT} # doesn't work
-            echo LATEST_TAG=$LATEST_TAG
-            echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> $GITHUB_ENV
-            #echo ::set-output name=LATEST_TAG::$LATEST_TAG
+            echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> ${GITHUB_ENV}
           else
-            # echo 'LATEST_TAG=""' >> ${GITHUB_ENVIRONMENT} # doesn't work
-            echo 'LATEST_TAG=""' >> $GITHUB_ENV
+            echo 'LATEST_TAG=""' >> ${GITHUB_ENV}
             echo There are no tags yet.
           fi
 
