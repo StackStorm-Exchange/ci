@@ -14,24 +14,11 @@ jobs:
 
       - name: Get version from pack.yaml
         shell: bash
-        id: pack-version
-        #uses: mikefarah/yq@master
-        #with:
-           #cmd: echo ::set-output name=result::$(yq eval '.version' pack.yaml)
         run: |
-          pwd
-          ls
-          #############
-          # INSTALL YQ
-          #############
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update
-          sudo apt install yq -y
-          ###################################
-          # MAKE VERSION AN OUTPUT PARAMETER
-          ###################################
-          echo ::set-output name=RESULT::$(yq eval '.version' pack.yaml)
+          wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O ~/yq
+          chmod +x ~/yq
+          PACK_VERSION=$(~/yq eval '.version' pack.yaml)
+          echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> $GITHUB_ENV
 
       - name: Get latest git tag
         shell: bash
@@ -52,9 +39,7 @@ jobs:
           fi
 
       - name: Add Tag If Required
-        if:  ${{ env.LATEST_TAG != format('v{0}', steps.pack-version.outputs.RESULT) && steps.pack-version.outputs.RESULT != '' }}
-        env:
-          PACK_VERSION: ${{steps.pack-version.outputs.RESULT}}
+        if:  ${{ env.LATEST_TAG != format('v{0}', env.PACK_VERSION) && env.PACK_VERSION != '' }}
         shell: bash
         run: |
           ###################################################
