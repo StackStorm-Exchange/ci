@@ -1,70 +1,60 @@
-name: Tag Release
+---
+name: Tag Pack Repo
+description: |
+  Tag Pack Repo with semver style tag using
+  the version in pack.yaml.
+author: StackStorm
 
-on:
-  workflow_call:
-    outputs:
-      pack_version:
-        description: The current pack version according to pack.yaml
-        value: ${{ jobs.tag_release.outputs.pack_version }}
-      previous_tag:
-        description: The latest tag before running this workflow
-        value: ${{ jobs.tag_release.outputs.previous_tag }}
-      created_tag:
-        description: true if a new tag was pushed to the pack repo
-        value: ${{ jobs.tag_release.outputs.created_tag }}
+outputs:
+  pack_version: ${{ env.PACK_VERSION }}
+  previous_tag: ${{ env.LATEST_TAG }}
+  created_tag: ${{ steps.git-tag.conclusion == 'skipped' }}
 
-jobs:
-  tag_release:
-    runs-on: ubuntu-latest
-    name: 'Tag Release'
+runs:
+  using: "composite"
+  steps:
 
-    outputs:
-      pack_version: ${{ env.PACK_VERSION }}
-      previous_tag: ${{ env.LATEST_TAG }}
-      created_tag: ${{ steps.git-tag.conclusion == 'skipped' }}
+    - name: Checkout Pack Repo
+      uses: actions/checkout@v2
+      with:
+        # A full clone is required to get the tags.
+        # Alternatively, we could use the github API to get a list of tags.
+        fetch-depth: 0
 
-    steps:
-      - name: Checkout Pack Repo
-        uses: actions/checkout@v2
-        with:
-          # A full clone is required to get the tags.
-          # Alternatively, we could use the github API to get a list of tags.
-          fetch-depth: 0
+    - name: Get version from pack.yaml
+      shell: bash
+      run: |
+        echo "::group::install yq to query pack.yaml"
+        wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O ~/yq
+        chmod +x ~/yq
+        echo "::endgroup::"
+        PACK_VERSION=$(~/yq eval '.version' pack.yaml)
+        echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> ${GITHUB_ENV}
 
-      - name: Get version from pack.yaml
-        shell: bash
-        run: |
-          echo "::group::install yq to query pack.yaml"
-          wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O ~/yq
-          chmod +x ~/yq
-          echo "::endgroup::"
-          PACK_VERSION=$(~/yq eval '.version' pack.yaml)
-          echo "PACK_VERSION=${PACK_VERSION}" | tee -a >> ${GITHUB_ENV}
+    - name: Get latest git tag
+      shell: bash
+      run: |
+        if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
+          echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> ${GITHUB_ENV}
+        else
+          echo 'LATEST_TAG=""' >> ${GITHUB_ENV}
+          echo There are no tags yet.
+        fi
 
-      - name: Get latest git tag
-        shell: bash
-        run: |
-          if LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); then
-            echo "LATEST_TAG=${LATEST_TAG}" | tee -a >> ${GITHUB_ENV}
-          else
-            echo 'LATEST_TAG=""' >> ${GITHUB_ENV}
-            echo There are no tags yet.
-          fi
-
-      - name: Tag HEAD commit if pack.yaml version has changed
-        id: git-tag
-        if:  ${{ env.LATEST_TAG != format('v{0}', env.PACK_VERSION) && env.PACK_VERSION != '' }}
-        shell: bash
-        run: |
-          echo "::group::create v${PACK_VERSION} tag on HEAD"
-          git tag "v${PACK_VERSION}" HEAD
-          echo "::endgroup::"
-          echo "::group::Display details about tags"
-          set -x
-          git tag
-          git log --pretty='%h %d' --max-count=1
-          set +x
-          echo "::endgroup::"
-          echo "::group::push v${PACK_VERSION} tag"
-          git push origin "v${PACK_VERSION}"
-          echo "::endgroup::"
+    - name: Tag HEAD commit if pack.yaml version has changed
+      id: git-tag
+      if:  ${{ env.LATEST_TAG != format('v{0}', env.PACK_VERSION) && env.PACK_VERSION != '' }}
+      shell: bash
+      run: |
+        echo "::group::create v${PACK_VERSION} tag on HEAD"
+        git tag "v${PACK_VERSION}" HEAD
+        echo "::endgroup::"
+        echo "::group::Display details about tags"
+        set -x
+        git tag
+        git log --pretty='%h %d' --max-count=1
+        set +x
+        echo "::endgroup::"
+        echo "::group::push v${PACK_VERSION} tag"
+        git push origin "v${PACK_VERSION}"
+        echo "::endgroup::"
