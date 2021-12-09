@@ -42,9 +42,9 @@ runs:
     - name: Get metadata from pack.yaml
       shell: bash
       run: |
-        PACK_NAME=$(python ${ACTION_PATH}/extract.py pack.yaml name)
+        PACK_NAME=$(python ${GITHUB_ACTION_PATH}/extract.py pack.yaml name)
         echo "PACK_NAME=${PACK_NAME}" | tee -a ${GITHUB_ENV}
-        PACK_DESCRIPTION=$(python ${ACTION_PATH}/extract.py pack.yaml description)
+        PACK_DESCRIPTION=$(python ${GITHUB_ACTION_PATH}/extract.py pack.yaml description)
         echo "PACK_DESCRIPTION=${PACK_DESCRIPTION}" | tee -a ${GITHUB_ENV}
 
     - name: Get latest repo metadata
