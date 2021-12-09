@@ -16,8 +16,7 @@ from __future__ import print_function
 
 import sys
 import re
-
-import validate
+import yaml
 
 SEMVER_REGEX = re.compile(r"""^(?:0|[1-9]\d*)
                               \.
@@ -29,6 +28,13 @@ SEMVER_REGEX = re.compile(r"""^(?:0|[1-9]\d*)
                           re.VERBOSE)
 SINGLE_VERSION_REGEX = re.compile(r"^\d+$")
 DOUBLE_VERSION_REGEX = re.compile(r"^\d+\.\d+$")
+
+
+def load_yaml_file(path):
+    with open(path, 'r') as stream:
+        text = yaml.safe_load(stream)
+
+    return text
 
 
 def get_semver_string(version):
@@ -44,5 +50,5 @@ def get_semver_string(version):
 
 
 if __name__ == '__main__':
-    pack = validate.load_yaml_file(sys.argv[1])
+    pack = load_yaml_file(sys.argv[1])
     print(get_semver_string(pack['version']))
