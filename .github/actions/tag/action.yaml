@@ -1,8 +1,9 @@
 ---
 name: Tag Pack Repo
 description: |
-  Tag Pack Repo with semver style tag using
-  the version in pack.yaml.
+  Tag Pack Repo with semver style tag using the version in pack.yaml.
+  You must clone the pack to the default location (fetch-depth: 0)
+  and install python before running this.
 author: StackStorm
 
 outputs:
@@ -18,19 +19,6 @@ runs:
       shell: bash
       run: |
         echo "CI_DIR=$(realpath ${{ github.action_path }}/../../..)" >> ${GITHUB_ENV}
-
-    - name: Checkout Pack Repo
-      uses: actions/checkout@v2
-      with:
-        # A full clone is required to get the tags.
-        # Alternatively, we could use the github API to get a list of tags.
-        fetch-depth: 0
-
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        # use whatever github has in its local cache to speed this up
-        python-version: 3.8
 
     # semver.py only uses stdlib deps, so no virtualenv required.
 
