@@ -31,7 +31,7 @@ DOUBLE_VERSION_REGEX = re.compile(r"^\d+\.\d+$")
 
 
 def load_yaml_file(path):
-    with open(path, 'r') as stream:
+    with open(path, 'r', encoding="utf8") as stream:
         text = yaml.safe_load(stream)
 
     return text

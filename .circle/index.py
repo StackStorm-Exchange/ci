@@ -75,7 +75,7 @@ def build_index(path_glob, output_path):
     counter = 0
     failed_count = 0
     for filename in generator:
-        with open(filename, 'r') as pack:
+        with open(filename, 'r', encoding="utf8") as pack:
             pack_meta = yaml.safe_load(pack)
 
         pack_name = pack_meta['name']
@@ -114,7 +114,7 @@ def build_index(path_glob, output_path):
     result['metadata']['hash'] = data_hash.hexdigest()
 
     output_path = os.path.expanduser(os.path.join(output_path, 'index.json'))
-    with open(output_path, 'w') as outfile:
+    with open(output_path, 'w', encoding="utf8") as outfile:
         json.dump(result, outfile, indent=4, sort_keys=True,
                   separators=(',', ': '))
 
