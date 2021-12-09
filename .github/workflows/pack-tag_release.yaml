@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Checkout Pack Repo
         uses: actions/checkout@v2
+        with:
+          # A full clone is required to get the tags.
+          # Alternatively, we could use the github API to get a list of tags.
+          fetch-depth: 0
 
       - name: Get version from pack.yaml
         shell: bash
