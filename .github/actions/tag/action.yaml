@@ -53,7 +53,9 @@ runs:
       shell: bash
       run: |
         echo "::group::create v${PACK_VERSION} tag on HEAD"
+        set -x
         git tag "v${PACK_VERSION}" HEAD
+        set +x
         echo "::endgroup::"
         echo "::group::Display details about tags"
         set -x
