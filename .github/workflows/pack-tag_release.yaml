@@ -36,7 +36,6 @@ jobs:
           # use whatever github has in its local cache to speed this up
           python-version: 3.8
 
-      # eventually replace @gha with @master
       - name: Check for and tag new version
         id: tag-pack
-        uses: StackStorm-Exchange/ci/.github/actions/tag@gha
+        uses: StackStorm-Exchange/ci/.github/actions/tag@master

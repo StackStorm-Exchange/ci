@@ -31,23 +31,22 @@ jobs:
           - python-version-short: 3.6
             python-version: 3.6.13
     steps:
-      # eventually replace @gha with @master
       - name: Checkout Pack Repo and CI Repos
-        uses: StackStorm-Exchange/ci/.github/actions/checkout@gha
+        uses: StackStorm-Exchange/ci/.github/actions/checkout@master
         
       - name: Install APT Dependencies
-        uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@gha
+        uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
         with:
           cache-version: ${{ inputs.apt-cache-version }}
 
       - name: Install Python Dependencies
-        uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
+        uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@master
         with:
           cache-version: ${{ inputs.py-cache-version }}
           python-version: ${{ matrix.python-version }}
 
       - name: Run pack tests
-        uses: StackStorm-Exchange/ci/.github/actions/test@gha
+        uses: StackStorm-Exchange/ci/.github/actions/test@master
         with:
           enable-common-libs: ${{ inputs.enable-common-libs }}
 

@@ -109,14 +109,14 @@ jobs:
         fetch-depth: 1
 
     - name: Install APT Dependencies
-      uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@gha
+      uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
       with:
         cache-version: ${{ inputs.apt-cache-version }}
         # this has dependencies for icon optimization
         extra-apt-packages-file: ci/.github/actions/apt-dependencies/index-apt-packages.txt
 
     - name: Install Python Dependencies
-      uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@gha
+      uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@master
       with:
         mode: index # ie: skip pack-specific deps
         cache-version: ${{ inputs.py-cache-version }}
