@@ -14,14 +14,15 @@
 # limitations under the License.
 from __future__ import print_function
 
-import typing
-import sys
-import yaml
 import json
+import sys
+import typing
+
+import yaml
 
 
 def load_yaml_file(path):
-    with open(path, "r") as stream:
+    with open(path, "r", encoding="utf8") as stream:
         text = yaml.safe_load(stream)
 
     return text
@@ -29,9 +30,9 @@ def load_yaml_file(path):
 
 def dump(value):
     if isinstance(value, typing.Collection):
-        return json.dumps(value)
-    else:  # simple int or str (without json quotes)
-        return value
+        value = json.dumps(value)
+    # else it is a simple int or str (pass as is w/o json quotes)
+    return value
 
 
 if __name__ == "__main__":
