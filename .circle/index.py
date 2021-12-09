@@ -32,7 +32,8 @@ else:
 GITHUB_USERNAME = os.environ.get('MACHINE_USER')
 # TODO: drop MACHINE_PASSWORD once we drop support for CircleCI. Keep GH_TOKEN.
 GITHUB_PASSWORD = os.environ.get("MACHINE_PASSWORD", os.environ.get("GH_TOKEN"))
-# TODO: drop ACTIVE_PACK_NAME once we drop support for CircleCI. Only used for CircleCI-specific error message.
+# TODO: drop ACTIVE_PACK_NAME once we drop support for CircleCI.
+#       Only used for CircleCI-specific error message.
 ACTIVE_PACK_NAME = os.environ.get('PACK_NAME', "unknown")
 
 SESSION = requests.Session()
