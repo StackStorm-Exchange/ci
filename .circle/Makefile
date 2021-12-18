@@ -9,12 +9,14 @@ ST2_REPO_PATH ?= /tmp/st2
 ST2_REPO_BRANCH ?= master
 FORCE_CHECK_ALL_FILES ?= false
 FORCE_CHECK_PACK ?= false
+LINT_CONFIGS_PATH ?= $(CI_DIR)/lint-configs
+REQUIREMENTS_DIR ?= $(CI_DIR)/.circle
 
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
 # All components are prefixed by st2
-COMPONENTS := $(wildcard /tmp/st2/st2*)
-COMPONENTS_RUNNERS := $(wildcard /tmp/st2/contrib/runners/*)
+COMPONENTS := $(wildcard $(ST2_REPO_PATH)/st2*)
+COMPONENTS_RUNNERS := $(wildcard $(ST2_REPO_PATH)/contrib/runners/*)
 
 .PHONY: all
 all: requirements lint packs-resource-register packs-tests
@@ -79,14 +81,14 @@ compile:
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ]; then \
 		echo "Force flake8 checks on all files"; \
 		find $(ROOT_DIR)/* -name "*.py" | while read py_file; do \
-			flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$py_file || exit 1; \
+			flake8 --config=$(LINT_CONFIGS_PATH)/python/.flake8 $$py_file || exit 1; \
 		done; \
 	elif [ ${NUM_CHANGED_PY} -gt 0 ]; then \
 		echo "Checking ${NUM_CHANGED_PY} Python files"; \
 		$(CI_DIR)/utils/git-changes py >~/.git-changes-py; \
 		while read -r file; do \
 			if [ -n "$$file" ]; then \
-				flake8 --config=$(CI_DIR)/lint-configs/python/.flake8 $$file || exit 1; \
+				flake8 --config=$(LINT_CONFIGS_PATH)/python/.flake8 $$file || exit 1; \
 			fi; \
 		done < ~/.git-changes-py; \
 		if [ -e ~/.git-changes-py ]; then rm ~/.git-changes-py; fi; \
@@ -102,11 +104,11 @@ compile:
 	. $(VIRTUALENV_DIR)/bin/activate; \
 	if [ "${COMMON_LIBS}" = "true" ]; then \
 		echo "Common libs PATH selected"; \
-		export PYTHONPATH=/home/circleci/repo/lib:${PYTHONPATH}; \
+		export PYTHONPATH=$(ROOT_DIR)/lib:${PYTHONPATH}; \
 	fi; \
 	if [ "$${FORCE_CHECK_ALL_FILES}" = "true" ] || [ ${NUM_CHANGED_PY} -gt 0 ]; then \
-		REQUIREMENTS_DIR=$(CI_DIR)/.circle/ \
-		CONFIG_DIR=$(CI_DIR)/lint-configs/ \
+		REQUIREMENTS_DIR=$(REQUIREMENTS_DIR)/ \
+		CONFIG_DIR=$(LINT_CONFIGS_PATH)/ \
 		st2-check-pylint-pack $(ROOT_DIR) || exit 1; \
 	else \
 		echo "No files have changed, skipping run..."; \
@@ -237,8 +239,8 @@ compile:
 			echo "Missing LICENSE file in $(ROOT_DIR)"; \
 			exit 2;\
 		fi;\
-		if [ "$$(python -c 'import yaml; f = open("/home/circleci/repo/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "napalm_logs" ] || \
-		   [ "$$(python -c 'import yaml; f = open("/home/circleci/repo/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "netbox" ]; then \
+		if [ "$$(python -c 'import yaml; f = open("$(ROOT_DIR)/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "napalm_logs" ] || \
+		   [ "$$(python -c 'import yaml; f = open("$(ROOT_DIR)/pack.yaml"); print(yaml.safe_load(f.read())["name"]); f.close();')" = "netbox" ]; then \
 			cat $(ROOT_DIR)/LICENSE | grep -q "MIT License"  || (echo "LICENSE file doesn't contain MIT license text" ; exit 2); \
 			cat $(ROOT_DIR)/LICENSE | grep -q "Copyright (c) 2017 John Anderson"  || (echo "LICENSE file doesn't include John Anderson's name" ; exit 2); \
 			cat $(ROOT_DIR)/LICENSE | grep -q "Permission is hereby granted, free of charge, to any person obtaining a copy"  || (echo "LICENSE file doesn't contain MIT license text" ; exit 2); \
@@ -252,13 +254,12 @@ compile:
 	fi
 
 .PHONY: .clone_st2_repo
-.clone_st2_repo: /tmp/st2
-/tmp/st2:
+.clone_st2_repo:
 	@echo
 	@echo "==================== cloning st2 repo ===================="
 	@echo
-	@rm -rf /tmp/st2
-	@git clone https://github.com/StackStorm/st2.git --depth 1 --single-branch --branch $(ST2_REPO_BRANCH) /tmp/st2
+	@rm -rf $(ST2_REPO_PATH)
+	@git clone https://github.com/StackStorm/st2.git --depth 1 --single-branch --branch $(ST2_REPO_BRANCH) $(ST2_REPO_PATH)
 
 .PHONY: .install-runners
 .install-runners:
@@ -284,8 +285,8 @@ requirements: virtualenv .clone_st2_repo .install-runners
 	@echo "==================== requirements ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-pack-tests.txt
 
 .PHONY: requirements-ci
 requirements-ci:
@@ -293,8 +294,8 @@ requirements-ci:
 	@echo "==================== requirements-ci ===================="
 	@echo
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-dev.txt
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(CI_DIR)/.circle/requirements-pack-tests.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-dev.txt
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-pack-tests.txt
 
 .PHONY: virtualenv
 virtualenv: $(VIRTUALENV_DIR)/bin/activate

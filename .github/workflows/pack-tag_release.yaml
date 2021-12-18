@@ -1,0 +1,41 @@
+name: Tag Release
+
+on:
+  workflow_call:
+    outputs:
+      pack_version:
+        description: The current pack version according to pack.yaml
+        value: ${{ jobs.tag_release.outputs.pack_version }}
+      previous_tag:
+        description: The latest tag before running this workflow
+        value: ${{ jobs.tag_release.outputs.previous_tag }}
+      created_tag:
+        description: true if a new tag was pushed to the pack repo
+        value: ${{ jobs.tag_release.outputs.created_tag }}
+
+jobs:
+  tag_release:
+    runs-on: ubuntu-latest
+    name: 'Tag Release'
+
+    outputs:
+      pack_version: ${{ steps.tag-pack.outputs.pack_version }}
+      previous_tag: ${{ steps.tag-pack.outputs.previous_tag }}
+      created_tag: ${{ steps.tag-pack.outputs.created_tag }}
+
+    steps:
+      - name: Checkout Pack Repo
+        uses: actions/checkout@v2
+        with:
+          # A full clone is required to get the tags.
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          # use whatever github has in its local cache to speed this up
+          python-version: 3.8
+
+      - name: Check for and tag new version
+        id: tag-pack
+        uses: StackStorm-Exchange/ci/.github/actions/tag@master

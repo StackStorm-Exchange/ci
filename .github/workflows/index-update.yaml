@@ -1,0 +1,253 @@
+name: Index Update
+
+on:
+  workflow_call:
+    inputs:
+      force-rebuild-index:
+        required: false
+        type: boolean
+        default: false
+      git_user_name:
+        required: false
+        type: string
+        default: "StackStorm Exchange"
+      git_user_email:
+        required: false
+        type: string
+        default: "info@stackstorm.com"
+      ci_branch:
+        required: false
+        type: string
+        default: master
+      exchange_tools_branch:
+        required: false
+        type: string
+        default: master
+      packs_org:
+        required: false
+        type: string
+        default: StackStorm-Exchange
+      pack_repo_prefix:
+        required: false
+        type: string
+        default: stackstorm
+      apt-cache-version:
+        required: false
+        type: string
+        default: "v0"
+      py-cache-version:
+        required: false
+        type: string
+        default: "v0"
+      python-version:
+        required: false
+        type: string
+        default: "3.6"
+
+jobs:
+  regenerate_index:
+    runs-on: ubuntu-latest
+    # When parent workflow is named "Update Index" this shows up as:
+    #   "Update Index / Regenerate"
+    name: Regenerate
+
+    steps:
+
+    - name: Add checkout paths to env context
+      shell: bash
+      run: |
+        echo "CI_DIR=${{ github.workspace }}/ci" >> ${GITHUB_ENV}
+        echo "TOOLS_DIR=${{ github.workspace }}/exchange-tools" >> ${GITHUB_ENV}
+        echo "ST2_REPO_PATH=${{ github.workspace }}/st2" >> ${GITHUB_ENV}
+        echo "INDEX_DIR=${{ github.workspace }}/index" >> ${GITHUB_ENV}
+        echo "PACKS_PATH=${{ github.workspace }}/packs" >> ${GITHUB_ENV}
+
+    - name: Configure git user
+      shell: bash
+      env:
+        GIT_USER_NAME: ${{ inputs.git_user_name }}
+        GIT_USER_EMAIL: ${{ inputs.git_user_email }}
+      run: |
+        git config --global user.name "${GIT_USER_NAME}"
+        git config --global user.email "${GIT_USER_EMAIL}"
+
+    - name: Checkout index repo
+      uses: actions/checkout@v2
+      with:
+        path: index
+        fetch-depth: 1
+
+    - name: Checkout ci repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm-Exchange/ci
+        ref: ${{ inputs.ci_branch }}
+        path: ci
+        fetch-depth: 1
+
+    - name: Checkout exchange-tools repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm-Exchange/exchange-tools
+        ref: ${{ inputs.exchange_tools_branch }}
+        path: exchange-tools
+        fetch-depth: 1
+
+    - name: Checkout st2 repo
+      # so other scripts can reference StackStorm Python code
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm/st2
+        ref: ${{ inputs.st2_branch }}
+        path: st2
+        fetch-depth: 1
+
+    - name: Install APT Dependencies
+      uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
+      with:
+        cache-version: ${{ inputs.apt-cache-version }}
+        # this has dependencies for icon optimization
+        extra-apt-packages-file: ci/.github/actions/apt-dependencies/index-apt-packages.txt
+
+    - name: Install Python Dependencies
+      uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@master
+      with:
+        mode: index # ie: skip pack-specific deps
+        cache-version: ${{ inputs.py-cache-version }}
+        python-version: ${{ inputs.python-version }}
+
+    - name: Checkout Pack Repos
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PACKS_ORG: ${{ inputs.packs_org }}
+        PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
+      run: |
+        mkdir -p ${PACKS_PATH}
+        cd ${PACKS_PATH}
+        source ${TOOLS_DIR}/functions.sh
+        EXCLUDE_PACKS=$(grep -v '^#' "${INDEX_DIR}/v1/exclude_packs.txt" | xargs echo -n)
+        for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
+          echo "::group::Clone ${PACKS_ORG}/${repo_name}"
+          gh repo clone "${PACKS_ORG}/${repo_name}"
+          if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
+            echo latestTag = $latestTag
+            git -C ${repo_name} checkout $latestTag -b latestTagBranch
+          fi
+          echo
+          echo "::endgroup::" # DELETED notices will not be folded to simplify scanning action output
+          if [[ -z "$latestTag" ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#${PACKS_PREFIX}-} " ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack excluded via index.git/v1/exclude_packs.txt"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          fi
+        done
+        if [[ -f ${GITHUB_WORKSPACE}/bad_pack_repos ]]; then
+          echo "These repos were DELETED. See above for why."
+          cat ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
+
+    - name: Display Index Changes (git)
+      shell: bash
+      working-directory: index
+      run: |
+        git status
+        git diff
+
+    # validate.py and pack_content.py make no CI assumptions
+    # TODO: once we drop CircleCI move validate.py out of the .circle directory.
+    # TODO: maybe use imagemagick instead of gmic+optipng
+    - name: Rebuild index/v1/packs and index/v1/icons
+      shell: bash
+      env:
+        PACKS_ORG: ${{ inputs.packs_org }}
+        PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
+      working-directory: packs
+      run: |
+        for pack_dir in *; do
+          pack=${pack_dir#"$PACKS_PREFIX"-}
+          echo "::group::pack - ${pack}"
+          pushd ${pack_dir} >/dev/null
+          if ! PACK_NAME=$(${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/validate.py" "${pack_dir}" pack.yaml); then
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+            echo
+            echo "::endgroup::" # ensure SKIPPING notice is visible outside of the folded group
+            echo SKIPPING rebuild for ${pack_dir} because pack.yaml is not valid
+            continue
+          fi
+          # Rebuild pack index directory
+          ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/utils/pack_content.py" --input . --output "${INDEX_DIR}/v1/packs/${PACK_NAME}"
+          # Check if an icon has been added or changed
+          ICON_TARGET="${INDEX_DIR}/v1/icons/${PACK_NAME}.png"
+          if [[ -f icon.png ]] && { [[ ! -f ${ICON_TARGET} ]] || ! cmp -s icon.png ${ICON_TARGET}; }; then
+            echo "Copying and optimizing the pack icon..."
+            mkdir -p ${INDEX_DIR}/v1/icons/
+            cp icon.png ${ICON_TARGET}
+            gmic ${ICON_TARGET} -resize 64,64 -output ${ICON_TARGET}
+            optipng -o5 ${ICON_TARGET}
+            echo "Icon copied and optimized."
+          fi
+          popd >/dev/null
+          echo
+          echo "::endgroup::"
+        done
+        if [[ -f ${GITHUB_WORKSPACE}/bad_pack_repos ]]; then
+          echo "These repos were SKIPPED or DELETED. See above or in checkout step logs for why."
+          cat ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
+
+    - name: Display Index Changes (git)
+      shell: bash
+      working-directory: index
+      run: |
+        git status
+        git diff
+
+    # TODO: once we drop CircleCI, update index.py to remove CircleCI-specific bits
+    #       and move out of the .circle directory.
+    - name: Rebuild index/v1/index.json
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PACKS_ORG: ${{ inputs.packs_org }}
+        PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
+        FORCE_REBUILD_INDEX: ${{ inputs.force-rebuild-index }}
+      run: |
+        if [[ -n "$(git -C ${INDEX_DIR} status -s)" ]] || [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
+          if [[ ${FORCE_REBUILD_INDEX} == "true" ]]; then
+            echo "Forcing index rebuild..."
+          fi
+          ${VIRTUALENV_DIR}/bin/python "${CI_DIR}/.circle/index.py" --glob "${INDEX_DIR}/v1/packs/*/pack.yaml" --output "${INDEX_DIR}/v1/"
+        else
+          echo "No changes in metadata, skipping the index rebuild."
+        fi
+
+    - name: Display Index Changes (git)
+      shell: bash
+      working-directory: index
+      run: |
+        git status
+        git diff
+
+    - name: Git Auto Commit and Push Index
+      id: git-commit
+      uses: stefanzweifel/git-auto-commit-action@v4.12.0
+      with:
+        repository: index
+        # TODO: list changed packs in commit message
+        commit_message: Update Index (GHA)
+
+    - name: Display Index Changes (git)
+      shell: bash
+      working-directory: index
+      run: |
+        git status
+        git diff

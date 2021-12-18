@@ -1,0 +1,139 @@
+---
+name: Install Python Dependencies
+description: |
+  Install python dependencies required for StackStorm-Exchange pack tests or index updates.
+  Before using this, make sure to run
+  StackStorm-Exchange/ci/.github/actions/checkout and
+  StackStorm-Exchange/ci/.github/actions/apt-dependencies.
+author: StackStorm
+
+inputs:
+  python-version:
+    required: true
+    description: Which python version we should install
+  cache-version:
+    required: false
+    default: "v0"
+  mode:
+    required: false
+    default: pack
+    options:
+      - index
+      - pack
+
+outputs:
+  pip-version:
+    description: The installed pip version (pulled from st2.git)
+    value: ${{ steps.virtualenv.outputs.pip-version }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Add VIRTUALENV_DIR to env context
+      shell: bash
+      run: |
+        echo "VIRTUALENV_DIR=${HOME}/virtualenv" >> ${GITHUB_ENV}
+        echo "REQUIREMENTS_DIR=${GITHUB_ACTION_PATH}" >> ${GITHUB_ENV}
+
+    - name: 'Set up Python (${{ inputs.python-version }})'
+      uses: actions/setup-python@v2
+      with:
+        python-version: '${{ inputs.python-version }}'
+
+    - name: Cache Python Dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip
+          ~/virtualenv
+        key: ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-${{ hashFiles('st2/requirements.txt', 'pack/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-${{ inputs.python-version }}-${{ inputs.cache-version }}-
+
+    - name: Install virtualenv command
+      shell: bash
+      # this should run in the st2 checkout
+      working-directory: st2
+      run: |
+        echo "::group::Install virtualenv command"
+        ./scripts/github/install-virtualenv.sh
+        echo "::endgroup::"
+
+    - name: Create ~/virtualenv
+      shell: bash
+      id: virtualenv
+      # this should run in the st2 checkout
+      working-directory: st2
+      run: |
+        echo "::group::Create ~/virtualenv"
+        PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
+        echo "::set-output name=pip-version::${PIP_VERSION}"
+        [[ -x "${VIRTUALENV_DIR}/bin/python" ]] || virtualenv --pip "${PIP_VERSION}" ~/virtualenv
+        ${VIRTUALENV_DIR}/bin/pip install -q -U "pip==${PIP_VERSION}" setuptools
+        echo "::endgroup::"
+
+    - name: Install CI Requirements
+      if: inputs.mode == 'pack'
+      shell: bash
+      run: |
+        echo "::group::Install CI Requirements"
+        ${VIRTUALENV_DIR}/bin/pip install -q -r ${REQUIREMENTS_DIR}/requirements-dev.txt
+        ${VIRTUALENV_DIR}/bin/pip install -q -r ${REQUIREMENTS_DIR}/requirements-pack-tests.txt
+        echo "::endgroup::"
+
+    - name: Install StackStorm Requirements
+      # this should run in the st2 checkout
+      shell: bash
+      working-directory: st2
+      run: |
+        echo "::group::Install StackStorm Requirements"
+        ${VIRTUALENV_DIR}/bin/pip install -q -r requirements.txt
+        echo "::endgroup::"
+
+    - name: Install Runners
+      if: inputs.mode == 'pack'
+      shell: bash
+      run: |
+        for runner in ${ST2_REPO_PATH}/contrib/runners/*; do
+          echo "::group::Install Runner: ${runner##*/}"
+          (. ${VIRTUALENV_DIR}/bin/activate; cd $runner; python setup.py develop)
+          echo "::endgroup::"
+        done
+
+    - name: Register Metrics Drivers
+      shell: bash
+      run: |
+        echo "::group::Register Metrics Drivers"
+        # Install st2common to register metrics drivers
+        (. ${VIRTUALENV_DIR}/bin/activate; cd ${ST2_REPO_PATH}/st2common; python setup.py develop)
+        echo "::endgroup::"
+
+    - name: Install Pack Requirements
+      if: inputs.mode == 'pack'
+      shell: bash
+      working-directory: pack
+      env:
+        PACK_REQUIREMENTS_FILE: requirements.txt
+        PACK_TESTS_REQUIREMENTS_FILE: requirements-tests.txt
+      run: |
+        echo "::group::Install Pack Requirements"
+        if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
+          echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
+          ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
+        fi
+        if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
+          echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
+          ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+        fi
+        echo "::endgroup::"
+
+    - name: Print Versions
+      shell: bash
+      run: |
+        echo "::group::Print Versions"
+        source ${VIRTUALENV_DIR}/bin/activate
+        python3 --version
+        pip --version
+        virtualenv --version
+        echo "::endgroup::"

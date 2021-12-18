@@ -1,0 +1,69 @@
+---
+name: Run pack tests
+description: |
+  Run StackStorm-Exchange pack tests.
+  Before using this, make sure to run
+  StackStorm-Exchange/ci/.github/actions/checkout,
+  StackStorm-Exchange/ci/.github/actions/apt-dependencies, and
+  StackStorm-Exchange/ci/.github/actions/py-dependencies.
+author: StackStorm
+
+inputs:
+  enable-common-libs:
+    description: |
+      When true, use an st2.conf that sets packs.enable_common_libs=true
+      see: https://docs.stackstorm.com/reference/sharing_code_sensors_actions.html
+    default: false
+    required: false
+outputs:
+  pack-name:
+    description: The pack name pulled from pack.yaml
+    value: ${{ steps.pack-name.outputs.pack-name }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get Pack Name
+      id: pack-name
+      shell: bash
+      working-directory: pack
+      run: |
+        export PACK_NAME=$(${VIRTUALENV_DIR}/bin/python ${CI_DIR}/.circle/validate.py "${GITHUB_REPOSITORY##*/}" pack.yaml)
+        if [[ -z "${PACK_NAME}" ]]; then
+          echo "Unable to retrieve pack name."
+          exit 1
+        fi
+        echo "::set-output name=pack-name::${PACK_NAME}"
+
+    - name: Add CI vars to env context
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      working-directory: pack
+      run: |
+        echo "PACK_NAME=${{ steps.pack-name.outputs.pack-name }}" >> ${GITHUB_ENV}
+        source ${CI_DIR}/tools/functions.sh
+        DEFAULT_BRANCH=$(_gh_default_branch)
+        echo "BASE_BRANCH=origin/${DEFAULT_BRANCH}" >> ${GITHUB_ENV}
+        if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
+          echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
+        fi
+        if [[ "true" == "${{ inputs.enable-common-libs }}" ]]; then
+          echo "Common libs PATH selected"
+          echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2_common_libs.tests.conf" >> ${GITHUB_ENV}
+        else
+          echo "ST2_CONFIG_FILE=${CI_DIR}/conf/st2.tests.conf" >> ${GITHUB_ENV}
+        fi
+        # Don't install various StackStorm dependencies which are already
+        # installed by CI again in the various check scripts
+        echo "ST2_INSTALL_DEPS=0" >> ${GITHUB_ENV}
+
+    - name: Run tests
+      shell: bash
+      # NB: This Makefile has CircleCI-based defaults which we override with env vars
+      # defined in the various composite actions.
+      run: |
+        source ${VIRTUALENV_DIR}/bin/activate
+        # NB: tests require services (mongo, rabbitmq) which must be defined by the calling workflow
+        make -C "${ROOT_DIR}" -f "${CI_DIR}/.circle/Makefile" all-ci

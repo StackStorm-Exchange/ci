@@ -1,0 +1,5 @@
+# In CircleCI, we couldn't directly install imagemagick, so
+# we used a workaround from https://discuss.circleci.com/t/error-installing-imagemagick/2963
+# TODO: determine if we should go back to using imagemagick instead of gmic and optipng
+gmic
+optipng

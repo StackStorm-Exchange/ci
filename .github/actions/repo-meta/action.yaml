@@ -1,0 +1,70 @@
+---
+name: Update Pack Repo Metadata
+description: |
+  Update Pack Repo Metadata based on pack.yaml.
+  You must clone the pack to the default location
+  and install python before running this.
+author: StackStorm
+
+inputs:
+  homepage:
+    required: false
+    # env vars are available here (see Update repo homepage task)
+    default: "https://exchange.stackstorm.com/#${PACK_NAME}"
+
+outputs:
+  pack_description:
+    description: The current pack description according to pack.yaml
+    value: ${{ env.PACK_DESCRIPTION }}
+  repo_homepage:
+    description: The resulting repo homepage
+    value: ${{ inputs.homepage }}
+  original_description:
+    description: The original description before running this workflow
+    value: ${{ env.ORIGINAL_DESCRIPTION }}
+  original_homepage:
+    description: The original homepage before running this workflow
+    value: ${{ env.ORIGINAL_HOMEPAGE }}
+  updated:
+    description: true if metadata was updated on the pack repo
+    # skipped if task did not run
+    value: ${{ steps.gh-description.conclusion == 'success' || steps.gh-homepage.conclusion == 'success' }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install extract.py deps
+      shell: bash
+      run: |
+        pip install --user pyyaml
+
+    - name: Get metadata from pack.yaml
+      shell: bash
+      run: |
+        PACK_NAME=$(python ${GITHUB_ACTION_PATH}/extract.py pack.yaml name)
+        echo "PACK_NAME=${PACK_NAME}" | tee -a ${GITHUB_ENV}
+        PACK_DESCRIPTION=$(python ${GITHUB_ACTION_PATH}/extract.py pack.yaml description)
+        echo "PACK_DESCRIPTION=${PACK_DESCRIPTION}" | tee -a ${GITHUB_ENV}
+
+    - name: Get latest repo metadata
+      shell: bash
+      run: |
+        ORIGINAL_DESCRIPTION=$(gh repo view --json description -q .description)
+        echo "ORIGINAL_DESCRIPTION=${ORIGINAL_DESCRIPTION}" | tee -a ${GITHUB_ENV}
+        ORIGINAL_HOMEPAGE=$(gh repo view --json homepage -q .homepage)
+        echo "ORIGINAL_HOMEPAGE=${ORIGINAL_HOMEPAGE}" | tee -a ${GITHUB_ENV}
+
+    - name: Update repo description
+      id: gh-description
+      if:  ${{ env.ORIGINAL_DESCRIPTION != env.PACK_DESCRIPTION && env.PACK_DESCRIPTION != '' }}
+      shell: bash
+      run: |
+        gh api -X PATCH 'repos/{owner}/{repo}' -f "description=${PACK_DESCRIPTION}"
+
+    - name: Update repo homepage
+      id: gh-homepage
+      if:  ${{ env.ORIGINAL_HOMEPAGE != inputs.homepage && inputs.homepage != '' }}
+      shell: bash
+      run: |
+        gh api -X PATCH 'repos/{owner}/{repo}' -f "homepage=${{ inputs.homepage }}"

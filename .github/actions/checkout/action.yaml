@@ -1,0 +1,64 @@
+---
+name: Checkout Pack Repo and CI Repos
+description: |
+  Configures git user and clones repositories
+  required for StackStorm-Exchange pack tests.
+author: StackStorm
+
+inputs:
+  git_user_name:
+    required: false
+    default: "StackStorm Exchange"
+  git_user_email:
+    required: false
+    default: "info@stackstorm.com"
+  st2_branch:
+    required: false
+    default: master
+  lint_configs_branch:
+    required: false
+    default: master
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Add checkout paths to env context
+      shell: bash
+      run: |
+        echo "ST2_REPO_PATH=${{ github.workspace }}/st2" >> ${GITHUB_ENV}
+        echo "ROOT_DIR=${{ github.workspace }}/pack" >> ${GITHUB_ENV}
+        echo "CI_DIR=$(realpath ${{ github.action_path }}/../../..)" >> ${GITHUB_ENV}
+        echo "LINT_CONFIGS_PATH=${{ github.workspace }}/lint-configs" >> ${GITHUB_ENV}
+
+    - name: Configure git user
+      shell: bash
+      env:
+        GIT_USER_NAME: "${{ inputs.git_user_name }}"
+        GIT_USER_EMAIL: "${{ inputs.git_user_email }}"
+      run: |
+        git config --global user.name "${GIT_USER_NAME}"
+        git config --global user.email "${GIT_USER_EMAIL}"
+
+    - name: Checkout pack repo
+      uses: actions/checkout@v2
+      with:
+        path: pack
+        fetch-depth: 0
+
+    - name: Checkout st2 repo
+      # so other scripts can reference StackStorm Python code
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm/st2
+        ref: ${{ inputs.st2_branch }}
+        path: st2
+        fetch-depth: 1
+
+    - name: Checkout lint-configs repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm/lint-configs
+        ref: ${{ inputs.lint_configs_branch }}
+        path: lint-configs
+        fetch-depth: 1
