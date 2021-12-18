@@ -75,6 +75,8 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: index
+        # checkout the latest on the branch instead of the sha from when triggered
+        ref: ${{ github.ref }}
         fetch-depth: 1
 
     - name: Checkout ci repo
