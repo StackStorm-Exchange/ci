@@ -62,15 +62,6 @@ jobs:
         echo "INDEX_DIR=${{ github.workspace }}/index" >> ${GITHUB_ENV}
         echo "PACKS_PATH=${{ github.workspace }}/packs" >> ${GITHUB_ENV}
 
-    - name: Configure git user
-      shell: bash
-      env:
-        GIT_USER_NAME: ${{ inputs.git_user_name }}
-        GIT_USER_EMAIL: ${{ inputs.git_user_email }}
-      run: |
-        git config --global user.name "${GIT_USER_NAME}"
-        git config --global user.email "${GIT_USER_EMAIL}"
-
     - name: Checkout index repo
       uses: actions/checkout@v2
       with:
@@ -246,6 +237,9 @@ jobs:
         repository: index
         # TODO: list changed packs in commit message
         commit_message: Update Index (GHA)
+        commit_user_name: ${{ inputs.git_user_name }}
+        commit_user_email: ${{ inputs.git_user_email }}
+        commit_author: "${{ inputs.git_user_name }} <${{ inputs.git_user_email }}>"
 
     - name: Display Index Changes (git)
       shell: bash
