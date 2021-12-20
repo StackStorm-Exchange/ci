@@ -34,7 +34,7 @@ runs:
   using: "composite"
   steps:
 
-    - name: Install extract.py deps
+    - name: Install extract_from_yaml.py deps
       shell: bash
       run: |
         pip install --user pyyaml
@@ -42,9 +42,11 @@ runs:
     - name: Get metadata from pack.yaml
       shell: bash
       run: |
-        PACK_NAME=$(python ${GITHUB_ACTION_PATH}/extract.py pack.yaml name)
+        export CI_DIR=$(realpath ${{ github.action_path }}/../../..)"
+        echo "CI_DIR=${CI_DIR}" >> ${GITHUB_ENV}
+        PACK_NAME=$(python ${CI_DIR}/utils/extract_from_yaml.py pack.yaml name)
         echo "PACK_NAME=${PACK_NAME}" | tee -a ${GITHUB_ENV}
-        PACK_DESCRIPTION=$(python ${GITHUB_ACTION_PATH}/extract.py pack.yaml description)
+        PACK_DESCRIPTION=$(python ${CI_DIR}/utils/extract_from_yaml.py pack.yaml description)
         echo "PACK_DESCRIPTION=${PACK_DESCRIPTION}" | tee -a ${GITHUB_ENV}
 
     - name: Get latest repo metadata
