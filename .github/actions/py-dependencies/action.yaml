@@ -136,4 +136,5 @@ runs:
         python3 --version
         pip --version
         virtualenv --version
+        pip list
         echo "::endgroup::"
