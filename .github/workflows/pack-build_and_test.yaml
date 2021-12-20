@@ -60,7 +60,6 @@ jobs:
         uses: StackStorm-Exchange/ci/.github/actions/test@master
         with:
           enable-common-libs: ${{ inputs.enable-common-libs }}
-          python-version-short: ${{ inputs.python-version-short }}
 
     services:
       mongo:
