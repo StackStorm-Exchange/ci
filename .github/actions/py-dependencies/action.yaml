@@ -109,8 +109,17 @@ runs:
         (. ${VIRTUALENV_DIR}/bin/activate; cd ${ST2_REPO_PATH}/st2common; python setup.py develop)
         echo "::endgroup::"
 
+    - name: Extract Pack supported python_versions
+      if: inputs.mode == 'pack'
+      shell: bash
+      working-directory: pack
+      run: |
+        echo "PACK_PYTHON_VERSIONS=$(${CI_DIR}/utils/extract_from_yaml.py pack.yaml python_versions)" >> ${GITHUB_ENV}
+
     - name: Install Pack Requirements
       if: inputs.mode == 'pack'
+      # continue if pack does not support this version of python
+      continue-on-error: ${{ ! contains(fromJSON(env.PACK_PYTHON_VERSIONS), inputs.python-version-short[0]) }}
       shell: bash
       working-directory: pack
       env:
@@ -136,4 +145,7 @@ runs:
         python3 --version
         pip --version
         virtualenv --version
+        echo "::endgroup::"
+        echo "::group::pip list"
+        pip list
         echo "::endgroup::"

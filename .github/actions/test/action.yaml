@@ -48,7 +48,6 @@ runs:
       working-directory: pack
       run: |
         echo "PACK_NAME=${{ steps.pack-name.outputs.pack-name }}" >> ${GITHUB_ENV}
-        echo "PACK_PYTHON_VERSIONS=$(${CI_DIR}/utils/extract_from_yaml.py pack.yaml python_versions)" >> ${GITHUB_ENV}
         source ${CI_DIR}/tools/functions.sh
         DEFAULT_BRANCH=$(_gh_default_branch)
         echo "BASE_BRANCH=origin/${DEFAULT_BRANCH}" >> ${GITHUB_ENV}
