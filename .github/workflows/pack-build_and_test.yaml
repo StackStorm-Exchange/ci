@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - python-version-short: 3.6
+          - python-version-short: "3.6"
             python-version: 3.6.13
     steps:
       - name: Checkout Pack Repo and CI Repos
@@ -60,6 +60,7 @@ jobs:
         uses: StackStorm-Exchange/ci/.github/actions/test@master
         with:
           enable-common-libs: ${{ inputs.enable-common-libs }}
+          python-version-short: ${{ inputs.python-version-short }}
 
     services:
       mongo:
