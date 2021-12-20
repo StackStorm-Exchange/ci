@@ -18,6 +18,14 @@ on:
         required: false
         type: boolean
         default: false
+      st2-branch:
+        required: false
+        type: string
+        default: master
+      lint-configs-branch:
+        required: false
+        type: string
+        default: master
 
 jobs:
   build_and_test:
@@ -33,6 +41,9 @@ jobs:
     steps:
       - name: Checkout Pack Repo and CI Repos
         uses: StackStorm-Exchange/ci/.github/actions/checkout@master
+        with:
+          st2-branch: ${{ inputs.st2-branch }}
+          lint-configs-branch: ${{ inputs.lint-configs-branch }}
         
       - name: Install APT Dependencies
         uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
