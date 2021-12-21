@@ -68,8 +68,9 @@ runs:
         source ${VIRTUALENV_DIR}/bin/activate
         # NB: tests require services (mongo, rabbitmq) which must be defined by the calling workflow
         if ! make -C "${ROOT_DIR}" -f "${CI_DIR}/.circle/Makefile" all-ci; then
-          rc=$?
+          rc=${PIPESTATUS[0]}
           if [[ "true" == "${PACK_SUPPORTS_PYTHON_VERSION}" ]]; then
+            echo rc=$rc
             exit $rc
           else
             echo "Ignoring failures since pack doesn't declare Python ${PYTHON_MAJOR_VERSION} support in pack.yaml"

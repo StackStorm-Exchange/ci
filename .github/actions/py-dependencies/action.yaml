@@ -133,8 +133,9 @@ runs:
         if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
           echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
           if ! ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"; then
-            rc=$?
+            rc=${PIPESTATUS[0]}
             if [[ "true" == "${PACK_SUPPORTS_PYTHON_VERSION}" ]]; then
+              echo rc=$rc
               exit $rc
             else
               echo "Ignoring failures since pack doesn't declare Python ${PYTHON_MAJOR_VERSION} support in pack.yaml"
@@ -144,8 +145,9 @@ runs:
         if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
           echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
           if ! ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"; then
-            rc=$?
+            rc=${PIPESTATUS[0]}
             if [[ "true" == "${PACK_SUPPORTS_PYTHON_VERSION}" ]]; then
+              echo rc=$rc
               exit $rc
             else
               echo "Ignoring failures since pack doesn't declare Python ${PYTHON_MAJOR_VERSION} support in pack.yaml"
