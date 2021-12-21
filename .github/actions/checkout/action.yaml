@@ -12,10 +12,10 @@ inputs:
   git_user_email:
     required: false
     default: "info@stackstorm.com"
-  st2_branch:
+  st2-branch:
     required: false
     default: master
-  lint_configs_branch:
+  lint-configs-branch:
     required: false
     default: master
 
@@ -51,7 +51,7 @@ runs:
       uses: actions/checkout@v2
       with:
         repository: StackStorm/st2
-        ref: ${{ inputs.st2_branch }}
+        ref: ${{ inputs.st2-branch }}
         path: st2
         fetch-depth: 1
 
@@ -59,6 +59,6 @@ runs:
       uses: actions/checkout@v2
       with:
         repository: StackStorm/lint-configs
-        ref: ${{ inputs.lint_configs_branch }}
+        ref: ${{ inputs.lint-configs-branch }}
         path: lint-configs
         fetch-depth: 1

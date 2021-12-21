@@ -109,6 +109,18 @@ runs:
         (. ${VIRTUALENV_DIR}/bin/activate; cd ${ST2_REPO_PATH}/st2common; python setup.py develop)
         echo "::endgroup::"
 
+    - name: Extract Pack supported python_versions
+      if: inputs.mode == 'pack'
+      shell: bash
+      working-directory: pack
+      run: |
+        PY_V=$(echo ${{ inputs.python-version }} | cut -c1)
+        PACK_PYTHON_VERSIONS=$(${VIRTUALENV_DIR}/bin/python ${CI_DIR}/utils/extract_from_yaml.py pack.yaml python_versions)
+        PACK_SUPPORTS_PYTHON_VERSION=$(echo ${PACK_PYTHON_VERSIONS} | jq -r 'any(.[]; . == "'${PY_V}'")')
+        echo "PACK_PYTHON_VERSIONS=${PACK_PYTHON_VERSIONS}" | tee -a ${GITHUB_ENV}
+        echo "PACK_SUPPORTS_PYTHON_VERSION=${PACK_SUPPORTS_PYTHON_VERSION}" | tee -a ${GITHUB_ENV}
+        echo "PYTHON_MAJOR_VERSION=${PY_V}" | tee -a ${GITHUB_ENV}
+
     - name: Install Pack Requirements
       if: inputs.mode == 'pack'
       shell: bash
@@ -120,11 +132,25 @@ runs:
         echo "::group::Install Pack Requirements"
         if [[ -f "${PACK_REQUIREMENTS_FILE}" ]]; then
           echo "Installing pack requirements from ${PACK_REQUIREMENTS_FILE}"
-          ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"
+          if ! ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_REQUIREMENTS_FILE}"; then
+            rc=$?
+            if [[ "true" == "${PACK_SUPPORTS_PYTHON_VERSION}" ]]; then
+              exit $rc
+            else
+              echo "Ignoring failures since pack doesn't declare Python ${PYTHON_MAJOR_VERSION} support in pack.yaml"
+            fi
+          fi
         fi
         if [[ -f "${PACK_TESTS_REQUIREMENTS_FILE}" ]]; then
           echo "Installing pack tests requirements from ${PACK_TESTS_REQUIREMENTS_FILE}"
-          ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"
+          if ! ${VIRTUALENV_DIR}/bin/pip install -r "${PACK_TESTS_REQUIREMENTS_FILE}"; then
+            rc=$?
+            if [[ "true" == "${PACK_SUPPORTS_PYTHON_VERSION}" ]]; then
+              exit $rc
+            else
+              echo "Ignoring failures since pack doesn't declare Python ${PYTHON_MAJOR_VERSION} support in pack.yaml"
+            fi
+          fi
         fi
         echo "::endgroup::"
 
@@ -136,4 +162,7 @@ runs:
         python3 --version
         pip --version
         virtualenv --version
+        echo "::endgroup::"
+        echo "::group::pip list"
+        pip list
         echo "::endgroup::"

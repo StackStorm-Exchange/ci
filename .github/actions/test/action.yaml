@@ -15,6 +15,7 @@ inputs:
       see: https://docs.stackstorm.com/reference/sharing_code_sensors_actions.html
     default: false
     required: false
+
 outputs:
   pack-name:
     description: The pack name pulled from pack.yaml
@@ -66,4 +67,11 @@ runs:
       run: |
         source ${VIRTUALENV_DIR}/bin/activate
         # NB: tests require services (mongo, rabbitmq) which must be defined by the calling workflow
-        make -C "${ROOT_DIR}" -f "${CI_DIR}/.circle/Makefile" all-ci
+        if ! make -C "${ROOT_DIR}" -f "${CI_DIR}/.circle/Makefile" all-ci; then
+          rc=$?
+          if [[ "true" == "${PACK_SUPPORTS_PYTHON_VERSION}" ]]; then
+            exit $rc
+          else
+            echo "Ignoring failures since pack doesn't declare Python ${PYTHON_MAJOR_VERSION} support in pack.yaml"
+          fi
+        fi
