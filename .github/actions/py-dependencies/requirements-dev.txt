@@ -1,4 +1,4 @@
-# Needed for chek and lint scripts
+# Needed for check and lint scripts
 -e git+https://github.com/StackStorm/st2sdk.git@master#egg=st2sdk
 pyyaml
 pep8
