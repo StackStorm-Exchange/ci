@@ -77,8 +77,15 @@ runs:
       if: inputs.mode == 'pack'
       shell: bash
       run: |
-        echo "::group::Install CI Requirements"
-        ${VIRTUALENV_DIR}/bin/pip install -q -r ${REQUIREMENTS_DIR}/requirements-dev.txt
+        echo "::group::Install Dev Requirements"
+        # grab any unpinned requirements
+        DEV_REQUIREMENTS=$(grep -v -e '^#' -e '=' "${REQUIREMENTS_DIR}/requirements-dev.txt" | xargs echo -n)
+        # grab the pinned versions from the st2 checkout
+        grep -E "${DEV_REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${WORKSPACE}/requirements-dev.txt
+        grep -e '=' "${REQUIREMENTS_DIR}/requirements-dev.txt" >> ${WORKSPACE}/requirements-dev.txt
+        ${VIRTUALENV_DIR}/bin/pip install -q -r ${WORKSPACE}/requirements-dev.txt
+        echo "::endgroup::"
+        echo "::group::Install Pack Tests Requirements"
         ${VIRTUALENV_DIR}/bin/pip install -q -r ${REQUIREMENTS_DIR}/requirements-pack-tests.txt
         echo "::endgroup::"
 
