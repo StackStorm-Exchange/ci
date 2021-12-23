@@ -82,14 +82,14 @@ runs:
           # grab any local unpinned requirements
           REQUIREMENTS=$(grep -v -e '^#' -e '=' "${REQUIREMENTS_DIR}/${req_file}" | xargs echo -n)
           # grab the pinned versions from the st2 checkout
-          grep -E "${REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${WORKSPACE}/${req_file}
+          grep -E "${REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${GITHUB_WORKSPACE}/${req_file}
           # grab any local pinned requirements
-          grep -e '=' "${REQUIREMENTS_DIR}/requirements-dev.txt" >> ${WORKSPACE}/${req_file}
-          echo ${WORKSPACE}/${req_file}:
-          cat ${WORKSPACE}/${req_file}
+          grep -e '=' "${REQUIREMENTS_DIR}/requirements-dev.txt" >> ${GITHUB_WORKSPACE}/${req_file}
+          echo ${GITHUB_WORKSPACE}/${req_file}:
+          cat ${GITHUB_WORKSPACE}/${req_file}
           echo
           # install
-          ${VIRTUALENV_DIR}/bin/pip install -q -r ${WORKSPACE}/${req_file}
+          ${VIRTUALENV_DIR}/bin/pip install -q -r ${GITHUB_WORKSPACE}/${req_file}
           echo "::endgroup::"
         done
 
