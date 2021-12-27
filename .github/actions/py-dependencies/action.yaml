@@ -84,7 +84,7 @@ runs:
           # grab the pinned versions from the st2 checkout
           grep -E "${REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${GITHUB_WORKSPACE}/${req_file}
           # grab any local pinned requirements
-          grep -e '=' "${REQUIREMENTS_DIR}/${req_file}" >> ${GITHUB_WORKSPACE}/${req_file}
+          grep -e '=' "${REQUIREMENTS_DIR}/${req_file}" >> ${GITHUB_WORKSPACE}/${req_file} || true
           echo ${GITHUB_WORKSPACE}/${req_file}:
           cat ${GITHUB_WORKSPACE}/${req_file}
           echo
