@@ -53,7 +53,7 @@ runs:
         repository: StackStorm/st2
         ref: ${{ inputs.st2-branch }}
         path: st2
-        fetch-depth: 1
+        fetch-depth: ${{ inputs.st2-branch == 'master' && 1 || 0 }}
 
     - name: Checkout lint-configs repo
       uses: actions/checkout@v2
@@ -61,4 +61,4 @@ runs:
         repository: StackStorm/lint-configs
         ref: ${{ inputs.lint-configs-branch }}
         path: lint-configs
-        fetch-depth: 1
+        fetch-depth: ${{ inputs.lint-configs-branch == 'master' && 1 || 0 }}
