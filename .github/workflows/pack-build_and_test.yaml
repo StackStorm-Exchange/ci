@@ -26,6 +26,10 @@ on:
         required: false
         type: string
         default: master
+      force-check-all-files:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build_and_test:
@@ -60,6 +64,7 @@ jobs:
         uses: StackStorm-Exchange/ci/.github/actions/test@master
         with:
           enable-common-libs: ${{ inputs.enable-common-libs }}
+          force-check-all-files: ${{ inputs.force-check-all-files }}
 
     services:
       mongo:
