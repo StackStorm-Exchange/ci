@@ -15,6 +15,12 @@ inputs:
       see: https://docs.stackstorm.com/reference/sharing_code_sensors_actions.html
     default: false
     required: false
+  force-check-all-files:
+    description: |
+      Pushes to the default branch always check all files.
+      If needed, a pack can limit checks for PRs by setting this to false.
+    default: true
+    required: false
 
 outputs:
   pack-name:
@@ -50,7 +56,7 @@ runs:
         if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
           echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
         else
-          echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES:-true}" >> ${GITHUB_ENV}
+          echo "FORCE_CHECK_ALL_FILES=${{ inputs.force-check-all-files }}" >> ${GITHUB_ENV}
         fi
         if [[ "true" == "${{ inputs.enable-common-libs }}" ]]; then
           echo "Common libs PATH selected"
