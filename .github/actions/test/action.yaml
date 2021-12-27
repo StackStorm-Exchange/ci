@@ -49,6 +49,8 @@ runs:
         echo "BASE_BRANCH=origin/${DEFAULT_BRANCH}" >> ${GITHUB_ENV}
         if [[ "${DEFAULT_BRANCH}" == "${GITHUB_REF_NAME}" ]]; then
           echo "FORCE_CHECK_ALL_FILES=true" >> ${GITHUB_ENV}
+        else
+          echo "FORCE_CHECK_ALL_FILES=${FORCE_CHECK_ALL_FILES:-true}" >> ${GITHUB_ENV}
         fi
         if [[ "true" == "${{ inputs.enable-common-libs }}" ]]; then
           echo "Common libs PATH selected"
