@@ -84,12 +84,12 @@ runs:
           # grab the pinned versions from the st2 checkout
           grep -E "${REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${GITHUB_WORKSPACE}/${req_file}
           # grab any local pinned requirements
-          grep -e '=' "${REQUIREMENTS_DIR}/requirements-dev.txt" >> ${GITHUB_WORKSPACE}/${req_file}
+          grep -e '=' "${REQUIREMENTS_DIR}/${req_file}" >> ${GITHUB_WORKSPACE}/${req_file} || true
           echo ${GITHUB_WORKSPACE}/${req_file}:
           cat ${GITHUB_WORKSPACE}/${req_file}
           echo
           # install
-          ${VIRTUALENV_DIR}/bin/pip install -q -r ${GITHUB_WORKSPACE}/${req_file}
+          ${VIRTUALENV_DIR}/bin/pip install -r ${GITHUB_WORKSPACE}/${req_file}
           echo "::endgroup::"
         done
 
@@ -99,7 +99,7 @@ runs:
       working-directory: st2
       run: |
         echo "::group::Install StackStorm Requirements"
-        ${VIRTUALENV_DIR}/bin/pip install -q -r requirements.txt
+        ${VIRTUALENV_DIR}/bin/pip install -r requirements.txt
         echo "::endgroup::"
 
     - name: Install Runners
