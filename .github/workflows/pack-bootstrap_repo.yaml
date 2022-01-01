@@ -1,0 +1,145 @@
+name: Bootstrap Pack Repo
+
+on:
+  workflow_call:
+    secrets:
+      slack_webhook_url:
+        type: string
+        required: true
+      admin_token: # admin PAT with scopes: public_repo, workflows, org:write
+        type: string
+        required: true
+    inputs:
+      pack_name:
+        type: string
+        required: true
+      pack_description:
+        type: string
+        required: true
+
+      homepage:
+        type: string
+        required: false
+        # env vars are available here due to how this var is used
+        default: "https://exchange.stackstorm.com/#${PACK_NAME}"
+      pack_org:
+        type: string
+        required: false
+        default: StackStorm-Exchange
+      pack_repo_prefix:
+        type: string
+        required: false
+        default: stackstorm
+      pack_repo_template:
+        type: string
+        required: false
+        default: StackStorm-Exchange/exchange-template
+      tsc_team:
+        type: string
+        required: false
+        default: TSC
+
+jobs:
+  bootstrap_pack_repo:
+    runs-on: ubuntu-latest
+    name: 'Bootstrap Repo'
+    steps:
+      - name: Set env vars
+        shell: bash
+        # PACK_NAME used by inputs.homepage
+        # GH_TOKEN used by `gh` command
+        run: |
+          echo "PACK_NAME=${{ inputs.pack_name }}" | tee -a ${GITHUB_ENV}
+          echo "GH_TOKEN=${{ secrets.admin_token }}" >> ${GITHUB_ENV}
+
+      - name: Check if pack repo needs to be created
+        id: do-create-repo
+        continue-on-error: true
+        shell: bash
+        # we negate the rc so 1 means repo already exists, 0 means does not exist
+        run: >
+          ! gh repo view
+          ${{ inputs.pack_org }}/${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
+          --json nameWithOwner -q .nameWithOwner
+
+      - name: Check if pack repo was partially created
+        if: steps.do-create-repo.outcome == 'success'
+        id: do-rename-repo
+        continue-on-error: true
+        shell: bash
+        run: >
+          gh repo view
+          ${{ inputs.pack_org }}/${{ inputs.pack_name }}
+          --json nameWithOwner -q .nameWithOwner
+
+      - name: Create pack repo on Github
+        id: created-repo
+        if: >
+          steps.do-create-repo.outcome == 'success'
+          && steps.do-rename-repo.outcome == 'failure'
+        shell: bash
+        # First create repo w/o stackstorm- prefix
+        # Then rename it to add the prefix.
+        # This creates a redirect/alias on github w/o the prefix.
+        run: >
+          gh repo create ${{ inputs.pack_org }}/${{ inputs.pack_name }}
+          --public
+          --homepage "${{ inputs.homepage }}"
+          --description "${{ inputs.pack_description }}"
+          --template "${{ inputs.pack_repo_template }}"
+
+      - name: Rename pack repo on Github
+        if: >
+          steps.do-rename-repo.outcome == 'success'
+          || steps.created-repo.outcome == 'success'
+        shell: bash
+        run: >
+          gh repo rename
+          '${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}'
+          -R '${{ inputs.pack_org }}/${{ inputs.pack_name }}'
+          --confirm
+
+      - name: Checkout pack repo
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
+          path: pack
+          fetch-depth: 0
+
+      - name: Update pack repo metadata on Github
+        if: steps.do-create-repo.outcome == 'failure'
+        working-directory: pack
+        shell: bash
+        run: >
+          gh api -X PATCH 'repos/{owner}/{repo}'
+          -f "description=${{ inputs.pack_description }}"
+          -f "homepage=${{ inputs.homepage }}"
+
+      # Using `gh repo create ... --team=TSC` only gives read permission, not maintain.
+      - name: Make sure TSC team has maintainer permissions on pack repo
+        working-directory: pack
+        shell: bash
+        run: >
+          gh api -X PUT /orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}
+          -f permission=maintain
+
+      - name: Configure Github to send webhook notifications to Slack
+        working-directory: pack
+        shell: bash
+        run: |
+          jq -n '{
+            "name": "web",
+            "active": true,
+            "config": {
+              "url": "${{ secrets.slack_webhook_url }}",
+              "content_type": "application/json"
+            },
+            "events": [
+              "commit_comment",
+              "issue_comment",
+              "issues",
+              "pull_request",
+              "pull_request_review",
+              "pull_request_review_comment"
+            ]
+          }' | gh api repos/{owner}/{repo}/hooks --input -

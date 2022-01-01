@@ -1,0 +1,96 @@
+---
+name: Extract Pack Repo Metadata
+description: |
+  Extract Pack Repo Metadata based on pack.yaml from the given repo.
+author: StackStorm
+
+inputs:
+  pack-directory:
+    required: false
+    default: pack
+  repository:
+    required: true
+  ref:
+    required: true
+  fetch-depth:
+    required: true
+
+outputs:
+  pack_name:
+    description: The pack name according to pack.yaml
+    value: ${{ env.PACK_NAME }}
+  pack_ref:
+    description: The pack ref according to pack.yaml
+    value: ${{ env.PACK_REF }}
+  pack_description:
+    description: The pack description according to pack.yaml
+    value: ${{ env.PACK_DESCRIPTION }}
+  pack_yaml_path:
+    description: Path to pack.yaml in the repository
+    value: ${{ env.PACK_YAML }}
+  in_submodule:
+    description: pack.yaml is in a submodule of the repository
+    value: ${{ env.IN_SUBMODULE }}
+  in_subdir:
+    description: pack.yaml is in a subdir of the repository
+    value: ${{ env.IN_SUBDIR }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout pack repo
+      uses: actions/checkout@v2
+      with:
+        path: ${{ inputs.pack-directory }}
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.ref }}
+        fetch-depth: ${{ inputs.fetch-depth }}
+
+    - name: Checkout submodules
+      working-directory: ${{ inputs.pack-directory }}
+      shell: bash
+      run: |
+        git submodule init
+        git submodule update --remote
+
+    - name: Install extract_from_yaml.py deps
+      shell: bash
+      run: |
+        pip install --user pyyaml
+
+    - name: Get metadata from pack.yaml
+      working-directory: ${{ inputs.pack-directory }}
+      shell: bash
+      run: |
+        export CI_DIR=$(realpath ${{ github.action_path }}/../../..)"
+        echo "CI_DIR=${CI_DIR}" >> ${GITHUB_ENV}
+        PACK_YAML=$(find . -maxdepth 2 -name pack.yaml | tail -n1 | sed -e 's/^\.\///')
+        if [[ -z "${PACK_YAML}" ]]; then
+          echo "Unable to find pack.yaml!"
+          exit 1
+        fi
+        echo "PACK_YAML=${PACK_YAML}" | tee -a ${GITHUB_ENV}
+        PACK_NAME=$(python ${CI_DIR}/utils/extract_from_yaml.py "${PACK_YAML}" name)
+        echo "PACK_NAME=${PACK_NAME}" | tee -a ${GITHUB_ENV}
+        PACK_REF=$(python ${CI_DIR}/utils/extract_from_yaml.py "${PACK_YAML}" ref)
+        echo "PACK_REF=${PACK_REF}" | tee -a ${GITHUB_ENV}
+        PACK_DESCRIPTION=$(python ${CI_DIR}/utils/extract_from_yaml.py "${PACK_YAML}" description)
+        echo "PACK_DESCRIPTION=${PACK_DESCRIPTION}" | tee -a ${GITHUB_ENV}
+
+    - name: Get metadata from git
+      working-directory: ${{ inputs.pack-directory }}
+      shell: bash
+      run: |
+        ROOT_GIT=$(git rev-parse --show-toplevel)
+        PACK_DIR=$(dirname ${PACK_YAML})
+        PACK_GIT=$(git -C ${PACK_DIR} rev-parse --show-toplevel)
+        if [[ "${ROOT_GIT}" == "${PACK_GIT}" ]]; then
+          echo "IN_SUBMODULE=false" | tee -a ${GITHUB_ENV}
+        else
+          echo "IN_SUBMODULE=true" | tee -a ${GITHUB_ENV}
+        fi
+        if [[ "${PACK_YAML}" == */pack.yaml ]]; then
+          echo "IN_SUBDIR=true" | tee -a ${GITHUB_ENV}
+        else
+          echo "IN_SUBDIR=false" | tee -a ${GITHUB_ENV}
+        fi
