@@ -38,6 +38,10 @@ on:
         type: string
         required: false
         default: TSC
+    outputs:
+      pack_repo:
+        description: The final org/prefix-pack_name
+        value: ${{ inputs.pack_org }}/${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
 
 jobs:
   bootstrap_pack_repo:
