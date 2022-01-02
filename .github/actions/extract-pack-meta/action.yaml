@@ -25,9 +25,9 @@ outputs:
   pack_description:
     description: The pack description according to pack.yaml
     value: ${{ env.PACK_DESCRIPTION }}
-  pack_yaml_path:
-    description: Path to pack.yaml in the repository
-    value: ${{ env.PACK_YAML }}
+  pack_path:
+    description: Path to the directory contaiing pack.yaml in the repository
+    value: ${{ env.PACK_PATH }}
   in_submodule:
     description: pack.yaml is in a submodule of the repository
     value: ${{ env.IN_SUBMODULE }}
@@ -82,8 +82,9 @@ runs:
       shell: bash
       run: |
         ROOT_GIT=$(git rev-parse --show-toplevel)
-        PACK_DIR=$(dirname ${PACK_YAML})
-        PACK_GIT=$(git -C ${PACK_DIR} rev-parse --show-toplevel)
+        PACK_PATH=$(dirname ${PACK_YAML})
+        echo "PACK_PATH=${PACK_PATH}" | tee -a ${GITHUB_ENV}
+        PACK_GIT=$(git -C ${PACK_PATH} rev-parse --show-toplevel)
         if [[ "${ROOT_GIT}" == "${PACK_GIT}" ]]; then
           echo "IN_SUBMODULE=false" | tee -a ${GITHUB_ENV}
         else
