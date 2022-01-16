@@ -33,7 +33,7 @@ on:
       pack_repo_template:
         type: string
         required: false
-        default: StackStorm-Exchange/exchange-template
+        default: StackStorm-Exchange/ci-pack-template
       tsc_team:
         type: string
         required: false
