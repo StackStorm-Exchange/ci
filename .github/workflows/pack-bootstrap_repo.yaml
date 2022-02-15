@@ -154,6 +154,7 @@ jobs:
         # app_id=15368 is for GitHub Actions
         # make sure to update the python version if needed
         # TSC needs access to push to default branch for exchange-wide updates
+        # restrictions also determine who can merge PRs to the target branch.
         run: |
           jq -n '{
             "required_status_checks": {
@@ -174,13 +175,20 @@ jobs:
               "required_approving_review_count": 1,
               "bypass_pull_request_allowances": null
             },
-            "restrictions": {
-              "users": [],
-              "teams": ["TSC"],
-              "apps": []
-            },
+            "restrictions": {},
             "required_linear_history": false,
             "allow_force_pushes": false,
             "allow_deletions": false,
             "required_conversation_resolution": false
           }' | gh api repos/{owner}/{repo}/branches/{branch}/protection --input -
+
+      # The user who creates a repo automatically has
+      # admin rights on the repo. Let's drop those
+      # permissions after bootstrap and just rely on
+      # team membership to determine access levels.
+      - name: Revoke owner permission from bot account
+        working-directory: pack
+        shell: bash
+        run: >
+          gh api
+          -X DELETE /repos/{owner}/{repo}/collaborators/{username}
