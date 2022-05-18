@@ -52,8 +52,11 @@ jobs:
         shell: bash
         # PACK_NAME used by inputs.homepage
         # GH_TOKEN used by `gh` command
+        env:
+          TOKEN: ${{ secrets.admin_token }}
         run: |
           echo "PACK_NAME=${{ inputs.pack_name }}" | tee -a ${GITHUB_ENV}
+          echo .${TOKEN}.
 #          echo "GH_TOKEN=${{ secrets.admin_token }}" >> ${GITHUB_ENV}
 
       - name: Check if pack repo needs to be created
