@@ -29,7 +29,7 @@ def load_yaml_file(path):
 
 
 def dump(value):
-    if isinstance(value, typing.Collection):
+    if not isinstance(value, str) and isinstance(value, typing.Collection):
         value = json.dumps(value)
     # else it is a simple int or str (pass as is w/o json quotes)
     return value
