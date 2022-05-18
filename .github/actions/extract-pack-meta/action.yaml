@@ -18,22 +18,22 @@ inputs:
 outputs:
   pack_name:
     description: The pack name according to pack.yaml
-    value: ${{ env.PACK_NAME }}
+    value: ${{ steps.collected.outputs.PACK_NAME }}
   pack_ref:
     description: The pack ref according to pack.yaml
-    value: ${{ env.PACK_REF }}
+    value: ${{ steps.collected.outputs.PACK_REF }}
   pack_description:
     description: The pack description according to pack.yaml
-    value: ${{ env.PACK_DESCRIPTION }}
+    value: ${{ steps.collected.outputs.PACK_DESCRIPTION }}
   pack_path:
     description: Path to the directory contaiing pack.yaml in the repository
-    value: ${{ env.PACK_PATH }}
+    value: ${{ steps.collected.outputs.PACK_PATH }}
   in_submodule:
     description: pack.yaml is in a submodule of the repository
-    value: ${{ env.IN_SUBMODULE }}
+    value: ${{ steps.collected.outputs.IN_SUBMODULE }}
   in_subdir:
     description: pack.yaml is in a subdir of the repository
-    value: ${{ env.IN_SUBDIR }}
+    value: ${{ steps.collected.outputs.IN_SUBDIR }}
 
 runs:
   using: "composite"
@@ -96,13 +96,13 @@ runs:
           echo "IN_SUBDIR=false" | tee -a ${GITHUB_ENV}
         fi
 
-    - name: Print pack details
+    - name: Collect outputs
+      id: collected
       shell: bash
       run: |
-        echo 'pack_ref=${{ env.PACK_REF }}'
-        echo 'pack_name=${{ env.PACK_NAME }}'
-        echo 'pack_ref||pack_name=${{ env.PACK_REF || env.PACK_NAME }}'
-        echo 'pack_description=${{ env.PACK_DESCRIPTION }}'
-        echo 'pack_path=${{ env.PACK_PATH }}'
-        echo 'in_submodule=${{ env.IN_SUBMODULE }}'
-        echo 'in_subdir=${{ env.IN_SUBDIR }}'
+        echo "::set-output name=pack_ref::${PACK_REF}"
+        echo "::set-output name=pack_name::${PACK_NAME}"
+        echo "::set-output name=pack_description::${PACK_DESCRIPTION}"
+        echo "::set-output name=pack_path::${PACK_PATH}"
+        echo "::set-output name=in_submodule::${IN_SUBMODULE}"
+        echo "::set-output name=in_subdir::${IN_SUBDIR}"
