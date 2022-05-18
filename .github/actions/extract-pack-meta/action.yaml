@@ -95,3 +95,14 @@ runs:
         else
           echo "IN_SUBDIR=false" | tee -a ${GITHUB_ENV}
         fi
+
+    - name: Print pack details
+      shell: bash
+      run: |
+        echo 'pack_ref=${{ env.PACK_REF }}'
+        echo 'pack_name=${{ env.PACK_NAME }}'
+        echo 'pack_ref||pack_name=${{ env.PACK_REF || env.PACK_NAME }}'
+        echo 'pack_description=${{ env.PACK_DESCRIPTION }}'
+        echo 'pack_path=${{ env.PACK_PATH }}'
+        echo 'in_submodule=${{ env.IN_SUBMODULE }}'
+        echo 'in_subdir=${{ env.IN_SUBDIR }}'
