@@ -3,11 +3,11 @@ name: Bootstrap Pack Repo
 on:
   workflow_call:
     secrets:
+      # secrets are always type: string
       slack_webhook_url:
-        type: string
         required: true
-      admin_token: # admin PAT with scopes: public_repo, workflows, org:write
-        type: string
+      admin_token:
+        description: "admin PAT with scopes: public_repo, workflows, org:write"
         required: true
     inputs:
       pack_name:
