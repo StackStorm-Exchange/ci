@@ -62,7 +62,7 @@ runs:
       working-directory: ${{ inputs.pack-directory }}
       shell: bash
       run: |
-        export CI_DIR=$(realpath ${{ github.action_path }}/../../..)"
+        export CI_DIR=$(realpath ${{ github.action_path }}/../../..)
         echo "CI_DIR=${CI_DIR}" >> ${GITHUB_ENV}
         PACK_YAML=$(find . -maxdepth 2 -name pack.yaml | tail -n1 | sed -e 's/^\.\///')
         if [[ -z "${PACK_YAML}" ]]; then
