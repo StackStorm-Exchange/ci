@@ -1,0 +1,233 @@
+name: Bootstrap Pack Repo
+
+on:
+  workflow_call:
+    secrets:
+      # secrets are always type: string
+      slack_webhook_url:
+        description: "Slack Webhook URL"
+        required: true
+      admin_token:
+        # see comments below. write:org, public_repo is not enough.
+        description: "admin PAT with scopes: admin:org, repo"
+        required: true
+    inputs:
+      pack_name:
+        type: string
+        required: true
+      pack_description:
+        type: string
+        required: true
+
+      homepage:
+        type: string
+        required: false
+        # env vars are available here due to how this var is used
+        default: "https://exchange.stackstorm.com/#${PACK_NAME}"
+      pack_org:
+        type: string
+        required: false
+        default: StackStorm-Exchange
+      pack_repo_prefix:
+        type: string
+        required: false
+        default: stackstorm
+      pack_repo_template:
+        type: string
+        required: false
+        default: StackStorm-Exchange/ci-pack-template
+      tsc_team:
+        type: string
+        required: false
+        default: TSC
+
+      # make sure to update the python version if needed
+      required_check_context:
+        type: string
+        required: false
+        default: "Build and Test / Python 3.6"
+      required_check_app_id:
+        type: string
+        required: false
+        default: "15368" # app_id=15368 is for GitHub Actions
+
+    outputs:
+      pack_repo:
+        description: The final org/prefix-pack_name
+        value: ${{ jobs.bootstrap_pack_repo.outputs.pack_repo }}
+      homepage:
+        description: The resolved homepage for the pack
+        value: ${{ jobs.bootstrap_pack_repo.outputs.homepage }}
+
+jobs:
+  bootstrap_pack_repo:
+    runs-on: ubuntu-latest
+    name: 'Bootstrap Repo'
+    env:
+      # GH_TOKEN used by `gh` command
+      GH_TOKEN: ${{ secrets.admin_token }}
+
+      # PACK_NAME used by inputs.homepage
+      PACK_NAME: ${{ inputs.pack_name }}
+
+    outputs:
+      pack_repo: ${{ steps.collected.outputs.pack_repo }}
+      homepage: ${{ steps.collected.outputs.homepage }}
+
+    steps:
+      - name: Prepare output vars
+        id: collected
+        shell: bash
+        run: |
+          echo "::set-output name=pack_repo::${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}"
+          echo "::set-output name=homepage::${{ inputs.homepage }}"
+
+      - name: Check if pack repo needs to be created
+        id: do-create-repo
+        continue-on-error: true
+        shell: bash
+        # we negate the rc so 1 means repo already exists, 0 means does not exist
+        run: >
+          ! gh repo view
+          ${{ inputs.pack_org }}/${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
+          --json nameWithOwner -q .nameWithOwner
+
+      - name: Check if pack repo was partially created
+        if: steps.do-create-repo.outcome == 'success'
+        id: do-rename-repo
+        continue-on-error: true
+        shell: bash
+        run: >
+          gh repo view
+          ${{ inputs.pack_org }}/${{ inputs.pack_name }}
+          --json nameWithOwner -q .nameWithOwner
+
+      # secrets.admin_token needs 'public_repo' scope to allow creating a repo from a repo template.
+      # secrets.GITHUB_TOKEN cannot be used for this step, as it can't be given a multi-repo scope.
+      # see: https://docs.github.com/en/rest/repos/repos#create-a-repository-using-a-template
+      - name: Create pack repo on Github
+        id: created-repo
+        if: >
+          steps.do-create-repo.outcome == 'success'
+          && steps.do-rename-repo.outcome == 'failure'
+        shell: bash
+        # First create repo w/o stackstorm- prefix
+        # Then rename it to add the prefix.
+        # This creates a redirect/alias on github w/o the prefix.
+        run: >
+          gh repo create ${{ inputs.pack_org }}/${{ inputs.pack_name }}
+          --public
+          --description "${{ inputs.pack_description }}"
+          --template "${{ inputs.pack_repo_template }}"
+        # NOTE: --template does not support setting --homepage, but we PATCH homepage later.
+
+      # secrets.admin_token needs 'public_repo' scope to allow updating the repo.
+      - name: Rename pack repo on Github
+        if: >
+          steps.do-rename-repo.outcome == 'success'
+          || steps.created-repo.outcome == 'success'
+        shell: bash
+        run: >
+          gh repo rename
+          '${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}'
+          -R '${{ inputs.pack_org }}/${{ inputs.pack_name }}'
+          --confirm
+
+      - name: Checkout pack repo
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.pack_org }}/${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
+          path: pack
+          fetch-depth: 0
+
+      # secrets.admin_token needs 'public_repo' scope to allow updating the repo.
+      - name: Update pack repo metadata on Github
+        if: steps.do-create-repo.outcome == 'failure'
+        working-directory: pack
+        shell: bash
+        run: >
+          gh api -X PATCH '/repos/{owner}/{repo}'
+          -f "description=${{ inputs.pack_description }}"
+          -f "homepage=${{ inputs.homepage }}"
+
+      # secrets.admin_token needs 'admin:org' scope to allow adding the repo to the team.
+      - name: Make sure TSC team has maintainer permissions on pack repo
+        working-directory: pack
+        shell: bash
+        # Using `gh repo create ... --team=TSC` only gives read permission, not maintain.
+        # So, we patch it separately.
+        run: >
+          gh api -X PUT '/orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}'
+          -f permission=maintain
+
+      # secrets.admin_token needs 'repo' scope (includes 'public_repo') to allow configuring protected branches.
+      # see: https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection
+      - name: Configure Protected Branches
+        working-directory: pack
+        shell: bash
+        # TSC needs access to push to default branch for exchange-wide updates
+        # restrictions also determine who can merge PRs to the target branch.
+        run: |
+          jq -n '{
+            "required_status_checks": {
+              "strict": false,
+              "checks": [
+                {
+                  "context": "${{ inputs.required_check_context }}",
+                  "app_id": ${{ inputs.required_check_app_id }}
+                }
+              ]
+            },
+            "enforce_admins": null,
+            "required_pull_request_reviews": {
+              "dismissal_restrictions": {},
+              "dismiss_stale_reviews": false,
+              "require_code_owner_reviews": true,
+              "required_approving_review_count": 1,
+              "bypass_pull_request_allowances": {}
+            },
+            "restrictions": null,
+            "required_linear_history": false,
+            "allow_force_pushes": false,
+            "allow_deletions": false,
+            "required_conversation_resolution": false
+          }' | gh api -X PUT '/repos/{owner}/{repo}/branches/{branch}/protection' --input -
+
+      # secrets.admin_token needs 'write:repo_hook' (included in 'public_repo') scope to allow adding the webhook.
+      - name: Configure Github to send webhook notifications to Slack
+        working-directory: pack
+        shell: bash
+        run: |
+          CURRENT_HOOKS=$(gh api -X GET '/repos/{owner}/{repo}/hooks')
+          if [[ "${CURRENT_HOOKS}" == "[]" ]]; then
+          jq -n '{
+            "name": "web",
+            "active": true,
+            "config": {
+              "url": "${{ secrets.slack_webhook_url }}",
+              "content_type": "application/json"
+            },
+            "events": [
+              "commit_comment",
+              "issue_comment",
+              "issues",
+              "pull_request",
+              "pull_request_review",
+              "pull_request_review_comment"
+            ]
+          }' | gh api -X POST '/repos/{owner}/{repo}/hooks' --input -
+          else
+          echo CURRENT_HOOKS=${CURRENT_HOOKS}
+          fi
+
+      # If a user manually creates a repo, they automatically have admin rights on the repo.
+      # But, using the PAT to create the repo does not do that.
+      # If it did, we could use this to drop those permissions after bootstrap
+      # and just rely on team membership to determine access levels.
+      # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
+      #- name: Revoke owner permission from bot account
+      #  working-directory: pack
+      #  shell: bash
+      #  run: >
+      #    gh api
+      #    -X DELETE '/repos/{owner}/{repo}/collaborators/{username}'
