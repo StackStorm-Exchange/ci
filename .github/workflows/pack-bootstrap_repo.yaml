@@ -11,9 +11,6 @@ on:
         description: "admin PAT with scopes: public_repo, workflows, org:write"
         required: true
     inputs:
-      test_thing:
-        type: string
-        required: false
       pack_name:
         type: string
         required: true
@@ -62,7 +59,6 @@ jobs:
       - name: debug
         shell: bash
         run: |
-          echo 1-${{ inputs.test_thing }}
           echo 2-${{ github.token }}
           echo 3-${{ secrets.admin_token }}
 
@@ -98,9 +94,9 @@ jobs:
         run: >
           gh repo create ${{ inputs.pack_org }}/${{ inputs.pack_name }}
           --public
-          --homepage "${{ inputs.homepage }}"
           --description "${{ inputs.pack_description }}"
           --template "${{ inputs.pack_repo_template }}"
+        # NOTE: --template is not supported with --homepage, but we PATCH homepage later.
 
       - name: Rename pack repo on Github
         if: >
