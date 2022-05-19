@@ -40,6 +40,14 @@ on:
         type: string
         required: false
         default: TSC
+      required_check_context:
+        type: string
+        required: false
+        default: "Build and Test / Python 3.6"
+      required_check_app_id:
+        type: string
+        required: false
+        default: "15368"
     outputs:
       pack_repo:
         description: The final org/prefix-pack_name
@@ -151,18 +159,14 @@ jobs:
         # TSC needs access to push to default branch for exchange-wide updates
         # restrictions also determine who can merge PRs to the target branch.
         run: |
-          pwd
-          git status
-          git branch
-          git remote -v
           jq -n '{
             "required_status_checks": {
               "strict": false,
               "contexts": [],
               "checks": [
                 {
-                  "context": "Build and Test / Python 3.6",
-                  "app_id": 15368
+                  "context": "${{ inputs.required_check_context }}",
+                  "app_id": ${{ inputs.required_check_app_id }}
                 }
               ]
             },
@@ -172,9 +176,9 @@ jobs:
               "dismiss_stale_reviews": false,
               "require_code_owner_reviews": true,
               "required_approving_review_count": 1,
-              "bypass_pull_request_allowances": null
+              "bypass_pull_request_allowances": {}
             },
-            "restrictions": {},
+            "restrictions": null,
             "required_linear_history": false,
             "allow_force_pushes": false,
             "allow_deletions": false,
