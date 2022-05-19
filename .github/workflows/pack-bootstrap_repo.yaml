@@ -52,6 +52,9 @@ on:
       pack_repo:
         description: The final org/prefix-pack_name
         value: ${{ jobs.bootstrap_pack_repo.outputs.pack_repo }}
+      homepage:
+        description: The resolved homepage for the pack
+        value: ${{ jobs.bootstrap_pack_repo.outputs.homepage }}
 
 jobs:
   bootstrap_pack_repo:
@@ -66,13 +69,15 @@ jobs:
 
     outputs:
       pack_repo: ${{ steps.collected.outputs.pack_repo }}
+      homepage: ${{ steps.collected.outputs.homepage }}
 
     steps:
-      - name: Prepare pack_repo output var
+      - name: Prepare output vars
         id: collected
         shell: bash
         run: |
           echo "::set-output name=pack_repo::${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}"
+          echo "::set-output name=homepage::${{ inputs.homepage }}"
 
       - name: Check if pack repo needs to be created
         id: do-create-repo
