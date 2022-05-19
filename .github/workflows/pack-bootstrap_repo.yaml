@@ -40,6 +40,8 @@ on:
         type: string
         required: false
         default: TSC
+
+      # make sure to update the python version if needed
       required_check_context:
         type: string
         required: false
@@ -47,7 +49,8 @@ on:
       required_check_app_id:
         type: string
         required: false
-        default: "15368"
+        default: "15368" # app_id=15368 is for GitHub Actions
+
     outputs:
       pack_repo:
         description: The final org/prefix-pack_name
@@ -162,8 +165,6 @@ jobs:
       - name: Configure Protected Branches
         working-directory: pack
         shell: bash
-        # app_id=15368 is for GitHub Actions
-        # make sure to update the python version if needed
         # TSC needs access to push to default branch for exchange-wide updates
         # restrictions also determine who can merge PRs to the target branch.
         run: |
@@ -219,10 +220,10 @@ jobs:
           echo CURRENT_HOOKS=${CURRENT_HOOKS}
           fi
 
-      # If a user manually creates a repo, they automatically has admin rights on the repo.
+      # If a user manually creates a repo, they automatically have admin rights on the repo.
       # But, using the PAT to create the repo does not do that.
       # If it did, we could use this to drop those permissions after bootstrap
-      # and just rely on # team membership to determine access levels.
+      # and just rely on team membership to determine access levels.
       # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
       #- name: Revoke owner permission from bot account
       #  working-directory: pack
