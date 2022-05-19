@@ -185,34 +185,35 @@ jobs:
           }' | gh api -X PUT '/repos/{owner}/{repo}/branches/{branch}/protection' --input -
 
       # secrets.admin_token needs 'write:repo_hook' (included in 'public_repo') scope to allow adding the webhook.
-      #- name: Configure Github to send webhook notifications to Slack
-      #  working-directory: pack
-      #  shell: bash
-      #  run: |
-      #    jq -n '{
-      #      "name": "web",
-      #      "active": true,
-      #      "config": {
-      #        "url": "${{ secrets.slack_webhook_url }}",
-      #        "content_type": "application/json"
-      #      },
-      #      "events": [
-      #        "commit_comment",
-      #        "issue_comment",
-      #        "issues",
-      #        "pull_request",
-      #        "pull_request_review",
-      #        "pull_request_review_comment"
-      #      ]
-      #    }' | gh api -X POST '/repos/{owner}/{repo}/hooks' --input -
-
-      # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
-      # The user who creates a repo automatically has admin rights on the repo.
-      # Let's drop those permissions after bootstrap and just rely on
-      # team membership to determine access levels.
-      - name: Revoke owner permission from bot account
+      - name: Configure Github to send webhook notifications to Slack
         working-directory: pack
         shell: bash
-        run: >
-          gh api
-          -X DELETE '/repos/{owner}/{repo}/collaborators/{username}'
+        run: |
+          jq -n '{
+            "name": "web",
+            "active": true,
+            "config": {
+              "url": "${{ secrets.slack_webhook_url }}",
+              "content_type": "application/json"
+            },
+            "events": [
+              "commit_comment",
+              "issue_comment",
+              "issues",
+              "pull_request",
+              "pull_request_review",
+              "pull_request_review_comment"
+            ]
+          }' | gh api -X POST '/repos/{owner}/{repo}/hooks' --input -
+
+      # If a user manually creates a repo, they automatically has admin rights on the repo.
+      # But, using the PAT to create the repo does not do that.
+      # If it did, we could use this to drop those permissions after bootstrap
+      # and just rely on # team membership to determine access levels.
+      # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
+      #- name: Revoke owner permission from bot account
+      #  working-directory: pack
+      #  shell: bash
+      #  run: >
+      #    gh api
+      #    -X DELETE '/repos/{owner}/{repo}/collaborators/{username}'
