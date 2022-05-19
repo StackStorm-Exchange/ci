@@ -55,14 +55,6 @@ jobs:
       PACK_NAME: ${{ inputs.pack_name }}
 
     steps:
-      - name: debug
-        shell: bash
-        run: |
-          cat ${GITHUB_ENV}
-          echo .${GH_TOKEN}.
-#          echo "PACK_NAME=${{ inputs.pack_name }}" | tee -a ${GITHUB_ENV}
-#          echo "GH_TOKEN=${{ secrets.admin_token }}" >> ${GITHUB_ENV}
-
       - name: Check if pack repo needs to be created
         id: do-create-repo
         continue-on-error: true
