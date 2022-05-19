@@ -65,7 +65,7 @@ jobs:
       PACK_NAME: ${{ inputs.pack_name }}
 
     outputs:
-      pack_repo: ${{ steps.collected.outputs.collected }}
+      pack_repo: ${{ steps.collected.outputs.pack_repo }}
 
     steps:
       - name: Prepare pack_repo output var
