@@ -18,22 +18,22 @@ inputs:
 outputs:
   pack_name:
     description: The pack name according to pack.yaml
-    value: ${{ steps.collected.outputs.PACK_NAME }}
+    value: ${{ steps.collected.outputs.pack_name }}
   pack_ref:
     description: The pack ref according to pack.yaml
-    value: ${{ steps.collected.outputs.PACK_REF }}
+    value: ${{ steps.collected.outputs.pack_ref }}
   pack_description:
     description: The pack description according to pack.yaml
-    value: ${{ steps.collected.outputs.PACK_DESCRIPTION }}
+    value: ${{ steps.collected.outputs.pack_description }}
   pack_path:
     description: Path to the directory contaiing pack.yaml in the repository
-    value: ${{ steps.collected.outputs.PACK_PATH }}
+    value: ${{ steps.collected.outputs.pack_path }}
   in_submodule:
     description: pack.yaml is in a submodule of the repository
-    value: ${{ steps.collected.outputs.IN_SUBMODULE }}
+    value: ${{ steps.collected.outputs.in_submodule }}
   in_subdir:
     description: pack.yaml is in a subdir of the repository
-    value: ${{ steps.collected.outputs.IN_SUBDIR }}
+    value: ${{ steps.collected.outputs.in_subdir }}
 
 runs:
   using: "composite"
