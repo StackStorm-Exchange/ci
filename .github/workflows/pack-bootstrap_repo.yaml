@@ -51,8 +51,7 @@ on:
     outputs:
       pack_repo:
         description: The final org/prefix-pack_name
-        #value: ${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}
-        value: ${{ format('{0}/{1}', 'st2sandbox', 'pack-reviewboard') }}
+        value: ${{ jobs.bootstrap_pack_repo.outputs.pack_repo }}
 
 jobs:
   bootstrap_pack_repo:
@@ -65,12 +64,15 @@ jobs:
       # PACK_NAME used by inputs.homepage
       PACK_NAME: ${{ inputs.pack_name }}
 
+    outputs:
+      pack_repo: ${{ steps.collected.outputs.collected }}
+
     steps:
-      - name: debug
+      - name: Prepare pack_repo output var
+        id: collected
         shell: bash
         run: |
-          echo 2-${{ github.token }}
-          echo 3-${{ secrets.admin_token }}
+          echo "::set-output name=pack_repo::${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}"
 
       - name: Check if pack repo needs to be created
         id: do-create-repo
