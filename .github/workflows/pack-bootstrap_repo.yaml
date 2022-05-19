@@ -127,7 +127,7 @@ jobs:
         working-directory: pack
         shell: bash
         run: >
-          gh api -X PATCH 'repos/{owner}/{repo}'
+          gh api -X PATCH '/repos/{owner}/{repo}'
           -f "description=${{ inputs.pack_description }}"
           -f "homepage=${{ inputs.homepage }}"
 
@@ -138,7 +138,7 @@ jobs:
         # Using `gh repo create ... --team=TSC` only gives read permission, not maintain.
         # So, we patch it separately.
         run: >
-          gh api -X PUT /orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}
+          gh api -X PUT '/orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}'
           -f permission=maintain
 
       # secrets.admin_token needs 'repo' scope (includes 'public_repo') to allow configuring protected branches.
@@ -179,7 +179,7 @@ jobs:
             "allow_force_pushes": false,
             "allow_deletions": false,
             "required_conversation_resolution": false
-          }' | gh api repos/{owner}/{repo}/branches/{branch}/protection --input -
+          }' | gh api -X PUT '/repos/{owner}/{repo}/branches/{branch}/protection' --input -
 
       # secrets.admin_token needs 'write:repo_hook' (included in 'public_repo') scope to allow adding the webhook.
       #- name: Configure Github to send webhook notifications to Slack
@@ -201,7 +201,7 @@ jobs:
       #        "pull_request_review",
       #        "pull_request_review_comment"
       #      ]
-      #    }' | gh api repos/{owner}/{repo}/hooks --input -
+      #    }' | gh api '/repos/{owner}/{repo}/hooks' --input -
 
       # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
       # The user who creates a repo automatically has admin rights on the repo.
