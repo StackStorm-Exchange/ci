@@ -5,11 +5,15 @@ on:
     secrets:
       # secrets are always type: string
       slack_webhook_url:
+        description: "Slack Webhook URL"
         required: true
       admin_token:
         description: "admin PAT with scopes: public_repo, workflows, org:write"
         required: true
     inputs:
+      test_thing:
+        type: string
+        required: false
       pack_name:
         type: string
         required: true
@@ -55,6 +59,13 @@ jobs:
       PACK_NAME: ${{ inputs.pack_name }}
 
     steps:
+      - name: debug
+        shell: bash
+        run: |
+          echo 1-${{ inputs.test_thing }}
+          echo 2-${{ github.token }}
+          echo 3-${{ secrets.admin_token }}
+
       - name: Check if pack repo needs to be created
         id: do-create-repo
         continue-on-error: true
