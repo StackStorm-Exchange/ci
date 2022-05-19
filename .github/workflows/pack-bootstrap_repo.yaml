@@ -201,7 +201,7 @@ jobs:
       #        "pull_request_review",
       #        "pull_request_review_comment"
       #      ]
-      #    }' | gh api '/repos/{owner}/{repo}/hooks' --input -
+      #    }' | gh api -X POST '/repos/{owner}/{repo}/hooks' --input -
 
       # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
       # The user who creates a repo automatically has admin rights on the repo.
@@ -212,4 +212,4 @@ jobs:
         shell: bash
         run: >
           gh api
-          -X DELETE /repos/{owner}/{repo}/collaborators/{username}
+          -X DELETE '/repos/{owner}/{repo}/collaborators/{username}'
