@@ -162,7 +162,6 @@ jobs:
           jq -n '{
             "required_status_checks": {
               "strict": false,
-              "contexts": [],
               "checks": [
                 {
                   "context": "${{ inputs.required_check_context }}",
