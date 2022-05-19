@@ -189,6 +189,8 @@ jobs:
         working-directory: pack
         shell: bash
         run: |
+          CURRENT_HOOKS=$(gh api -X GET '/repos/{owner}/{repo}/hooks')
+          if [[ "${CURRENT_HOOKS}" == "[]" ]]; then
           jq -n '{
             "name": "web",
             "active": true,
@@ -205,6 +207,9 @@ jobs:
               "pull_request_review_comment"
             ]
           }' | gh api -X POST '/repos/{owner}/{repo}/hooks' --input -
+          else
+          echo CURRENT_HOOKS=${CURRENT_HOOKS}
+          fi
 
       # If a user manually creates a repo, they automatically has admin rights on the repo.
       # But, using the PAT to create the repo does not do that.
