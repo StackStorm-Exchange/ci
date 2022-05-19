@@ -140,28 +140,6 @@ jobs:
           gh api -X PUT /orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}
           -f permission=maintain
 
-      # secrets.admin_token needs 'write:repo_hook' (included in 'public_repo') scope to allow adding the webhook.
-      - name: Configure Github to send webhook notifications to Slack
-        working-directory: pack
-        shell: bash
-        run: |
-          jq -n '{
-            "name": "web",
-            "active": true,
-            "config": {
-              "url": "${{ secrets.slack_webhook_url }}",
-              "content_type": "application/json"
-            },
-            "events": [
-              "commit_comment",
-              "issue_comment",
-              "issues",
-              "pull_request",
-              "pull_request_review",
-              "pull_request_review_comment"
-            ]
-          }' | gh api repos/{owner}/{repo}/hooks --input -
-
       # secrets.admin_token needs 'public_repo' scope to allow configuring protected branches.
       - name: Configure Protected Branches
         working-directory: pack
@@ -196,6 +174,28 @@ jobs:
             "allow_deletions": false,
             "required_conversation_resolution": false
           }' | gh api repos/{owner}/{repo}/branches/{branch}/protection --input -
+
+      # secrets.admin_token needs 'write:repo_hook' (included in 'public_repo') scope to allow adding the webhook.
+      #- name: Configure Github to send webhook notifications to Slack
+      #  working-directory: pack
+      #  shell: bash
+      #  run: |
+      #    jq -n '{
+      #      "name": "web",
+      #      "active": true,
+      #      "config": {
+      #        "url": "${{ secrets.slack_webhook_url }}",
+      #        "content_type": "application/json"
+      #      },
+      #      "events": [
+      #        "commit_comment",
+      #        "issue_comment",
+      #        "issues",
+      #        "pull_request",
+      #        "pull_request_review",
+      #        "pull_request_review_comment"
+      #      ]
+      #    }' | gh api repos/{owner}/{repo}/hooks --input -
 
       # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
       # The user who creates a repo automatically has admin rights on the repo.
