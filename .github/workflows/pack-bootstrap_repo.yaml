@@ -151,6 +151,10 @@ jobs:
         # TSC needs access to push to default branch for exchange-wide updates
         # restrictions also determine who can merge PRs to the target branch.
         run: |
+          pwd
+          git status
+          git branch
+          git remote -v
           jq -n '{
             "required_status_checks": {
               "strict": false,
