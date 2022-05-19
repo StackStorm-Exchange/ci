@@ -52,7 +52,7 @@ on:
       pack_repo:
         description: The final org/prefix-pack_name
         #value: ${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}
-        value: "st2sandbox/pack-reviewboard"
+        value: ${{ 'st2sandbox/pack-reviewboard' }}
 
 jobs:
   bootstrap_pack_repo:
