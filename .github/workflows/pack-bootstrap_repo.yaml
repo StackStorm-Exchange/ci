@@ -8,7 +8,8 @@ on:
         description: "Slack Webhook URL"
         required: true
       admin_token:
-        description: "admin PAT with scopes: public_repo, admin:org"
+        # see comments below. write:org, public_repo is not enough.
+        description: "admin PAT with scopes: admin:org, repo"
         required: true
     inputs:
       pack_name:
@@ -140,7 +141,8 @@ jobs:
           gh api -X PUT /orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}
           -f permission=maintain
 
-      # secrets.admin_token needs 'public_repo' scope to allow configuring protected branches.
+      # secrets.admin_token needs 'repo' scope (includes 'public_repo') to allow configuring protected branches.
+      # see: https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection
       - name: Configure Protected Branches
         working-directory: pack
         shell: bash
