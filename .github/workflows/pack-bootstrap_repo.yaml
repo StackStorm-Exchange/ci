@@ -47,24 +47,26 @@ jobs:
   bootstrap_pack_repo:
     runs-on: ubuntu-latest
     name: 'Bootstrap Repo'
+    env:
+      # GH_TOKEN used by `gh` command
+      GH_TOKEN: ${{ secrets.admin_token }}
+
+      # PACK_NAME used by inputs.homepage
+      PACK_NAME: ${{ inputs.pack_name }}
+
     steps:
-      - name: Set env vars
+      - name: debug
         shell: bash
-        # PACK_NAME used by inputs.homepage
-        # GH_TOKEN used by `gh` command
-        env:
-          TOKEN: ${{ secrets.admin_token }}
         run: |
-          echo "PACK_NAME=${{ inputs.pack_name }}" | tee -a ${GITHUB_ENV}
-          echo .${TOKEN}.
+          cat ${GITHUB_ENV}
+          echo .${GH_TOKEN}.
+#          echo "PACK_NAME=${{ inputs.pack_name }}" | tee -a ${GITHUB_ENV}
 #          echo "GH_TOKEN=${{ secrets.admin_token }}" >> ${GITHUB_ENV}
 
       - name: Check if pack repo needs to be created
         id: do-create-repo
         continue-on-error: true
         shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.admin_token }}
         # we negate the rc so 1 means repo already exists, 0 means does not exist
         run: >
           ! gh repo view
