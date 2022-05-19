@@ -8,7 +8,7 @@ on:
         description: "Slack Webhook URL"
         required: true
       admin_token:
-        description: "admin PAT with scopes: public_repo, workflows, org:write"
+        description: "admin PAT with scopes: public_repo, workflows, write:org"
         required: true
     inputs:
       pack_name:
@@ -82,6 +82,10 @@ jobs:
           ${{ inputs.pack_org }}/${{ inputs.pack_name }}
           --json nameWithOwner -q .nameWithOwner
 
+      # secrets.admin_token needs 'public_repo' scope to allow creating a repo from a repo template.
+      # secrets.admin_token needs 'workflow' scope because the repo template has workflows.
+      # secrets.GITHUB_TOKEN cannot be used for this step, as it can't be given a multi-repo scope.
+      # see: https://docs.github.com/en/rest/repos/repos#create-a-repository-using-a-template
       - name: Create pack repo on Github
         id: created-repo
         if: >
@@ -96,8 +100,9 @@ jobs:
           --public
           --description "${{ inputs.pack_description }}"
           --template "${{ inputs.pack_repo_template }}"
-        # NOTE: --template is not supported with --homepage, but we PATCH homepage later.
+        # NOTE: --template does not support setting --homepage, but we PATCH homepage later.
 
+      # secrets.admin_token needs 'public_repo' scope to allow updating the repo.
       - name: Rename pack repo on Github
         if: >
           steps.do-rename-repo.outcome == 'success'
@@ -116,6 +121,7 @@ jobs:
           path: pack
           fetch-depth: 0
 
+      # secrets.admin_token needs 'public_repo' scope to allow updating the repo.
       - name: Update pack repo metadata on Github
         if: steps.do-create-repo.outcome == 'failure'
         working-directory: pack
@@ -125,14 +131,17 @@ jobs:
           -f "description=${{ inputs.pack_description }}"
           -f "homepage=${{ inputs.homepage }}"
 
-      # Using `gh repo create ... --team=TSC` only gives read permission, not maintain.
+      # secrets.admin_token needs 'write:org' scope to allow adding the repo to the team.
       - name: Make sure TSC team has maintainer permissions on pack repo
         working-directory: pack
         shell: bash
+        # Using `gh repo create ... --team=TSC` only gives read permission, not maintain.
+        # So, we patch it separately.
         run: >
           gh api -X PUT /orgs/{owner}/teams/${{ inputs.tsc_team }}/repos/{owner}/{repo}
           -f permission=maintain
 
+      # secrets.admin_token needs 'write:repo_hook' (included in 'public_repo') scope to allow adding the webhook.
       - name: Configure Github to send webhook notifications to Slack
         working-directory: pack
         shell: bash
@@ -154,6 +163,7 @@ jobs:
             ]
           }' | gh api repos/{owner}/{repo}/hooks --input -
 
+      # secrets.admin_token needs 'public_repo' scope to allow configuring protected branches.
       - name: Configure Protected Branches
         working-directory: pack
         shell: bash
@@ -188,9 +198,9 @@ jobs:
             "required_conversation_resolution": false
           }' | gh api repos/{owner}/{repo}/branches/{branch}/protection --input -
 
-      # The user who creates a repo automatically has
-      # admin rights on the repo. Let's drop those
-      # permissions after bootstrap and just rely on
+      # secrets.admin_token needs 'public_repo' scope to remove owner permisisons from bot.
+      # The user who creates a repo automatically has admin rights on the repo.
+      # Let's drop those permissions after bootstrap and just rely on
       # team membership to determine access levels.
       - name: Revoke owner permission from bot account
         working-directory: pack
