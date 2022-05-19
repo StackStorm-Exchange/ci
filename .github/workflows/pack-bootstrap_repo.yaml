@@ -117,7 +117,7 @@ jobs:
       - name: Checkout pack repo
         uses: actions/checkout@v2
         with:
-          repository: ${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
+          repository: ${{ inputs.pack_org }}/${{ inputs.pack_repo_prefix }}-${{ inputs.pack_name }}
           path: pack
           fetch-depth: 0
 
