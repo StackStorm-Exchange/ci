@@ -8,7 +8,7 @@ on:
         description: "Slack Webhook URL"
         required: true
       admin_token:
-        description: "admin PAT with scopes: public_repo, workflows, write:org"
+        description: "admin PAT with scopes: public_repo, admin:org"
         required: true
     inputs:
       pack_name:
@@ -83,7 +83,6 @@ jobs:
           --json nameWithOwner -q .nameWithOwner
 
       # secrets.admin_token needs 'public_repo' scope to allow creating a repo from a repo template.
-      # secrets.admin_token needs 'workflow' scope because the repo template has workflows.
       # secrets.GITHUB_TOKEN cannot be used for this step, as it can't be given a multi-repo scope.
       # see: https://docs.github.com/en/rest/repos/repos#create-a-repository-using-a-template
       - name: Create pack repo on Github
@@ -131,7 +130,7 @@ jobs:
           -f "description=${{ inputs.pack_description }}"
           -f "homepage=${{ inputs.homepage }}"
 
-      # secrets.admin_token needs 'write:org' scope to allow adding the repo to the team.
+      # secrets.admin_token needs 'admin:org' scope to allow adding the repo to the team.
       - name: Make sure TSC team has maintainer permissions on pack repo
         working-directory: pack
         shell: bash
