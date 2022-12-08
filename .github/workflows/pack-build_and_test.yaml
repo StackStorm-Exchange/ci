@@ -33,7 +33,7 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     # When parent workflow is named "Build and Test" this shows up as:
     #   "Build and Test / Python 3.6"
     name: 'Python ${{ matrix.python-version-short }}'
