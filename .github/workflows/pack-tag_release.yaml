@@ -15,7 +15,7 @@ on:
 
 jobs:
   tag_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: 'Tag Release'
 
     outputs:
