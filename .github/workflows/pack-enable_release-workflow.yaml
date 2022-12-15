@@ -1,0 +1,145 @@
+name: Enable Pack Release Workflow
+
+on:
+  workflow_call:
+    inputs:
+      ci_branch:
+        required: false
+        type: string
+        default: master
+      exchange_tools_branch:
+        required: false
+        type: string
+        default: master
+      packs_org:
+        required: false
+        type: string
+        default: StackStorm-Exchange
+      pack_repo_prefix:
+        required: false
+        type: string
+        default: stackstorm
+
+jobs:
+  enable_pack_release_workflow:
+    runs-on: ubuntu-20.04
+    # When parent workflow is named "Enable Pack Release Workflow" this shows up as:
+    #   "Enable Pack Release Workflow / Enable Pack Release Workflow"
+    name: Enable Pack Release Workflow
+
+    steps:
+
+    - name: Add checkout paths to env context
+      shell: bash
+      run: |
+        echo "CI_DIR=${{ github.workspace }}/ci" >> ${GITHUB_ENV}
+        echo "TOOLS_DIR=${{ github.workspace }}/exchange-tools" >> ${GITHUB_ENV}
+        echo "INDEX_DIR=${{ github.workspace }}/index" >> ${GITHUB_ENV}
+        echo "PACKS_PATH=${{ github.workspace }}/packs" >> ${GITHUB_ENV}
+
+    - name: Checkout index repo
+      uses: actions/checkout@v2
+      with:
+        path: index
+        # checkout the latest on the branch instead of the sha from when triggered
+        ref: ${{ github.ref }}
+        fetch-depth: 1
+
+    - name: Checkout ci repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm-Exchange/ci
+        ref: ${{ inputs.ci_branch }}
+        path: ci
+        fetch-depth: 1
+
+    - name: Checkout exchange-tools repo
+      uses: actions/checkout@v2
+      with:
+        repository: StackStorm-Exchange/exchange-tools
+        ref: ${{ inputs.exchange_tools_branch }}
+        path: exchange-tools
+        fetch-depth: 1
+
+    - name: Checkout Pack Repos and enable their Release Workflows
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PACKS_ORG: ${{ inputs.packs_org }}
+        PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
+      run: |
+        mkdir -p ${PACKS_PATH}
+        cd ${PACKS_PATH}
+        source ${TOOLS_DIR}/functions.sh
+        EXCLUDE_PACKS=$(grep -v '^#' "${INDEX_DIR}/v1/exclude_packs.txt" | xargs echo -n)
+        for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
+          echo "::group::Clone ${PACKS_ORG}/${repo_name}"
+          gh repo clone "${PACKS_ORG}/${repo_name}"
+          if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
+            echo latestTag = $latestTag
+            git -C ${repo_name} checkout $latestTag -b latestTagBranch
+          fi
+          echo
+          echo "::endgroup::" # DELETED notices will not be folded to simplify scanning action output
+          if [[ -z "$latestTag" ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#${PACKS_PREFIX}-} " ]]; then
+            rm -rf ${repo_name}
+            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack excluded via index.git/v1/exclude_packs.txt"
+            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
+          else
+            if [[ -f "./${repo_name}/.github/workflows/release.yaml" ]]; then
+              echo "GitHub release workflow manifest found for ${PACKS_ORG}/${repo_name}"
+
+              workflow_exists_http_code="$(curl \
+                --header "Accept: application/vnd.github+json" \
+                --header "Authorization: Bearer ${GH_TOKEN}" \
+                --header "X-GitHub-Api-Version: 2022-11-28" \
+                --request GET \
+                --output /dev/null \
+                --silent \
+                --write-out %{http_code}
+                https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable)"
+
+              if [[ $workflow_exists_status_code -eq 200 ]]; then
+                echo "GitHub release workflow found (${workflow_exists_status_code}) for ${PACKS_ORG}/${repo_name}"
+
+                workflow_state="$(curl \
+                  --header "Accept: application/vnd.github+json" \
+                  --header "Authorization: Bearer ${GH_TOKEN}" \
+                  --header "X-GitHub-Api-Version: 2022-11-28" \
+                  --request GET \
+                  --output /dev/null \
+                  --silent \
+                  https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable \
+                    | jq -r .state)"
+
+                if [[ $workflow_state != "active" ]]; then
+                  echo "Enabling GitHub release workflow (state is $workflow_state) for ${PACKS_ORG}/${repo_name}"
+                  curl \
+                    --header "Accept: application/vnd.github+json" \
+                    --header "Authorization: Bearer ${GH_TOKEN}" \
+                    --header "X-GitHub-Api-Version: 2022-11-28" \
+                    --request PUT \
+                    --verbose \
+                    https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable
+                else
+                  echo "GitHub release workflow for ${PACKS_ORG}/${repo_name} already active (state is $workflow_state)"
+                fi
+              else
+                echo "GitHub release workflow not found (${workflow_exists_status_code}) for ${PACKS_ORG}/${repo_name}"
+            else
+              echo "No GitHub release workflow manifest found for ${PACKS_ORG}/${repo_name}"
+            fi
+          fi
+        done
+        if [[ -f ${GITHUB_WORKSPACE}/bad_pack_repos ]]; then
+          echo "These repos were DELETED. See above for why."
+          cat ${GITHUB_WORKSPACE}/bad_pack_repos
+        fi
