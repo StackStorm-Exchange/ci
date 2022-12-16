@@ -43,16 +43,7 @@ jobs:
       run: |
         echo "CI_DIR=${{ github.workspace }}/ci" >> ${GITHUB_ENV}
         echo "TOOLS_DIR=${{ github.workspace }}/exchange-tools" >> ${GITHUB_ENV}
-        echo "INDEX_DIR=${{ github.workspace }}/index" >> ${GITHUB_ENV}
         echo "PACKS_PATH=${{ github.workspace }}/packs" >> ${GITHUB_ENV}
-
-    - name: Checkout index repo
-      uses: actions/checkout@v2
-      with:
-        path: index
-        # checkout the latest on the branch instead of the sha from when triggered
-        ref: ${{ github.ref }}
-        fetch-depth: 1
 
     - name: Checkout ci repo
       uses: actions/checkout@v2
@@ -79,7 +70,6 @@ jobs:
         mkdir -p ${PACKS_PATH}
         cd ${PACKS_PATH}
         source ${TOOLS_DIR}/functions.sh
-        EXCLUDE_PACKS=$(grep -v '^#' "${INDEX_DIR}/v1/exclude_packs.txt" | xargs echo -n)
         for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
           echo "::group::Clone ${PACKS_ORG}/${repo_name}"
           gh repo clone "${PACKS_ORG}/${repo_name}"
@@ -96,10 +86,6 @@ jobs:
           elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
             rm -rf ${repo_name}
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
-            echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-          elif [[ " ${EXCLUDE_PACKS} " =~ " ${repo_name#${PACKS_PREFIX}-} " ]]; then
-            rm -rf ${repo_name}
-            echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack excluded via index.git/v1/exclude_packs.txt"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             #
