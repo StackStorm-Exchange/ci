@@ -102,17 +102,16 @@ jobs:
             #  This is not a bad or excluded Pack, ensure the Release workflow is active
             #
             echo "::group::Ensure Release workflow for ${PACKS_ORG}/${repo_name} is active"
-            if [[ -f "./${repo_name}/.github/workflows/release.yaml" ]]; then
-              echo "GitHub Release workflow manifest found for ${PACKS_ORG}/${repo_name}"
-                # NOTE: Unfortunately "gh workflow list" does not have --json
-                if ! gh workflow list ${PACKS_ORG}/${repo_name} --all | grep -E '^Release\b\s+active\b'; then
-                  echo "GitHub Release workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
-                  gh workflow enable ${PACKS_ORG}/${repo_name}
-                else
-                  echo "GitHub Release workflow for ${PACKS_ORG}/${repo_name} is already active"
-                fi
+            if gh api --silent --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml 2>/dev/null; then
+              echo "GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
+              if [[ "$(gh api --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml --jq .state)" != "active" ]]; then
+                echo "GitHub Release workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
+                gh workflow enable Release --repo ${PACKS_ORG}/${repo_name}
+              else
+                echo "GitHub Release workflow for ${PACKS_ORG}/${repo_name} is already active"
+              fi
             else
-              echo "No GitHub Release workflow manifest found for ${PACKS_ORG}/${repo_name}"
+              echo "No GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
             fi
             echo "::endgroup::"
           fi
