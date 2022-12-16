@@ -21,7 +21,8 @@ concurrency:
   # Do not use cancel-in-progress! Or we might create a scenario where all workflows get canceled before they complete.
 
 permissions:
-  contents: write
+  actions: write # Need to enable Actions
+  contents: read # Need to clone repositories
 
 jobs:
   enable_pack_release_workflow:
