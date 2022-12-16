@@ -99,6 +99,7 @@ jobs:
           else
             if [[ -f "./${repo_name}/.github/workflows/release.yaml" ]]; then
               echo "GitHub release workflow manifest found for ${PACKS_ORG}/${repo_name}"
+                # TODO: Make this idempotent
                 gh workflow enable ${PACKS_ORG}/${repo_name}
             else
               echo "No GitHub release workflow manifest found for ${PACKS_ORG}/${repo_name}"
