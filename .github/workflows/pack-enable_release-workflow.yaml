@@ -67,6 +67,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         PACKS_ORG: ${{ inputs.packs_org }}
         PACKS_PREFIX: ${{ inputs.pack_repo_prefix }}
+        GH_API_HEADERS: '--header "Accept: application/vnd.github+json" --header "Authorization: Bearer ${{ github.token }}" --header "X-GitHub-Api-Version: 2022-11-28"'
       run: |
         mkdir -p ${PACKS_PATH}
         cd ${PACKS_PATH}
@@ -94,43 +95,22 @@ jobs:
             echo "DELETED clone of ${PACKS_ORG}/${repo_name}: pack excluded via index.git/v1/exclude_packs.txt"
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
+            GH_API_ENABLE="https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable"
             if [[ -f "./${repo_name}/.github/workflows/release.yaml" ]]; then
               echo "GitHub release workflow manifest found for ${PACKS_ORG}/${repo_name}"
 
-              workflow_exists_http_code="$(curl \
-                --header "Accept: application/vnd.github+json" \
-                --header "Authorization: Bearer ${GH_TOKEN}" \
-                --header "X-GitHub-Api-Version: 2022-11-28" \
-                --request GET \
-                --output /dev/null \
-                --silent \
-                --write-out %{http_code}
-                https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable)"
-
+              workflow_exists_http_code="$(curl $GH_API_HEADERS --request GET --output /dev/null --silent --write-out %{http_code} $GH_API_ENABLE)
               if [[ $workflow_exists_status_code -eq 200 ]]; then
                 echo "GitHub release workflow found (${workflow_exists_status_code}) for ${PACKS_ORG}/${repo_name}"
 
-                workflow_state="$(curl \
-                  --header "Accept: application/vnd.github+json" \
-                  --header "Authorization: Bearer ${GH_TOKEN}" \
-                  --header "X-GitHub-Api-Version: 2022-11-28" \
-                  --request GET \
-                  --silent \
-                  https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable \
-                    | jq -r .state)"
-
+                workflow_state="$(curl $GH_API_HEADERS --request GET --silent $GH_API_ENABLE | jq -r .state)"
                 if [[ $workflow_state != "active" ]]; then
                   echo "Enabling GitHub release workflow (state is $workflow_state) for ${PACKS_ORG}/${repo_name}"
-                  curl \
-                    --header "Accept: application/vnd.github+json" \
-                    --header "Authorization: Bearer ${GH_TOKEN}" \
-                    --header "X-GitHub-Api-Version: 2022-11-28" \
-                    --request PUT \
-                    --verbose \
-                    https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable
+                  curl $GITHUB_API_HEADES --request PUT --verbose $GH_API_ENABLE
                 else
                   echo "GitHub release workflow for ${PACKS_ORG}/${repo_name} already active (state is $workflow_state)"
                 fi
+
               else
                 echo "GitHub release workflow not found (${workflow_exists_status_code}) for ${PACKS_ORG}/${repo_name}"
             else
