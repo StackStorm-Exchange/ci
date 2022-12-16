@@ -12,6 +12,12 @@ env:
   exchange_tools_branch: master
   packs_org: StackStorm-Exchange
   pack_repo_prefix: stackstorm
+  # We need to be able to enable Workflows in all the repositories under the
+  # StackStorm Exchange GitHub Organization. We are using the GitHub CLI (gh).
+  # At the time of writing, it appears that fine grained PATs do not work with
+  # GraphQL. As such, this only leaves the classic PATs. The bare minimum
+  # permissions of repo:* and workflow are enough.
+  GH_TOKEN: ${{ secrets.GH_ORG_CI_TOKEN }}
 
 # Only allow one workflow run per branch at a time.
 # When one is already running, new runs will be pending.
@@ -21,7 +27,6 @@ concurrency:
   # Do not use cancel-in-progress! Or we might create a scenario where all workflows get canceled before they complete.
 
 permissions:
-  actions: write # Need to enable Actions
   contents: read # Need to clone repositories
 
 jobs:
@@ -68,7 +73,6 @@ jobs:
     - name: Checkout Pack Repos and enable their Release Workflows
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
         PACKS_ORG: ${{ env.packs_org }}
         PACKS_PREFIX: ${{ env.pack_repo_prefix }}
       run: |
