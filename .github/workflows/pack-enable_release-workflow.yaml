@@ -115,7 +115,6 @@ jobs:
                   --header "Authorization: Bearer ${GH_TOKEN}" \
                   --header "X-GitHub-Api-Version: 2022-11-28" \
                   --request GET \
-                  --output /dev/null \
                   --silent \
                   https://api.github.com/repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml/enable \
                     | jq -r .state)"
