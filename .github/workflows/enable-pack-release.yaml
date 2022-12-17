@@ -92,12 +92,13 @@ jobs:
             #  This is not a bad Pack, ensure the Release workflow is active
             #
             echo "::group::Ensure Release workflow for ${PACKS_ORG}/${repo_name} is active"
-            if gh api --silent --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml 2>/dev/null; then
+            RELEASE_WORKFLOW="repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml"
+            if gh api --silent --method GET $RELEASE_WORKFLOW 2>/dev/null; then
               echo "GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
-              if [[ "$(gh api --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml --jq .state)" != "active" ]]; then
+              if [[ "$(gh api --method GET $RELEASE_WORKFLOW --jq .state)" != "active" ]]; then
                 echo "::notice::GitHub Release workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
                 gh workflow enable Release --repo ${PACKS_ORG}/${repo_name}
-                if [[ "$(gh api --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml --jq .state)" != "active" ]]; then
+                if [[ "$(gh api --method GET $RELEASE_WORKFLOW --jq .state)" != "active" ]]; then
                   echo "::error::Failed enabling GitHub Release workflow for ${PACKS_ORG}/${repo_name}"
                 fi
               else
