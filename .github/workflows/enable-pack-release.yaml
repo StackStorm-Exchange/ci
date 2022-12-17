@@ -89,23 +89,25 @@ jobs:
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             #
-            #  This is not a bad Pack, ensure the Release workflow is active
+            #  This is not a bad Pack, ensure the CI/build_and_test workflow is active
             #
-            echo "::group::Ensure Release workflow for ${PACKS_ORG}/${repo_name} is active"
-            RELEASE_WORKFLOW="repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml"
-            if gh api --silent --method GET $RELEASE_WORKFLOW 2>/dev/null; then
-              echo "GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
-              if [[ "$(gh api --method GET $RELEASE_WORKFLOW --jq .state)" != "active" ]]; then
-                echo "::notice::GitHub Release workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
-                gh workflow enable Release --repo ${PACKS_ORG}/${repo_name}
-                if [[ "$(gh api --method GET $RELEASE_WORKFLOW --jq .state)" != "active" ]]; then
-                  echo "::error::Failed enabling GitHub Release workflow for ${PACKS_ORG}/${repo_name}"
+            ORG_REPO="${PACKS_ORG}/${repo_name}"
+            WORKFLOW="repos/${PACKS_ORG}/${repo_name}/actions/workflows/build_and_test.yaml"
+            WORKFLOW_NAME="CI/build_and_test"
+            echo "::group::Ensure ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is active"
+            if gh api --silent --method GET $WORKFLOW 2>/dev/null; then
+              echo "GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
+              if [[ "$(gh api --method GET $WORKFLOW --jq .state)" != "active" ]]; then
+                echo "::notice::GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
+                gh workflow enable $WORKFLOW --repo ${PACKS_ORG}/${repo_name}
+                if [[ "$(gh api --method GET $WORKFLOW --jq .state)" != "active" ]]; then
+                  echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
                 fi
               else
-                echo "GitHub Release workflow for ${PACKS_ORG}/${repo_name} is already active"
+                echo "GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is already active"
               fi
             else
-              echo "::warning::No GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
+              echo "::warning::No GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
             fi
             echo "::endgroup::"
           fi
