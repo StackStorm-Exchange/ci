@@ -89,15 +89,15 @@ jobs:
               #  This is not a bad Pack, ensure the Build and Test workflow is active
               #
               ORG_REPO="${PACKS_ORG}/${repo_name}"
-              WORKFLOW="repos/${PACKS_ORG}/${repo_name}/actions/workflows/build_and_test.yaml"
-              WORKFLOW_NAME="CI/build_and_test"
+              WORKFLOW_PATH="repos/${PACKS_ORG}/${repo_name}/actions/workflows/build_and_test.yaml"
+              WORKFLOW_NAME="CI"
               echo "::group::Ensure ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is active"
-              if gh api --silent --method GET $WORKFLOW 2>/dev/null; then
+              if gh api --silent --method GET ${WORKFLOW_PATH} 2>/dev/null; then
                 echo "GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
-                if [[ "$(gh api --method GET $WORKFLOW --jq .state)" != "active" ]]; then
+                if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
                   echo "::notice::GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
-                  gh workflow enable $WORKFLOW --repo ${PACKS_ORG}/${repo_name}
-                  if [[ "$(gh api --method GET $WORKFLOW --jq .state)" != "active" ]]; then
+                  gh workflow enable $WORKFLOW_NAME --repo ${PACKS_ORG}/${repo_name}
+                  if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
                     echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
                   fi
                 else
