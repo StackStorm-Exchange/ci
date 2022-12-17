@@ -89,7 +89,7 @@ jobs:
             echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
           else
             #
-            #  This is not a bad or excluded Pack, ensure the Release workflow is active
+            #  This is not a bad Pack, ensure the Release workflow is active
             #
             echo "::group::Ensure Release workflow for ${PACKS_ORG}/${repo_name} is active"
             if gh api --silent --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml 2>/dev/null; then
