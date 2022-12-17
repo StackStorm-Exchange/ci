@@ -93,14 +93,10 @@ jobs:
               echo "::group::Ensure ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is active"
               if gh api --silent --method GET ${WORKFLOW_PATH} 2>/dev/null; then
                 echo "GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
+                echo "Setting GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} to active"
+                gh workflow enable $WORKFLOW_NAME --repo ${PACKS_ORG}/${repo_name}
                 if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
-                  echo "::notice::GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
-                  gh workflow enable $WORKFLOW_NAME --repo ${PACKS_ORG}/${repo_name}
-                  if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
-                    echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
-                  fi
-                else
-                  echo "GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is already active"
+                  echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
                 fi
               else
                 echo "::warning::No GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
