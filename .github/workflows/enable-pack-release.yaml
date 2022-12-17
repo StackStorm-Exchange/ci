@@ -97,11 +97,14 @@ jobs:
               if [[ "$(gh api --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml --jq .state)" != "active" ]]; then
                 echo "::notice::GitHub Release workflow for ${PACKS_ORG}/${repo_name} not active, enabling"
                 gh workflow enable Release --repo ${PACKS_ORG}/${repo_name}
+                if [[ "$(gh api --method GET repos/${PACKS_ORG}/${repo_name}/actions/workflows/release.yaml --jq .state)" != "active" ]]; then
+                  echo "::error::Failed enabling GitHub Release workflow for ${PACKS_ORG}/${repo_name}"
+                fi
               else
                 echo "GitHub Release workflow for ${PACKS_ORG}/${repo_name} is already active"
               fi
             else
-              echo "::error::No GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
+              echo "::warning::No GitHub Release workflow found for ${PACKS_ORG}/${repo_name}"
             fi
             echo "::endgroup::"
           fi
