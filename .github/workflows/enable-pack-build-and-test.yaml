@@ -58,6 +58,12 @@ jobs:
           path: exchange-tools
           fetch-depth: 1
 
+      # TODO: Make sure this actually constitutes "repository activity"
+      - name: Set this Workflow to active (prevent 60d disabling)
+        shell: bash
+        run: |
+          gh workflow enable "Enable Pack Build and Test"
+
       - name: Checkout Pack Repos and enable their Build and Test Workflow
         shell: bash
         env:
