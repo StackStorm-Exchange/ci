@@ -1,9 +1,9 @@
 name: Enable Pack Build and Test
 
 on:
-  # First day of the month at midnight.
+  # Daily at 3 in the morning
   schedule:
-    - cron: "0 0 1 * *"
+    - cron: "0 3 * * *"
   # manual rebuilds by TSC members
   workflow_dispatch:
 
