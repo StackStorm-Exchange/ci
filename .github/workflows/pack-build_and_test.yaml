@@ -38,17 +38,21 @@ jobs:
     #   "Build and Test / Python 3.6"
     name: 'Python ${{ matrix.python-version-short }}'
     strategy:
+      fail-fast: false
+      max-parallel: 2
       matrix:
         include:
           - python-version-short: "3.6"
             python-version: 3.6.13
+          - python-version-short: "3.8"
+            python-version: 3.8.10
     steps:
       - name: Checkout Pack Repo and CI Repos
         uses: StackStorm-Exchange/ci/.github/actions/checkout@master
         with:
           st2-branch: ${{ inputs.st2-branch }}
           lint-configs-branch: ${{ inputs.lint-configs-branch }}
-        
+
       - name: Install APT Dependencies
         uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
         with:
