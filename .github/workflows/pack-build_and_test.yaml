@@ -49,22 +49,22 @@ jobs:
           st2-branch: ${{ inputs.st2-branch }}
           lint-configs-branch: ${{ inputs.lint-configs-branch }}
 
-      # - name: Install APT Dependencies
-      #   uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
-      #   with:
-      #     cache-version: ${{ inputs.apt-cache-version }}
+      - name: Install APT Dependencies
+        uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
+        with:
+          cache-version: ${{ inputs.apt-cache-version }}
 
-      # - name: Install Python Dependencies
-      #   uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@master
-      #   with:
-      #     cache-version: ${{ inputs.py-cache-version }}
-      #     python-version: ${{ matrix.python-version }}
+      - name: Install Python Dependencies
+        uses: StackStorm-Exchange/ci/.github/actions/py-dependencies@master
+        with:
+          cache-version: ${{ inputs.py-cache-version }}
+          python-version: ${{ matrix.python-version }}
 
-      # - name: Run pack tests
-      #   uses: StackStorm-Exchange/ci/.github/actions/test@master
-      #   with:
-      #     enable-common-libs: ${{ inputs.enable-common-libs }}
-      #     force-check-all-files: ${{ inputs.force-check-all-files }}
+      - name: Run pack tests
+        uses: StackStorm-Exchange/ci/.github/actions/test@master
+        with:
+          enable-common-libs: ${{ inputs.enable-common-libs }}
+          force-check-all-files: ${{ inputs.force-check-all-files }}
 
       - name: Ensure CHANGES.md and pack.yaml changed (and Pack version increased)
         uses: mamercad/stackstorm-exchange-ci/.github/actions/pack-meta@changelog-and-pack-checking
