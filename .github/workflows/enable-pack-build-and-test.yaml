@@ -59,9 +59,11 @@ jobs:
           fetch-depth: 1
 
       # TODO: Make sure this actually constitutes "repository activity"
-      - name: Set this Workflow to active (prevent 60d disabling)
+      - name: Conditionally set this Workflow to active (attempt to prevent 60d disabling of itself)
         shell: bash
         run:
+          # NOTE: "gh workflow list" does not currently support json output
+          # Relates to: https://github.com/cli/cli/issues/5025
           if [[ $(gh api --method GET repos/${{ github.repository }}/actions/workflows/${{ github.workflow }} --jq .state) != "active" ]]; then
             gh workflow enable "${{ github.workflow }}" --repo "${{ github.repository }}"
           fi
