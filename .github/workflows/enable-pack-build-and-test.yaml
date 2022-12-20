@@ -61,8 +61,10 @@ jobs:
       # TODO: Make sure this actually constitutes "repository activity"
       - name: Set this Workflow to active (prevent 60d disabling)
         shell: bash
-        run: |
-          gh workflow enable "Enable Pack Build and Test"
+        run:
+          if [[ $(gh api --method GET repos/${{ github.repository }}/actions/workflows/${{ github.workflow }} --jq .state) != "active" ]]; then
+            gh workflow enable "${{ github.workflow }}" --repo "${{ github.repository }}"
+          fi
 
       - name: Checkout Pack Repos and enable their Build and Test Workflow
         shell: bash
