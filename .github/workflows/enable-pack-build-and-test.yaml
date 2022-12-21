@@ -64,7 +64,7 @@ jobs:
         run: |
           # NOTE: "gh workflow list" does not currently support json output
           # Relates to: https://github.com/cli/cli/issues/5025
-          if [[ $(gh api --method GET "repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}" --jq .state) != "active" ]]; then
+          if [[ $(gh api --method GET "repos/${{ github.repository }}/actions/workflows/enable-pack-build-and-test.yaml" --jq .state) != "active" ]]; then
             gh workflow enable "${{ github.workflow }}" --repo "${{ github.repository }}"
           fi
 
