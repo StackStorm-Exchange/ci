@@ -60,11 +60,13 @@ jobs:
       # TODO: Make sure this actually constitutes "repository activity"
       - name: Conditionally set this Workflow to active (attempt to prevent 60d disabling of itself)
         shell: bash
+        env:
+          WORKFLOW_PATH: repos/${{ github.repository }}/actions/workflows/enable-pack-build-and-test.yaml
         run: |
           # NOTE: "gh workflow list" does not currently support json output
           # Relates to: https://github.com/cli/cli/issues/5025
-          if [[ $(gh api --method GET "repos/${{ github.repository }}/actions/workflows/enable-pack-build-and-test.yaml" --jq .state) != "active" ]]; then
-            gh workflow enable "${{ github.workflow }}" --repo "${{ github.repository }}"
+          if [[ $(gh api --method GET "${WORKFLOW_PATH}" --jq .state) != "active" ]]; then
+            gh api --method PUT "${WORKFLOW_PATH}/enable"
           fi
 
       - name: Enable Pack Repos Build and Test Workflow
@@ -81,7 +83,7 @@ jobs:
             if gh api --silent --method GET ${WORKFLOW_PATH} 2>/dev/null; then
               echo "GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
               echo "Setting GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} to active"
-              gh workflow enable "${WORKFLOW_NAME}" --repo ${PACKS_ORG}/${repo_name}
+              gh api --method PUT "${WORKFLOW_PATH}/enable"
               if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
                 echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
               fi
