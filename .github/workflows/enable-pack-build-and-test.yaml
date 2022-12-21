@@ -61,7 +61,7 @@ jobs:
       # TODO: Make sure this actually constitutes "repository activity"
       - name: Conditionally set this Workflow to active (attempt to prevent 60d disabling of itself)
         shell: bash
-        run:
+        run: |
           # NOTE: "gh workflow list" does not currently support json output
           # Relates to: https://github.com/cli/cli/issues/5025
           if [[ $(gh api --method GET repos/${{ github.repository }}/actions/workflows/${{ github.workflow }} --jq .state) != "active" ]]; then
