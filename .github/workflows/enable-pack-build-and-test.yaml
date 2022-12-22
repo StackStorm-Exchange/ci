@@ -70,9 +70,11 @@ jobs:
         env:
           PACKS_ORG: ${{ env.packs_org }}
           PACKS_PREFIX: ${{ env.pack_repo_prefix }}
+          # _gh_list_repo_names use graphql, so we cannot use a fine-grained PAT. Use the workflow token instead.
+          GH_WORKFLOW_TOKEN: ${{ github.token }}
         run: |
           source ${TOOLS_DIR}/functions.sh
-          for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
+          for repo_name in $(GH_TOKEN=${GH_WORKFLOW_TOKEN} _gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
             WORKFLOW_PATH="repos/${PACKS_ORG}/${repo_name}/actions/workflows/build_and_test.yaml"
             WORKFLOW_NAME="CI"
             echo "::group::Ensure ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is active"
