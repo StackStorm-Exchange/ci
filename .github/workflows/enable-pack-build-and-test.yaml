@@ -40,7 +40,6 @@ jobs:
         run: |
           echo "CI_DIR=${{ github.workspace }}/ci" >> ${GITHUB_ENV}
           echo "TOOLS_DIR=${{ github.workspace }}/exchange-tools" >> ${GITHUB_ENV}
-          echo "PACKS_PATH=${{ github.workspace }}/packs" >> ${GITHUB_ENV}
 
       - name: Checkout ci repo
         uses: actions/checkout@v2
@@ -59,62 +58,33 @@ jobs:
           fetch-depth: 1
 
       # TODO: Make sure this actually constitutes "repository activity"
-      - name: Conditionally set this Workflow to active (attempt to prevent 60d disabling of itself)
+      - name: Set this Workflow to active (attempt to prevent 60d disabling of itself)
         shell: bash
+        env:
+          WORKFLOW_PATH: repos/${{ github.repository }}/actions/workflows/enable-pack-build-and-test.yaml
         run: |
-          # NOTE: "gh workflow list" does not currently support json output
-          # Relates to: https://github.com/cli/cli/issues/5025
-          if [[ $(gh api --method GET "repos/${{ github.repository }}/actions/workflows/enable-pack-build-and-test.yaml" --jq .state) != "active" ]]; then
-            gh workflow enable "${{ github.workflow }}" --repo "${{ github.repository }}"
-          fi
+          gh api --method PUT "${WORKFLOW_PATH}/enable"
 
-      - name: Checkout Pack Repos and enable their Build and Test Workflow
+      - name: Enable Pack Repos Build and Test Workflow
         shell: bash
         env:
           PACKS_ORG: ${{ env.packs_org }}
           PACKS_PREFIX: ${{ env.pack_repo_prefix }}
         run: |
-          mkdir -p ${PACKS_PATH}
-          cd ${PACKS_PATH}
           source ${TOOLS_DIR}/functions.sh
           for repo_name in $(_gh_list_repo_names ${PACKS_ORG} ${PACKS_PREFIX}); do
-            echo "::group::Clone ${PACKS_ORG}/${repo_name}"
-            gh repo clone "${PACKS_ORG}/${repo_name}"
-            if latestTag=$(git -C ${repo_name} describe --tags `git -C ${repo_name} rev-list --tags --max-count=1`); then
-              echo latestTag = $latestTag
-              git -C ${repo_name} checkout $latestTag -b latestTagBranch
-            fi
-            echo
-            echo "::endgroup::" # DELETED notices will not be folded to simplify scanning action output
-            if [[ -z "$latestTag" ]]; then
-              rm -rf ${repo_name}
-              echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing git tags"
-              echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-            elif [[ ! -f "./${repo_name}/pack.yaml" ]]; then
-              rm -rf ${repo_name}
-              echo "DELETED clone of ${PACKS_ORG}/${repo_name}: missing pack.yaml"
-              echo "${PACKS_ORG}/${repo_name}" >> ${GITHUB_WORKSPACE}/bad_pack_repos
-            else
-              #
-              #  This is not a bad Pack, ensure the Build and Test workflow is active
-              #
-              WORKFLOW_PATH="repos/${PACKS_ORG}/${repo_name}/actions/workflows/build_and_test.yaml"
-              WORKFLOW_NAME="CI"
-              echo "::group::Ensure ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is active"
-              if gh api --silent --method GET ${WORKFLOW_PATH} 2>/dev/null; then
-                echo "GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
-                echo "Setting GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} to active"
-                gh workflow enable $WORKFLOW_NAME --repo ${PACKS_ORG}/${repo_name}
-                if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
-                  echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
-                fi
-              else
-                echo "::warning::No GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
+            WORKFLOW_PATH="repos/${PACKS_ORG}/${repo_name}/actions/workflows/build_and_test.yaml"
+            WORKFLOW_NAME="CI"
+            echo "::group::Ensure ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} is active"
+            if gh api --silent --method GET ${WORKFLOW_PATH} 2>/dev/null; then
+              echo "GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
+              echo "Setting GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name} to active"
+              gh api --method PUT "${WORKFLOW_PATH}/enable"
+              if [[ "$(gh api --method GET ${WORKFLOW_PATH} --jq .state)" != "active" ]]; then
+                echo "::error::Failed enabling GitHub ${WORKFLOW_NAME} workflow for ${PACKS_ORG}/${repo_name}"
               fi
-              echo "::endgroup::"
+            else
+              echo "::warning::No GitHub ${WORKFLOW_NAME} workflow found for ${PACKS_ORG}/${repo_name}"
             fi
+            echo "::endgroup::"
           done
-          if [[ -f ${GITHUB_WORKSPACE}/bad_pack_repos ]]; then
-            echo "These repos were DELETED. See above for why."
-            cat ${GITHUB_WORKSPACE}/bad_pack_repos
-          fi
