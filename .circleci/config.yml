@@ -46,8 +46,8 @@ jobs:
       - run:
           name: Check Python files
           command: |
-            ~/virtualenv/bin/flake8 --max-line-length=100 --config=~/ci/lint-configs/python/.flake8-exchange
-            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=~/ci/lint-configs/python/.pylintrc-pack-ci
+            ~/virtualenv/bin/flake8 --max-line-length=100 --config=${HOME}/ci/lint-configs/python/.flake8-exchange
+            find . -name '*.py' | xargs ~/virtualenv/bin/pylint --rcfile=${HOME}/ci/lint-configs/python/.pylintrc-pack-ci
       - run:
           name: Check Makefile syntax
           command: |
