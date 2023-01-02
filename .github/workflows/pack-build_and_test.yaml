@@ -48,7 +48,7 @@ jobs:
         with:
           st2-branch: ${{ inputs.st2-branch }}
           lint-configs-branch: ${{ inputs.lint-configs-branch }}
-        
+
       - name: Install APT Dependencies
         uses: StackStorm-Exchange/ci/.github/actions/apt-dependencies@master
         with:
@@ -65,6 +65,10 @@ jobs:
         with:
           enable-common-libs: ${{ inputs.enable-common-libs }}
           force-check-all-files: ${{ inputs.force-check-all-files }}
+
+      - name: Ensure CHANGES.md and pack.yaml changed (and Pack version increased)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: StackStorm-Exchange/ci/.github/actions/pack-meta@master
 
     services:
       mongo:
