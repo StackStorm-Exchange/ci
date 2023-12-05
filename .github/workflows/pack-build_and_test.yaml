@@ -14,7 +14,7 @@ on:
       python-version:
         required: false
         type: string
-        default: "3.6"
+        default: '["3.6","3.8","3.9"]'
       enable-common-libs:
         description: |
           When true, use an st2.conf that sets packs.enable_common_libs=true
@@ -39,12 +39,11 @@ jobs:
   build_and_test:
     runs-on: ubuntu-20.04
     # When parent workflow is named "Build and Test" this shows up as:
-    #   "Build and Test / Python 3.6"
+    #   "Build and Test / Python 3.6,3.8,3.9"
     name: 'Python ${{ matrix.python-version }}'
     strategy:
       matrix:
-        include:
-          - python-version: ${{ inputs.python-version }}
+        python-version: ${{ fromJSON(inputs.python-version) }}
     steps:
       - name: Checkout Pack Repo and CI Repos
         uses: StackStorm-Exchange/ci/.github/actions/checkout@master
