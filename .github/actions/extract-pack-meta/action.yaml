@@ -100,9 +100,9 @@ runs:
       id: collected
       shell: bash
       run: |
-        echo "::set-output name=pack_ref::${PACK_REF}"
-        echo "::set-output name=pack_name::${PACK_NAME}"
-        echo "::set-output name=pack_description::${PACK_DESCRIPTION}"
-        echo "::set-output name=pack_path::${PACK_PATH}"
-        echo "::set-output name=in_submodule::${IN_SUBMODULE}"
-        echo "::set-output name=in_subdir::${IN_SUBDIR}"
+        echo "pack_ref=${PACK_REF}" >> ${GITHUB_OUTPUT}
+        echo "pack_name=${PACK_NAME}" >> ${GITHUB_OUTPUT}
+        echo "pack_description=${PACK_DESCRIPTION}" >> ${GITHUB_OUTPUT}
+        echo "pack_path=${PACK_PATH}" >> ${GITHUB_OUTPUT}
+        echo "in_submodule=${IN_SUBMODULE}" >> ${GITHUB_OUTPUT}
+        echo "in_subdir=${IN_SUBDIR}" >> ${GITHUB_OUTPUT}

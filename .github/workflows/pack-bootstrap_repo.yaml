@@ -79,8 +79,8 @@ jobs:
         id: collected
         shell: bash
         run: |
-          echo "::set-output name=pack_repo::${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}"
-          echo "::set-output name=homepage::${{ inputs.homepage }}"
+          echo "pack_repo=${{ format('{0}/{1}-{2}', inputs.pack_org, inputs.pack_repo_prefix, inputs.pack_name) }}" >> ${GITHUB_OUTPUT}
+          echo "homepage=${{ inputs.homepage }}" >> ${GITHUB_OUTPUT}
 
       - name: Check if pack repo needs to be created
         id: do-create-repo
