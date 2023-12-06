@@ -68,7 +68,7 @@ runs:
       run: |
         echo "::group::Create ~/virtualenv"
         PIP_VERSION=$(grep '^PIP_VERSION' Makefile | awk '{print $3}')
-        echo "::set-output name=pip-version::${PIP_VERSION}"
+        echo "pip-version=${PIP_VERSION}" >> ${GITHUB_OUTPUT}
         [[ -x "${VIRTUALENV_DIR}/bin/python" ]] || virtualenv --pip "${PIP_VERSION}" ~/virtualenv
         ${VIRTUALENV_DIR}/bin/pip install -q -U "pip==${PIP_VERSION}" setuptools
         echo "::endgroup::"

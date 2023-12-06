@@ -41,7 +41,7 @@ runs:
           echo "Unable to retrieve pack name."
           exit 1
         fi
-        echo "::set-output name=pack-name::${PACK_NAME}"
+        echo "pack-name=${PACK_NAME}" >> ${GITHUB_OUTPUT}
 
     - name: Add CI vars to env context
       shell: bash
