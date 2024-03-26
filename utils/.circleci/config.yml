@@ -50,7 +50,7 @@ jobs:
   # not considered fatal
   build_and_test_python36:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.8
       - image: rabbitmq:3
       - image: mongo:3.4
 
@@ -77,7 +77,7 @@ jobs:
             git clone -b master git://github.com/stackstorm-exchange/ci.git ~/ci
             ~/ci/.circle/dependencies ; ~/ci/.circle/exit_on_py3_checks $?
       - run:
-          name: Run tests (Python 3.6)
+          name: Run tests (Python 3.8)
           # NOTE: We don't want to use default "-e" option because this means
           # step will fail immediately on one of the commands failures and we
           # can't intercept the error and cause non-fatal exit in case pack
