@@ -14,7 +14,7 @@ on:
       python-version:
         required: false
         type: string
-        default: '["3.6","3.8","3.9"]'
+        default: '["3.8","3.9"]'
       enable-common-libs:
         description: |
           When true, use an st2.conf that sets packs.enable_common_libs=true
