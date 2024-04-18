@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Script which checks exit code of "test" script under Python 3.6 environment
+# Script which checks exit code of "test" script under Python 3.8 environment
 # and exists with an appropriate code
 if [[ $# -lt 1 ]] ; then
     echo "Usage: $0 <test script exit code>"
