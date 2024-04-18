@@ -12,11 +12,11 @@
 version: 2
 
 jobs:
-  build_and_test_python36:
+  build_and_test_python38:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.8
       - image: rabbitmq:3
-      - image: mongo:3.4
+      - image: mongo:4.4
 
     working_directory: ~/repo
 
@@ -29,7 +29,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependency-cache-py36-{{ checksum "requirements.txt" }}
+          key: v1-dependency-cache-py38-{{ checksum "requirements.txt" }}
       - run:
           name: Download dependencies
           # NOTE: We don't want to use default "-e" option because this means
@@ -41,7 +41,7 @@ jobs:
             git clone -b master git://github.com/stackstorm-exchange/ci.git ~/ci
             ~/ci/.circle/dependencies ; ~/ci/.circle/exit_on_py3_checks $?
       - run:
-          name: Run tests (Python 3.6)
+          name: Run tests (Python 3.8)
           # NOTE: We don't want to use default "-e" option because this means
           # step will fail immediately on one of the commands failures and we
           # can't intercept the error and cause non-fatal exit in case pack
@@ -49,11 +49,11 @@ jobs:
           shell: /bin/bash
           command: ~/ci/.circle/test ; ~/ci/.circle/exit_on_py3_checks $?
       - save_cache:
-          key: v1-dependency-cache-py36-{{ checksum "requirements.txt" }}
+          key: v1-dependency-cache-py38-{{ checksum "requirements.txt" }}
           paths:
             - ~/.cache/pip
             - ~/.apt-cache
-      # NOTE: We use virtualenv files from Python 3.6 step in "deploy" job so we
+      # NOTE: We use virtualenv files from Python 3.8 step in "deploy" job so we
       # only persist paths from this job
       - persist_to_workspace:
           root: /
@@ -67,7 +67,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.8
 
     working_directory: ~/repo
 
@@ -77,7 +77,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependency-cache-py36-{{ checksum "requirements.txt" }}
+          key: v1-dependency-cache-py38-{{ checksum "requirements.txt" }}
       - attach_workspace:
           at: /
       - run:
@@ -98,16 +98,16 @@ workflows:
   # Workflow which runs on each push
   build_test_deploy_on_push:
     jobs:
-      - build_and_test_python36
+      - build_and_test_python38
       - deploy:
           requires:
-            - build_and_test_python36
+            - build_and_test_python38
           filters:
             branches:
               only: master
   build_test_weekly:
     jobs:
-      - build_and_test_python36
+      - build_and_test_python38
     # Workflow which runs nightly - note we don't perform deploy job on nightly
     # build
     triggers:

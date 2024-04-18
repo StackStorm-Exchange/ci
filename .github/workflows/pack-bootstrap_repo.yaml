@@ -45,7 +45,7 @@ on:
       required_check_context:
         type: string
         required: false
-        default: "Build and Test / Python 3.6"
+        default: "Build and Test / Python 3.8"
       required_check_app_id:
         type: string
         required: false
