@@ -18,7 +18,6 @@ on:
       pack_description:
         type: string
         required: true
-
       homepage:
         type: string
         required: false
@@ -40,7 +39,6 @@ on:
         type: string
         required: false
         default: TSC
-
       # make sure to update the python version if needed
       required_check_context:
         type: string
