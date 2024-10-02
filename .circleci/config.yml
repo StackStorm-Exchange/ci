@@ -4,9 +4,9 @@
 version: 2
 
 jobs:
-  test_py36:
+  test_py39:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
 
     working_directory: ~/ci
 
@@ -16,16 +16,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
+          key: v2-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
       - run:
           name: Download and Install Dependencies
           command: |
             git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
-            sudo pip install -U "pip==20.3.3" setuptools virtualenv pyyaml
+            sudo pip install -U pip setuptools virtualenv pyyaml
             virtualenv ~/virtualenv
             ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
       - save_cache:
-          key: v1-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
+          key: v2-dependency-cache-{{ checksum ".circle/requirements-ci-ci.txt" }}
           paths:
             - ~/.cache/pip
             - ~/.apt-cache
@@ -63,4 +63,4 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - test_py36
+      - test_py39

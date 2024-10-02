@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           # use whatever github has in its local cache to speed this up
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Check for and tag new version
         id: tag-pack
