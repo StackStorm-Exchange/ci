@@ -21,58 +21,58 @@ import sys
 
 import requests
 
-EXCHANGE_ORG = 'StackStorm-Exchange'
-INDEX_REPO = 'index'
-AUTH = (os.environ['MACHINE_USER'], os.environ['MACHINE_PASSWORD'])
+EXCHANGE_ORG = "StackStorm-Exchange"
+INDEX_REPO = "index"
+AUTH = (os.environ["MACHINE_USER"], os.environ["MACHINE_PASSWORD"])
 
 
 def get_file(pack_name):
-    url = 'https://api.github.com/repos/{}/{}/contents/index/v1/packs/{}.yaml'.format(
-        EXCHANGE_ORG, INDEX_REPO, pack_name
+    url = (
+        f"https://api.github.com/repos/{EXCHANGE_ORG}/"
+        f"{INDEX_REPO}/contents/index/v1/packs/{pack_name}.yaml"
     )
-
-    return requests.get(url)
+    return requests.get(url, timeout=30)
 
 
 def put_file(pack_name, content, sha=None):
-    url = 'https://api.github.com/repos/{}/{}/contents/index/v1/packs/{}.yaml'.format(
-        EXCHANGE_ORG, INDEX_REPO, pack_name
+    url = (
+        f"https://api.github.com/repos/{EXCHANGE_ORG}/"
+        f"{INDEX_REPO}/contents/index/v1/packs/{pack_name}.yaml"
     )
-
     payload = {
-        'message': 'Update {} pack metadata'.format(pack_name),
-        'content': base64.b64encode(content),
+        "message": f"Update {pack_name} pack metadata",
+        "content": base64.b64encode(content),
     }
 
     if sha:
-        payload['sha'] = sha
+        payload["sha"] = sha
 
-    return requests.put(url, json=payload, auth=AUTH)
+    return requests.put(url, json=payload, timeout=30, auth=AUTH)
 
 
 def calculate_git_sha(content):
     sha = hashlib.sha1()
-    sha.update('blob {}\0{}'.format(len(content), content))
+    sha.update(f"blob {len(content)}\0{content}")
     return sha.hexdigest()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     local_path = sys.argv[1]
     pack_name = sys.argv[2]
 
-    with open(local_path) as f:
+    with open(local_path, encoding="utf8") as f:
         content = f.read()
 
     current_pack_meta = get_file(pack_name)
 
     if current_pack_meta.status_code == 200:
-        sha = current_pack_meta.json()['sha']
+        sha = current_pack_meta.json()["sha"]
 
         if sha != calculate_git_sha(content):
             r = put_file(pack_name, content, sha)
-            print('Pack index has been updated with new version of the pack.')
+            print("Pack index has been updated with new version of the pack.")
         else:
-            print('File is already up to date, skipping...')
+            print("File is already up to date, skipping...")
     else:
         r = put_file(pack_name, content)
-        print('Pack index has been updated with new pack.')
+        print("Pack index has been updated with new pack.")

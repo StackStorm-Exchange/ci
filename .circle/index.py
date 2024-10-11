@@ -13,7 +13,6 @@ from glob import glob
 import yaml
 
 import requests
-import six
 
 from st2common.util.pack import get_pack_ref_from_metadata
 
@@ -29,12 +28,12 @@ else:
 
 
 # TODO: drop GITHUB_USERNAME once we drop support for CircleCI
-GITHUB_USERNAME = os.environ.get('MACHINE_USER')
+GITHUB_USERNAME = os.environ.get("MACHINE_USER")
 # TODO: drop MACHINE_PASSWORD once we drop support for CircleCI. Keep GH_TOKEN.
 GITHUB_PASSWORD = os.environ.get("MACHINE_PASSWORD", os.environ.get("GH_TOKEN"))
 # TODO: drop ACTIVE_PACK_NAME once we drop support for CircleCI.
 #       Only used for CircleCI-specific error message.
-ACTIVE_PACK_NAME = os.environ.get('PACK_NAME', "unknown")
+ACTIVE_PACK_NAME = os.environ.get("PACK_NAME", "unknown")
 
 SESSION = requests.Session()
 SESSION.auth = (GITHUB_USERNAME, GITHUB_PASSWORD)
@@ -59,13 +58,17 @@ query ($owner: String!, $per_page: Int = 100, $endCursor: String) {
 
 
 def build_index(path_glob, output_path):
-    result = OrderedDict({
-        'packs': OrderedDict(),
-        'metadata': OrderedDict([
-            ('generated_ts', None),  # Timestamp of when the file has been generated
-            ('hash', None)  # MD5 hash of all the content, useful when mirror the index
-        ])
-    })
+    result = OrderedDict(
+        {
+            "packs": OrderedDict(),
+            "metadata": OrderedDict(
+                [
+                    ("generated_ts", None),  # Timestamp of when the file has been generated
+                    ("hash", None),  # MD5 hash of all the content, useful when mirror the index
+                ]
+            ),
+        }
+    )
 
     data_hash = hashlib.md5()
 
@@ -75,17 +78,17 @@ def build_index(path_glob, output_path):
     counter = 0
     failed_count = 0
     for filename in generator:
-        with open(filename, 'r', encoding="utf8") as pack:
+        with open(filename, "r", encoding="utf8") as pack:
             pack_meta = yaml.safe_load(pack)
 
-        pack_name = pack_meta['name']
+        pack_name = pack_meta["name"]
         pack_ref = get_pack_ref_from_metadata(metadata=pack_meta)
         sanitized_pack_name = pack_ref
 
-        print('Processing pack: %s (%s)' % (pack_name, filename))
+        print(f"Processing pack: {pack_name} ({filename})")
 
-        pack_meta['repo_url'] = 'https://github.com/%s/%s-%s' % (
-            EXCHANGE_NAME, EXCHANGE_PREFIX, sanitized_pack_name
+        pack_meta["repo_url"] = (
+            f"https://github.com/{EXCHANGE_NAME}/" f"{EXCHANGE_PREFIX}-{sanitized_pack_name}"
         )
 
         versions = get_available_versions_for_pack(pack_ref)
@@ -94,57 +97,55 @@ def build_index(path_glob, output_path):
             failed_count += 1
 
         if versions is not None:
-            pack_meta['versions'] = versions
+            pack_meta["versions"] = versions
 
         # Note: Key in the index dictionary is ref and not a name
-        result['packs'][pack_ref] = pack_meta
+        result["packs"][pack_ref] = pack_meta
 
-        # Remove any old entry for pack name when we incorrectly used name instead of ref for the
-        # key
+        # Remove any old entry for pack name when we incorrectly
+        # used name instead of ref for the key
         if pack_name != pack_ref:
-            result['packs'].pop(pack_name, None)
+            result["packs"].pop(pack_name, None)
 
-        if six.PY2:
-            data_hash.update(str(pack_meta))
-        else:
-            data_hash.update(str(pack_meta).encode('utf-8'))
+        data_hash.update(str(pack_meta).encode("utf-8"))
         counter += 1
 
-    result['metadata']['generated_ts'] = int(time.time())
-    result['metadata']['hash'] = data_hash.hexdigest()
+    result["metadata"]["generated_ts"] = int(time.time())
+    result["metadata"]["hash"] = data_hash.hexdigest()
 
-    output_path = os.path.expanduser(os.path.join(output_path, 'index.json'))
-    with open(output_path, 'w', encoding="utf8") as outfile:
-        json.dump(result, outfile, indent=4, sort_keys=True,
-                  separators=(',', ': '))
+    output_path = os.path.expanduser(os.path.join(output_path, "index.json"))
+    with open(output_path, "w", encoding="utf8") as outfile:
+        json.dump(result, outfile, indent=4, sort_keys=True, separators=(",", ": "))
 
-    failed_message = ''
+    failed_message = ""
     # TODO: drop CircleCI error message once we drop support for CircleCI
     if failed_count > 0 and CI == "CircleCI":
-        failed_message = (
-            ', {failed_count} packs failed to update.\n'
-            'The GitHub Personal Access Tokens for CircleCI for the pack may '
-            'need to be refreshed.\n'
-            '\n'
-            'See the tools/reset_github_user_token_and_update_circleci.sh script in\n'
-            '  https://github.com/{exchange_name}/ci\n'
-            '\n'
-            'If you do not have the necessary GitHub and CircleCI credentials, you\n'
-            'will need to ask a member of the StackStorm TSC to update the Personal\n'
-            'Access Token on your behalf.'
-        ).format(failed_count=failed_count, exchange_name=EXCHANGE_NAME)
+        failed_message = f""", {failed_count} packs failed to update.
+The GitHub Personal Access Tokens for CircleCI for the pack
+may need to be refreshed.
+
+See the tools/reset_github_user_token_and_update_circleci.sh script in
+  https://github.com/{EXCHANGE_NAME}/ci
+
+If you do not have the necessary GitHub and CircleCI credentials, you
+will need to ask a member of the StackStorm TSC to update the Personal
+Access Token on your behalf.
+        """
     elif failed_count > 0:
         # If an issue is reported on GitHub Actions, update this error message
         # to explain common causes and how to fix them.
         failed_message = (
-            f', {failed_count} packs failed to update.\n'
-            'Please investigate why this failed and report an issue on:\n'
-            f'  https://github.com/{EXCHANGE_NAME}/ci\n'
+            f", {failed_count} packs failed to update.\n"
+            "Please investigate why this failed and report an issue on:\n"
+            f"  https://github.com/{EXCHANGE_NAME}/ci\n"
         )
 
-    print('')
-    print('Processed %s packs%s.' % (counter, failed_message))
-    print('Index data written to "%s".' % (output_path))
+    print(
+        f"""
+Processed {counter} packs{failed_message}.
+Index data written to "{output_path}.
+    """
+    )
 
 
 def get_available_versions():
@@ -158,9 +159,14 @@ def get_available_versions():
     # use `gh` to handle getting all pages
     proc = subprocess.Popen(
         [
-            "gh", "api", "--paginate", "graphql",
-            "-f", "owner=" + EXCHANGE_NAME,
-            "-f", "query=" + GQL_PACK_TAGS_QUERY,
+            "gh",
+            "api",
+            "--paginate",
+            "graphql",
+            "-f",
+            f"owner={EXCHANGE_NAME}",
+            "-f",
+            f"query={GQL_PACK_TAGS_QUERY}",
         ],
         env={"GH_TOKEN": GITHUB_PASSWORD},
         stdout=subprocess.PIPE,
@@ -179,14 +185,12 @@ def get_available_versions():
             "Error retrieving data with github graphql API.\n"
             "The GitHub PAT might need to be regenerated:\n"
             "https://github.com/settings/tokens/new?scopes=public_repo"
-            "&description=CircleCI%3A%20stackstorm-" + ACTIVE_PACK_NAME
+            f"&description=CircleCI%3A%20stackstorm-{ACTIVE_PACK_NAME}"
         )
     elif proc.returncode != 0:
         # If an issue is reported on GitHub Actions, update this error message
         # to explain common causes and how to fix them.
-        sys.exit(
-            "Error retrieving data with github graphql API.\n"
-        )
+        sys.exit("Error retrieving data with github graphql API.\n")
 
     # https://stackoverflow.com/a/43807246/1134951
     decoder = json.JSONDecoder()
@@ -203,15 +207,15 @@ def get_available_versions():
     for page in pages:
         repos = page["data"]["repositoryOwner"]["repositories"]["nodes"]
         packs = [
-            {
-                "reponame": repo["name"],
-                "tags": [tag["name"] for tag in repo["refs"]["nodes"]]
-            } for repo in repos if repo["name"].startswith(EXCHANGE_PREFIX)
+            {"reponame": repo["name"], "tags": [tag["name"] for tag in repo["refs"]["nodes"]]}
+            for repo in repos
+            if repo["name"].startswith(EXCHANGE_PREFIX)
         ]
         for pack in packs:
             pack_name = pack["reponame"][prefix_len:]
             PACK_VERSIONS.setdefault(pack_name, []).extend(
-                tag.replace("v", "") for tag in pack["tags"]
+                tag.replace("v", "")
+                for tag in pack["tags"]
                 if tag.startswith("v")  # only version tags
             )
 
@@ -228,19 +232,18 @@ def get_available_versions_for_pack(pack_ref):
         # provided as bearer auth instead of basic auth. But using graphql is better
         # anyway, so this is only needed as a backup on CircleCI if graphql doesn't work.
         # graphql should always work on GHA.
-        url = ('https://api.github.com/repos/%s/%s-%s/tags' %
-               (EXCHANGE_NAME, EXCHANGE_PREFIX, pack_ref))
+        url = f"https://api.github.com/repos/{EXCHANGE_NAME}" f"/{EXCHANGE_PREFIX}-{pack_ref}/tags"
         resp = SESSION.get(url)
 
         if resp.status_code != 200:
-            print('Got non 200 response: %s' % (resp.text))
+            print(f"Got non 200 response: {resp.text}")
             return None
 
         versions = []
 
         for item in resp.json():
-            if item.get('name', '').startswith('v'):
-                versions.append(item['name'].replace('v', ''))
+            if item.get("name", "").startswith("v"):
+                versions.append(item["name"].replace("v", ""))
     else:
         versions = PACK_VERSIONS[pack_ref]
 
@@ -249,12 +252,12 @@ def get_available_versions_for_pack(pack_ref):
     return versions
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Generate StackStorm exchange index.json')
-    parser.add_argument('--glob', help='Glob which points to the pack metadatafiles',
-                        required=True)
-    parser.add_argument('--output', help='Directory where the generated index.json file is stored',
-                        required=True)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate StackStorm exchange index.json")
+    parser.add_argument("--glob", help="Glob which points to the pack metadatafiles", required=True)
+    parser.add_argument(
+        "--output", help="Directory where the generated index.json file is stored", required=True
+    )
     args = parser.parse_args()
 
     get_available_versions()
