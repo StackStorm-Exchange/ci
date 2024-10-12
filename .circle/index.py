@@ -157,7 +157,7 @@ def get_available_versions():
     pages = []
 
     # use `gh` to handle getting all pages
-    proc = subprocess.Popen(
+    with subprocess.Popen(
         [
             "gh",
             "api",
@@ -170,27 +170,27 @@ def get_available_versions():
         ],
         env={"GH_TOKEN": GITHUB_PASSWORD},
         stdout=subprocess.PIPE,
-    )
-    # This should never take more than 5 seconds.
-    # If network is really bad, let it go for 30.
-    try:
-        outs, _ = proc.communicate(timeout=30)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        outs, _ = proc.communicate()
-    result = outs.decode().strip()
-    # TODO: drop CircleCI error message once we drop support for CircleCI
-    if proc.returncode != 0 and CI == "CircleCI":
-        sys.exit(
-            "Error retrieving data with github graphql API.\n"
-            "The GitHub PAT might need to be regenerated:\n"
-            "https://github.com/settings/tokens/new?scopes=public_repo"
-            f"&description=CircleCI%3A%20stackstorm-{ACTIVE_PACK_NAME}"
-        )
-    elif proc.returncode != 0:
-        # If an issue is reported on GitHub Actions, update this error message
-        # to explain common causes and how to fix them.
-        sys.exit("Error retrieving data with github graphql API.\n")
+    ) as proc:
+        # This should never take more than 5 seconds.
+        # If network is really bad, let it go for 30.
+        try:
+            outs, _ = proc.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            outs, _ = proc.communicate()
+        result = outs.decode().strip()
+        # TODO: drop CircleCI error message once we drop support for CircleCI
+        if proc.returncode != 0 and CI == "CircleCI":
+            sys.exit(
+                "Error retrieving data with github graphql API.\n"
+                "The GitHub PAT might need to be regenerated:\n"
+                "https://github.com/settings/tokens/new?scopes=public_repo"
+                f"&description=CircleCI%3A%20stackstorm-{ACTIVE_PACK_NAME}"
+            )
+        elif proc.returncode != 0:
+            # If an issue is reported on GitHub Actions, update this error message
+            # to explain common causes and how to fix them.
+            sys.exit("Error retrieving data with github graphql API.\n")
 
     # https://stackoverflow.com/a/43807246/1134951
     decoder = json.JSONDecoder()

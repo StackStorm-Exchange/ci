@@ -87,7 +87,7 @@ def get_pack_resources(pack_dir):
             matching_files += glob.glob(os.path.join(pack_dir, path))
 
         for f in matching_files:
-            with open(f, "r") as fp:
+            with open(f, "r", encoding="utf-8") as fp:
                 metadata = fp.read()
             metadata = yaml.safe_load(metadata)
             valid = True
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    with open(os.path.join(args.input, "pack.yaml"), "r+") as fp:
+    with open(os.path.join(args.input, "pack.yaml"), "r+", encoding="utf-8") as fp:
         meta = ordered_load(fp.read())
 
     content = get_pack_resources(args.input)
@@ -141,16 +141,16 @@ if __name__ == "__main__":
             if e.errno != errno.EEXIST:
                 raise
         for entity in resource_entities:
-            with open(os.path.join(directory, "%s.json" % entity[key]), "w") as fp:
+            with open(os.path.join(directory, f"{entity[key]}.json"), "w", encoding="utf-8") as fp:
                 json.dump(entity, fp, indent=4, sort_keys=True, separators=(",", ": "))
                 fp.write("\n")
 
     # Copy config schema
     try:
-        with open(os.path.join(args.input, "config.schema.yaml"), "r+") as fp:
+        with open(os.path.join(args.input, "config.schema.yaml"), "r+", encoding="utf-8") as fp:
             config = ordered_load(fp.read())
 
-        with open(os.path.join(args.output, "config.schema.json"), "w") as fp:
+        with open(os.path.join(args.output, "config.schema.json"), "w", encoding="utf-8") as fp:
             json.dump(config, fp, indent=4, sort_keys=True, separators=(",", ": "))
             fp.write("\n")
     except IOError as e:
@@ -159,5 +159,5 @@ if __name__ == "__main__":
         print("skipping...")
 
     # Write out new pack.yaml with content count
-    with open(os.path.join(args.output, "pack.yaml"), "w") as fp:
+    with open(os.path.join(args.output, "pack.yaml"), "w", encoding="utf-8") as fp:
         fp.write(ordered_dump(meta, Dumper=yaml.SafeDumper, default_flow_style=False))

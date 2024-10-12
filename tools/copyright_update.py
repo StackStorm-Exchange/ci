@@ -41,7 +41,7 @@ def parse_cli_args():
     # if the current year is > then year we started with Linux foundation, then create
     # a year range: 2020-<current>
     if year != STACKSTORM_LINUX_FOUNDATION_BEGIN:
-        year = "{}-{}".format(STACKSTORM_LINUX_FOUNDATION_BEGIN, year)
+        year = f"{STACKSTORM_LINUX_FOUNDATION_BEGIN}-{year}"
     parser.add_argument("-y", "--year", default=year)
     return parser.parse_args()
 
@@ -55,7 +55,7 @@ def find_files_by_glob(directory, file_glob):
 
 
 def find_files_by_extension(directory, extension):
-    return find_files_by_glob(directory, "*{ext}".format(ext=extension))
+    return find_files_by_glob(directory, f"*{extension}")
 
 
 def find_files_by_name(directory, name):
@@ -64,7 +64,7 @@ def find_files_by_name(directory, name):
 
 def update_copyright_st2_any(filename, year, st2_pattern, any_pattern, st2_format):
     # read
-    with open(filename, "r") as fr:
+    with open(filename, "r", encoding="utf-8") as fr:
         lines = fr.readlines()
 
     # find copyrights
@@ -86,13 +86,13 @@ def update_copyright_st2_any(filename, year, st2_pattern, any_pattern, st2_forma
     if st2_copyright_lines:
         # insert StackStorm copyright before the other copyrights
         if st2_copyright_updated:
-            print("{} - updated existing StackStorm copyright".format(filename))
-            with open(filename, "w") as fw:
+            print(f"{filename} - updated existing StackStorm copyright")
+            with open(filename, "w", encoding="utf-8") as fw:
                 fw.writelines(lines)
                 changed = True
     elif any_copyright_lines:
-        print("{} - added new StackStorm copyright".format(filename))
-        with open(filename, "w") as fw:
+        print(f"{filename} - added new StackStorm copyright")
+        with open(filename, "w", encoding="utf-8") as fw:
             # insert StackStorm copyright before the other copyrights
             lines.insert(any_copyright_lines[0], copyright_str)
             fw.writelines(lines)
@@ -119,7 +119,7 @@ def update_copyright_python(filename, year):
 
 def update_copyright_apache_license(filename, year):
     # read
-    with open(filename, "r") as fr:
+    with open(filename, "r", encoding="utf-8") as fr:
         lines = fr.readlines()
 
     # find copyrights
@@ -136,10 +136,10 @@ def update_copyright_apache_license(filename, year):
 
     # write changes
     if not is_apache:
-        print("{} - ERROR this is not an Apache license file, ignorning".format(filename))
+        print(f"{filename} - ERROR this is not an Apache license file, ignorning")
     elif updated:
-        print("{} - updated existing copyright".format(filename))
-        with open(filename, "w") as fw:
+        print(f"{filename} - updated existing copyright")
+        with open(filename, "w", encoding="utf-8") as fw:
             fw.writelines(lines)
 
 
