@@ -12,6 +12,11 @@ jobs:
 
     environment:
       VIRTUALENV_DIR: "~/virtualenv"
+      # This should track the pinned version of pip in st2's Makefile
+      # Please sync this version with .circle/dependencies .circle/Makefile and .circleci/config.yml
+      PIP_VERSION: "24.1"
+      SETUPTOOLS_VERSION: "70.1.0"
+      VIRTUALENV_VERSION: "20.26.3"
 
     steps:
       - checkout
@@ -21,7 +26,7 @@ jobs:
           name: Download and Install Dependencies
           command: |
             git clone --depth 1 --single-branch --branch "${LINT_CONFIGS_BRANCH:-master}" https://github.com/StackStorm/lint-configs.git ~/ci/lint-configs
-            sudo pip install -U pip setuptools virtualenv pyyaml
+            sudo pip install -U "pip==${PIP_VERSION}" "setuptools==${SETUPTOOLS_VERSION}" "virtualenv==${VIRTUALENV_VERSION}" pyyaml
             virtualenv ~/virtualenv
             ~/virtualenv/bin/pip install flake8 pylint pyyaml requests
       - save_cache:

@@ -14,6 +14,10 @@ REQUIREMENTS_DIR ?= $(CI_DIR)/.circle
 
 export ST2_REPO_PATH ROOT_DIR FORCE_CHECK_ALL_FILES FORCE_CHECK_PACK
 
+# This should track the pinned version of pip in st2's Makefile
+# Please sync this version with .circle/dependencies .circle/Makefile and .circleci/config.yml
+PIP_VERSION := 24.1
+
 # All components are prefixed by st2
 COMPONENTS := $(wildcard $(ST2_REPO_PATH)/st2*)
 COMPONENTS_RUNNERS := $(wildcard $(ST2_REPO_PATH)/contrib/runners/*)
@@ -284,7 +288,7 @@ requirements: virtualenv .clone_st2_repo .install-runners
 	@echo
 	@echo "==================== requirements ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==${PIP_VERSION}"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-pack-tests.txt
 
@@ -293,7 +297,7 @@ requirements-ci:
 	@echo
 	@echo "==================== requirements-ci ===================="
 	@echo
-	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==20.3.3"
+	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --upgrade "pip==${PIP_VERSION}"
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-dev.txt
 	. $(VIRTUALENV_DIR)/bin/activate && $(VIRTUALENV_DIR)/bin/pip install --cache-dir $(HOME)/.pip-cache -q -r $(REQUIREMENTS_DIR)/requirements-pack-tests.txt
 

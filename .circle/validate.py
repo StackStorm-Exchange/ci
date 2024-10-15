@@ -28,7 +28,7 @@ PACK_SCHEMA = PackAPI.schema
 
 
 def load_yaml_file(path):
-    with open(path, 'r', encoding="utf8") as stream:
+    with open(path, "r", encoding="utf8") as stream:
         text = yaml.safe_load(stream)
 
     return text
@@ -38,10 +38,13 @@ def validate_schema(instance, schema):
     # validate() returns a cleaned instance with default values assigned.
     # and it calls jsonschema.validate(instance, schema) so this will
     # raise ValidationError if instance is not valid according to schema
-    return util_schema.validate(instance=instance, schema=schema,
-                                cls=util_schema.CustomValidator,
-                                use_default=True,
-                                allow_default_none=True)
+    return util_schema.validate(
+        instance=instance,
+        schema=schema,
+        cls=util_schema.CustomValidator,
+        use_default=True,
+        allow_default_none=True,
+    )
 
 
 def validate_pack_contains_valid_ref_or_name(pack_meta):
@@ -50,11 +53,11 @@ def validate_pack_contains_valid_ref_or_name(pack_meta):
 
 
 def validate_repo_name(instance, repo_name):
-    if '%s-%s' % (PREFIX, instance['name']) != repo_name:
-        raise ValueError('Pack name is different from repository name.')
+    if f"{PREFIX}-{instance['name']}" != repo_name:
+        raise ValueError("Pack name is different from repository name.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # If an exception is raised, python basically does sys.exit(1)
     # Without an exception, the return code is 0.
 
