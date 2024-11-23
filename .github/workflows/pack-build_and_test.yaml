@@ -78,7 +78,7 @@ jobs:
         ports:
           - 27017:27017
       rabbitmq:
-        image: rabbitmq:3.12
+        image: rabbitmq:4.0
         ports:
           - 5672:5672
       #redis:
