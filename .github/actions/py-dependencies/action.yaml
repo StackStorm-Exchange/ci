@@ -78,13 +78,19 @@ runs:
     - name: Install CI Requirements
       if: inputs.mode == 'pack'
       shell: bash
+      # This installs any non-pinned version package found in the requirements-dev.txt and requirements-pack-tests.txt 
+      # that has a matching entry in st2/test-requirements.txt
       run: |
         for req_file in requirements-dev.txt requirements-pack-tests.txt; do
           echo "::group::Install CI Requirements from ${req_file}"
           # grab any local unpinned requirements
           REQUIREMENTS=$(grep -v -e '^#' -e '=' "${REQUIREMENTS_DIR}/${req_file}" | xargs echo -n)
+          # escape any requirements using brackets to not fail regex
+          # package-name[dependency] => package-name\[dependency\]
+          ESCAPED_REQUIREMENTS=$(echo $REQUIREMENTS | sed 's|\[\(.*\)\]|\\[\1\\]|g')
           # grab the pinned versions from the st2 checkout
-          grep -E "${REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${GITHUB_WORKSPACE}/${req_file}
+          # using shell parameter expansion replace spaces with [ =><]| to work with grep regex
+          grep -E "${ESCAPED_REQUIREMENTS// /[ =><]|}[ =><]" ${ST2_REPO_PATH}/test-requirements.txt > ${GITHUB_WORKSPACE}/${req_file}
           # grab any local pinned requirements
           grep -e '=' "${REQUIREMENTS_DIR}/${req_file}" >> ${GITHUB_WORKSPACE}/${req_file} || true
           echo ${GITHUB_WORKSPACE}/${req_file}:
