@@ -1,6 +1,4 @@
 mock
-unittest2
-nose
 pytest-benchmark[histogram]
 pytest-icdiff
 pytest-cov
