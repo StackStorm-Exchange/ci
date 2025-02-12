@@ -59,7 +59,7 @@ on:
 
 jobs:
   bootstrap_pack_repo:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     name: 'Bootstrap Repo'
     env:
       # GH_TOKEN used by `gh` command
