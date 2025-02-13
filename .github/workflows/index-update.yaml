@@ -46,7 +46,7 @@ on:
 
 jobs:
   regenerate_index:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     # When parent workflow is named "Update Index" this shows up as:
     #   "Update Index / Regenerate"
     name: Regenerate
