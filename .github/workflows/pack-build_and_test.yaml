@@ -25,7 +25,7 @@ on:
       st2-branch:
         required: false
         type: string
-        default: master
+        default: v3.9
       lint-configs-branch:
         required: false
         type: string
