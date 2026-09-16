@@ -1,7 +1,7 @@
 # DO NOT COPY THIS CONFIG - this is the CI config for the ci repository itself,
 # IT IS NOT THE CI CONFIG FOR PACKS.
 # The sample pack CI config is .circle/config.yml.sample
-version: 2
+version: 2.1
 
 jobs:
   test_py39:
