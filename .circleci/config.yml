@@ -6,7 +6,7 @@ version: 2.1
 jobs:
   test_py39:
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
 
     working_directory: ~/ci
 
