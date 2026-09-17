@@ -182,7 +182,7 @@ runs:
         source ${VIRTUALENV_DIR}/bin/activate
         python3 --version
         pip --version
-        virtualenv --version
+        #virtualenv --version
         echo "::endgroup::"
         echo "::group::pip list"
         pip list
