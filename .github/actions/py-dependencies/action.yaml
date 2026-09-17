@@ -71,7 +71,7 @@ runs:
         SETUPTOOLS_VERSION=$(awk '/^SETUPTOOLS_VERSION/ {print $3}' Makefile)
         echo "pip-version=${PIP_VERSION}" >> ${GITHUB_OUTPUT}
         echo "setuptools-version=${SETUPTOOLS_VERSION}" >> ${GITHUB_OUTPUT}
-        [[ -x "${VIRTUALENV_DIR}/bin/python" ]] || virtualenv --pip "${PIP_VERSION}" ~/virtualenv
+        [[ -x "${VIRTUALENV_DIR}/bin/python" ]] || python -m venv ~/virtualenv
         ${VIRTUALENV_DIR}/bin/pip install -q -U "pip==${PIP_VERSION}" "setuptools==${SETUPTOOLS_VERSION}"
         echo "::endgroup::"
 
